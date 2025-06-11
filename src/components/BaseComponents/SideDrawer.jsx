@@ -86,12 +86,14 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
   useEffect(() => {
     if (isOpen) {
       // Animate the side drawer sliding in
-      gsap.to(drawerRef.current, {
-        duration: 0.5,
-        right: 0,
-        opacity: 1,
-        ease: 'power2.inOut',
-      });
+      if (drawerRef.current) {
+        gsap.to(drawerRef.current, {
+          duration: 0.5,
+          right: 0,
+          opacity: 1,
+          ease: 'power2.inOut',
+        });
+      }
 
       // Animate the content blocks sliding up one by one with a stagger effect
       /*gsap.fromTo(
@@ -110,47 +112,55 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
       );*/
 
       // Animate Potential to selectedNode.data.potential
-      gsap.to(potentialRef.current, {
-        value: selectedNode.data.potential ?? 0,
-        duration: 0.5,
-        ease: 'power2.out',
-        onUpdate: function () {
-          const val = Math.round(potentialRef.current.value);
-          setPotential(val);
-          if (potentialBarRef.current) {
-            gsap.set(potentialBarRef.current, { height: `${val}%` });
+      if (potentialRef.current && potentialBarRef.current) {
+        gsap.to(potentialRef.current, {
+          value: selectedNode.data.potential ?? 0,
+          duration: 0.5,
+          ease: 'power2.out',
+          onUpdate: function () {
+            const val = Math.round(potentialRef.current ? potentialRef.current.value : 0);
+            setPotential(val);
+            if (potentialBarRef.current) {
+              gsap.set(potentialBarRef.current, { height: `${val}%` });
+            }
           }
-        }
-      });
+        });
+      }
       // Animate TotalContribution to selectedNode.data.totalContribution
-      gsap.to(totalContributionRef.current, {
-        value: selectedNode.data.totalContribution ?? 0,
-        duration: 0.5,
-        ease: 'power2.out',
-        onUpdate: function () {
-          const val = Math.round(totalContributionRef.current.value);
-          setTotalContribution(val);
-          if (totalContributionBarRef.current) {
-            gsap.set(totalContributionBarRef.current, { height: `${val}%` });
+      if (totalContributionRef.current && totalContributionBarRef.current) {
+        gsap.to(totalContributionRef.current, {
+          value: selectedNode.data.totalContribution ?? 0,
+          duration: 0.5,
+          ease: 'power2.out',
+          onUpdate: function () {
+            const val = Math.round(totalContributionRef.current ? totalContributionRef.current.value : 0);
+            setTotalContribution(val);
+            if (totalContributionBarRef.current) {
+              gsap.set(totalContributionBarRef.current, { height: `${val}%` });
+            }
           }
-        }
-      });
+        });
+      }
     } else {
       // Close the drawer (slide out) and hide the content
-      gsap.to(drawerRef.current, {
-        duration: 0.4,
-        right: '-400px',
-        opacity: 0,
-        ease: 'power2.in',
-      });
+      if (drawerRef.current) {
+        gsap.to(drawerRef.current, {
+          duration: 0.4,
+          right: '-400px',
+          opacity: 0,
+          ease: 'power2.in',
+        });
+      }
 
       // Hide content with a slight upward movement
-      gsap.to(contentRef.current, {
-        opacity: 0,
-        y: 10,
-        duration: 0.5,
-        stagger: 0.1,
-      });
+      /*if (contentRef.current) {
+        gsap.to(contentRef.current, {
+          opacity: 0,
+          y: 10,
+          duration: 0.5,
+          stagger: 0.1,
+        });
+      }*/
       //setPotential(0);
       //setTotalContribution(0);
       //potentialRef.current.value = 0;
@@ -178,7 +188,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
             <p className={`text-sm jetbrains px-1 py-0 border border-slate-200 rounded-md ${getSubtleColorClassForType(selectedNode.data.type)} ${getColorClassForType(selectedNode.data.type)}`}>
               {selectedNode.data.type}
             </p>
-            <p className="text-lg">{selectedNode.data.name}</p>
+            <p className="text-md font-medium">{selectedNode.data.name}</p>
           </div>
 
           <div
@@ -186,7 +196,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
             className="w-full flex flex-col items-start gap-2 mb-4"
           >
             <p className="text-sm jetbrains bg-slate-200 px-1 py-0 rounded-md">Description</p>
-            <p className="text-lg text-left leading-loose">{selectedNode.data.description}</p>
+            <p className="text-md text-left leading-loose">{selectedNode.data.description}</p>
           </div>
 
           <div className='flex flex-col gap-2 w-full'>
@@ -251,28 +261,50 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
         {selectedNode && (
           <div className="mt-4 w-full border-t border-slate-200 pt-4 flex flex-col gap-2 items-start px-6">
             <h4 className="text-slate-500 mb-2 font-medium">Node Details</h4>
-            <ul className="flex flex-col gap-3 items-start text-slate-600 text-sm w-full">
+            <ul className="flex flex-col gap-4 items-start text-slate-600 text-sm w-full">
               {/* Risk as enum badge */}
-              <li className='flex items-start flex-row justify-between w-full'>
+              <li className='flex items-center flex-row justify-between w-full'>
                 <span className="text-slate-400">Risk:</span>
                 <span className={`font-bold ml-2 px-2 py-0.5 rounded ${getRiskLabelAndColor(selectedNode.data.risk).color}`}>
                   {getRiskLabelAndColor(selectedNode.data.risk).label}
                 </span>
               </li>
               {selectedNode.data.successPotential && (
-                <li className='flex items-start flex-row justify-between w-full'><span className="text-slate-400">Success Potential:</span> <span className="font-bold">{selectedNode.data.successPotential}%</span></li>
+                <li className='flex items-center flex-row justify-between w-full'><span className="text-slate-400">Success Potential:</span> <span className="font-bold">{selectedNode.data.successPotential}%</span></li>
               )}
               {selectedNode.data.createdby && (
-                <li className='flex items-start flex-row justify-between w-full'><span className="text-slate-400">Created by:</span> <span className="font-bold">{selectedNode.data.createdby}</span></li>
+                <li className='flex items-center flex-row justify-between w-full'>
+                  <span className="text-slate-400">Created by:</span>
+                  <span className="font-bold flex items-center gap-1">
+                    <img 
+                      src="/avatars/Avatar5.png" 
+                      alt="Avatar" 
+                      className="w-7 h-7 rounded-full object-cover mr-1 border border-slate-200 grayscale" 
+                      style={{ display: 'inline-block' }}
+                    />
+                    {selectedNode.data.createdby}
+                  </span>
+                </li>
               )}
               {selectedNode.data.createdat && (
-                <li className='flex items-start flex-row justify-between w-full'><span className="text-slate-400">Created:</span> <span className="font-bold">{formatDate(selectedNode.data.createdat)}</span></li>
+                <li className='flex items-center flex-row justify-between w-full'><span className="text-slate-400">Created:</span> <span className="font-bold">{formatDate(selectedNode.data.createdat)}</span></li>
               )}
               {selectedNode.data.updatedby && (
-                <li className='flex items-start flex-row justify-between w-full'><span className="text-slate-400">Updated by:</span> <span className="font-bold">{selectedNode.data.updatedby}</span></li>
+                <li className='flex items-center flex-row justify-between w-full'>
+                  <span className="text-slate-400">Updated by:</span>
+                  <span className="font-bold flex items-center gap-1">
+                    <img 
+                      src="/avatars/Avatar6.png" 
+                      alt="Avatar" 
+                      className="w-7 h-7 rounded-full object-cover mr-1 border border-slate-200 grayscale" 
+                      style={{ display: 'inline-block' }}
+                    />
+                    {selectedNode.data.updatedby}
+                  </span>
+                </li>
               )}
               {selectedNode.data.updatedat && (
-                <li className='flex items-start flex-row justify-between w-full'><span className="text-slate-400">Updated:</span> <span className="font-bold">{formatDate(selectedNode.data.updatedat)}</span></li>
+                <li className='flex items-center flex-row justify-between w-full'><span className="text-slate-400">Updated:</span> <span className="font-bold">{formatDate(selectedNode.data.updatedat)}</span></li>
               )}
             </ul>
           </div>
