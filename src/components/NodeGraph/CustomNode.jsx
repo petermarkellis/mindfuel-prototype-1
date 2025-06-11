@@ -25,20 +25,20 @@ const getColorClassForType = (type) => {
   }
 };
 
-const CustomNode = ({ data }) => {
+const CustomNode = ({ data, nodes = [] }) => {
+  
+
   return (
     <div className="rounded-3xl p-2 bg-white text-slate-500 border-4 border-slate-300 rounded-2xl" onClick={nodeInteractionHandler}>
       <div className="px-8 py-4  flex flex-col gap-6 items-start">
         <div className={`text-ms font-medium truncate text-3xl capitalize w-full flex flex-row justify-between gap-1 ${getColorClassForType(data.type)}`}>
-            {data.type}
-            
-            <div>
+          <span>{data.type}</span>
+          <div>
             {data.type === 'Data Source' && <IconDatabase className="w-10 h-10 bg-green-50 p-1 rounded-lg text-green-500" />}
             {data.type === 'Opportunity' && <IconRecharging className="w-10 h-10 bg-orange-50 p-1 rounded-lg text-orange-500" />}
             {data.type === 'Product' && <IconBox className="w-10 h-10 bg-purple-50 p-1 rounded-lg text-purple-500" />} 
             {data.type === 'Data Asset' && <IconLayersSelected className="w-10 h-10 bg-blue-50 p-1 rounded-lg text-blue-500" />}
-            </div>
-            
+          </div>
         </div>
         <div className={`text-ms font-medium truncate text-4xl capitalize`}>
           {data.name}

@@ -6,7 +6,7 @@ import "./GraphControlPanel.css";
 import GCPActionButton from "./GraphControlPanel_Action";
 import GCPActionFilterSwitch from "./GraphControlPanel_Filter_Action";
 
-import { IconAdjustmentsHorizontal, IconLayersSelected, IconDatabase, IconBox, IconBrandUnity, IconRecharging } from '@tabler/icons-react';
+import { IconAdjustmentsHorizontal, IconLayersSelected, IconDatabase, IconBox, IconBrandUnity, IconRecharging, IconX } from '@tabler/icons-react';
 
 export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSelect }) {
   const handleFilterChange = (label, checked) => {
@@ -74,7 +74,7 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
 
     if (listcontainer.current) {
       gsap.to(listcontainer.current, {
-        width: 320,
+        width: 340,
         opacity: 1,
         ease: "power3.out",
         duration: 0.8
@@ -83,7 +83,7 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
 
     if (filterscontainer.current) {
       gsap.to(filterscontainer.current, {
-        width: 320,
+        width: 340,
         opacity: 1,
         ease: "power3.out",
         duration: 1
@@ -102,51 +102,79 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
 
   }, { scope: listcontainer });
 
-  // No search for now, but could be added by filtering nodeTypes/node names
+  // Handler to clear search on Escape key
+  const handleSearchKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      setSearch("");
+      if (searchInputRef.current) {
+        searchInputRef.current.blur();
+      }
+    }
+  };
 
   return (
     <div>
       <div ref={listcontainer} className="graph_control_panel h-screen flex flex-col border-r border-slate-300 bg-white/60 backdrop-blur-md">
-        <input
-          ref={searchInputRef}
-          type="text"
-          placeholder="Search"
-          className="px-4 py-2 mb-4 border-b border-slate-300"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
+        <div className="relative mb-2 w-full">
+          <input
+            ref={searchInputRef}
+            type="text"
+            placeholder="Search"
+            className="px-4 py-2 border-b border-slate-300 w-full pr-10"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
+          />
+          {search && (
+            <button
+              type="button"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+              onClick={() => setSearch("")}
+              tabIndex={-1}
+              aria-label="Clear search"
+            >
+              <IconX className="w-5 h-5" stroke={2.5} />
+            </button>
+          )}
+        </div>
 
-          
-
-      
-        <ul ref={listitems} className="node_index_list flex flex-col items-start gap-4 w-full px-6 py-6 ">
-          {filteredNodeTypes.map(type => (
-            <li key={type} className="w-full flex flex-col items-start">
-
-
-
-
-              <h3 className="text-md mt-4 text-slate-500 truncate font-medium flex flex-row items-center gap-1">
-                {type === 'Opportunity' && <IconRecharging className="w-6 h-6 text-orange-500" />}
-                {type === 'Product' && <IconBox className="w-6 h-6 text-purple-500" />}
-                {type === 'Data Asset' && <IconLayersSelected className="w-6 h-6 text-blue-500" />}
-                {type === 'Data Source' && <IconDatabase className="w-6 h-6 text-green-500" />}
-                {type}</h3>
-              {filteredNodesByType[type].map(name => {
-                const node = nodes.find(n => n.data.name === name && n.data.type === type);
-                return (
-                  <GCPActionButton key={name} title={name} onClick={() => node && onNodeListSelect && onNodeListSelect(node.id)} />
-                );
-              })}
+        <ul ref={listitems} className="node_index_list flex flex-col items-start gap-4 w-full px-4 pb-2 ">
+          {filteredNodeTypes.length === 0 ? (
+            <li className="w-full flex flex-row items-center justify-between py-0">
+              <span className="text-red-600 font-semibold">No results</span>
+              <button
+                className="ml-4 px-2 py-0 border border-slate-600 text-slate-600 rounded hover:bg-slate-50 transition text-sm font-medium"
+                onClick={() => setSearch("")}
+              >
+                Clear
+              </button>
             </li>
-          ))}
+          ) : (
+            filteredNodeTypes.map(type => (
+              <li key={type} className="w-full flex flex-col items-start">
+                <h3 className="text-md mt-4 mb-2 text-slate-500 truncate font-medium flex flex-row items-center gap-1">
+                  {type === 'Opportunity' && <IconRecharging className="w-6 h-6 text-orange-500" />}
+                  {type === 'Product' && <IconBox className="w-6 h-6 text-purple-500" />}
+                  {type === 'Data Asset' && <IconLayersSelected className="w-6 h-6 text-blue-500" />}
+                  {type === 'Data Source' && <IconDatabase className="w-6 h-6 text-green-500" />}
+                  {type}
+                </h3>
+                {filteredNodesByType[type].map(name => {
+                  const node = nodes.find(n => n.data.name === name && n.data.type === type);
+                  return (
+                    <span className="w-fit text-left pl-6" key={name} ><GCPActionButton className="w-fit text-left pl-6"  title={name} onClick={() => node && onNodeListSelect && onNodeListSelect(node.id)} /></span>
+                  );
+                })}
+              </li>
+            ))
+          )}
         </ul>
 
         <div ref={filterscontainer} className="py-2 w-full border-t border-slate-300">
           <ul ref={filteritems} className="w-full flex flex-col items-start pt-6 pb-16 px-6 gap-2">
             <li><h3 className="text-md text-slate-500 truncate font-medium flex flex-row items-center gap-1"><IconAdjustmentsHorizontal className="w-6 h-6" /> Display Settings</h3></li>
             {nodeTypes.map(type => (
-              <li className="w-full" key={type}>
+              <li className="w-full pl-7" key={type}>
                 <GCPActionFilterSwitch label={type} onChange={handleFilterChange} />
               </li>
             ))}

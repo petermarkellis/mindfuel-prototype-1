@@ -9,9 +9,7 @@ import ReactFlow, {
   Controls,
   useReactFlow
 } from 'reactflow';
-
-
-
+import html2canvas from 'html2canvas';
 
 import CustomNode from './CustomNode.jsx'; 
 import SideDrawer from '../BaseComponents/SideDrawer';
@@ -318,6 +316,7 @@ export default function NodeGraph({ filters, nodeIdToCenter }) {
   return (
     <div>
       <div className="node_graph w-screen h-screen">
+        {/* React Flow Canvas */}
         <ReactFlow 
           onNodeClick={handleNodeClick}
           onNodeContextMenu={handleNodeContextMenu}
