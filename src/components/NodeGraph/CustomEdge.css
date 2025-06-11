@@ -1,0 +1,9 @@
+.animated-dashed-line {
+  animation: dash-move 1s linear infinite;
+}
+
+@keyframes dash-move {
+  to {
+    stroke-dashoffset: -25; /* Adjust the value to control the speed and direction */
+  }
+}

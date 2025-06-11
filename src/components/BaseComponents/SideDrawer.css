@@ -1,0 +1,85 @@
+/* Side drawer animation */
+.side-drawer {
+  position: fixed;
+  top: 0;
+  right: -400px; /* Initially closed, off-screen */
+  width: 400px;
+  height: 100svh;
+  background-color: #f5f6fa;
+  transition: right 0.5s ease, opacity 0.5s ease; /* Slide and fade transition */
+  opacity: 0; /* Start with invisible */
+}
+
+.side-drawer.open {
+  right: 0; /* Slide in from the right */
+  opacity: 1; /* Fade in when open */
+}
+
+/* Close button styling */
+.close-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+
+.close-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 12px; /* Add more padding to increase the clickable area */
+  border-radius: 50%; /* Make it circular */
+  width: 40px; /* Ensure the button itself is large enough */
+  height: 40px; /* Set width and height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.close-icon {
+  width: 18px; /* Set the width of the icon */
+  height: auto; /* Maintain aspect ratio */
+}
+
+.close-button:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* Add hover effect for better UX */
+  border-radius: 50%; /* Keep it circular on hover */
+}
+
+/* Staggered content blocks animation */
+.content-block {
+  opacity: 0;
+  transform: translateY(20px); /* Start from slightly below */
+  animation: slideUpFade 0.5s forwards; /* Apply animation */
+}
+
+.content-block:nth-child(1) {
+  animation-delay: 0.1s; /* First item has no delay */
+}
+
+.content-block:nth-child(2) {
+  animation-delay: 0.2s; /* Delay for second item */
+}
+
+.content-block:nth-child(3) {
+  animation-delay: 0.3s; /* Delay for third item */
+}
+
+.content-block:nth-child(4) {
+  animation-delay: 0.4s; /* Delay for fourth item */
+}
+
+/* Keyframes for sliding up and fading in */
+@keyframes slideUpFade {
+  to {
+    opacity: 1;
+    transform: translateY(0); /* End position */
+  }
+}

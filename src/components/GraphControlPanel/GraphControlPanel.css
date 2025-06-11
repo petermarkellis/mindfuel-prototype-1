@@ -1,0 +1,13 @@
+.graph_control_panel{
+    box-sizing: border-box;
+    /** background: linear-gradient(180deg, #f7f7fa 0%, #e6eaf2 97.18%);*/
+}
+
+.node_index_list
+{
+    list-style-type: none;
+}
+
+.node_index_list li{
+
+}

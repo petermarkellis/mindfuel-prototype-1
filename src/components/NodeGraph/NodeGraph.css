@@ -1,0 +1,33 @@
+.node_graph{
+
+}
+
+/* Default node style */
+.react-flow__node {
+    transition: border 0.3s ease, box-shadow 0.3s ease; /* Ensure default nodes also have transition for smooth effect */
+  }
+  
+  /* Highlighted node styles */
+  .react-flow__node.highlighted {
+    border: 8px solid #8b92ae; /* Border color for the selected node */
+    border-radius: 32px; /* Optional: smooth border */
+    box-shadow: 0 0 10px rgba(247, 252, 255, 0.7); /* Glow effect */
+    transition: border 0.3s ease, box-shadow 0.3s ease; /* Add smooth transition */
+  }
+  
+  /* Optional: You can add a hover effect for nodes as well */
+  .react-flow__node:hover {
+    cursor: cursor;
+    box-shadow: 0 0 1px rgba(251, 255, 255, 0.6);
+  }
+
+  .react-flow__controls {
+    position: absolute !important;
+    bottom: 35px !important;
+    left: 380px !important;
+  }
+
+  .react-flow__attribution {
+    display: none !important;
+  }
+
