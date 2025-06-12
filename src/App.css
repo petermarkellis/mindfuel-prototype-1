@@ -11,9 +11,11 @@ body {
   -webkit-font-smoothing: auto;
   -moz-font-smoothing: auto;
   -moz-osx-font-smoothing: grayscale;
-  font-smoothing: auto;
+  font-smooth: auto;
+  -webkit-font-smoothing: auto;
   text-rendering: optimizeLegibility;
   font-smooth: always;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
+  overflow: hidden;
 }

@@ -74,7 +74,15 @@ function formatDate(dateStr) {
   });
 }
 
-const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parentNodes = [], childNodes = [], onTitleChange }) => {
+// Add enum for risk options
+const RISK_OPTIONS = [
+  { value: 'low', label: 'Low' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'high', label: 'High' },
+  { value: 'notset', label: 'Not set' },
+];
+
+const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parentNodes = [], childNodes = [], onTitleChange, onRiskChange }) => {
   const drawerRef = useRef(null);
   const contentRef = useRef([]);
   const [Potential, setPotential] = useState(0);
@@ -88,6 +96,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
   const [showUpdatedCard, setShowUpdatedCard] = useState(false);
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState(selectedNode?.data?.name || "");
+  const [editingRisk, setEditingRisk] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -180,6 +189,10 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
     setTitleValue(selectedNode?.data?.name || "");
   }, [selectedNode?.data?.name]);
 
+  useEffect(() => {
+    setEditingRisk(false); // Reset risk editing when node changes
+  }, [selectedNode?.id]);
+
   const startEditing = () => setEditingTitle(true);
   const cancelEditing = () => {
     setTitleValue(selectedNode?.data?.name || "");
@@ -192,6 +205,13 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
       setTitleValue(newTitle);
     }
     setEditingTitle(false);
+  };
+
+  const startEditingRisk = () => setEditingRisk(true);
+  const handleRiskChange = (e) => {
+    const newRisk = e.target.value;
+    onRiskChange(selectedNode.id, newRisk);
+    setEditingRisk(false);
   };
 
   if (!selectedNode) return null;
@@ -321,10 +341,38 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
             <h4 className="text-slate-500 mb-2 font-medium">Node Details</h4>
             <ul className="flex flex-col gap-4 items-start text-slate-600 text-sm w-full">
               {/* Risk as enum badge */}
-              <li className='flex items-center flex-row justify-between w-full'>
+              <li className='flex flex-row justify-between w-full'>
                 <span className="text-slate-400">Risk:</span>
-                <span className={`font-bold ml-2 px-2 py-0.5 rounded ${getRiskLabelAndColor(selectedNode?.data?.risk).color}`}>
-                  {getRiskLabelAndColor(selectedNode?.data?.risk).label}
+                <span className="w-auto flex flex-row items-end select-none flex-row-reverse">
+                  {editingRisk ? (
+                    <select
+                      className="font-bold ml-2 px-2 py-0.5 rounded border border-slate-300 bg-white text-slate-700 text-sm"
+                      value={selectedNode?.data?.risk?.toLowerCase() || 'notset'}
+                      onChange={handleRiskChange}
+                      autoFocus
+                      onBlur={() => setEditingRisk(false)}
+                    >
+                      {RISK_OPTIONS.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <>
+                      <span className={`font-bold ml-2 px-2 py-0.5 rounded ${getRiskLabelAndColor(selectedNode?.data?.risk).color} text-sm cursor-pointer transition`}
+                        onClick={startEditingRisk}
+                      >
+                        {getRiskLabelAndColor(selectedNode?.data?.risk).label}
+                      </span>
+                      <span className="flex-1" />
+                      <span
+                        className="ml-auto px-2 py-0.5 text-xs rounded bg-slate-200 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity select-none cursor-pointer"
+                        onClick={startEditingRisk}
+                        style={{ display: editingRisk ? 'none' : undefined }}
+                      >
+                        edit
+                      </span>
+                    </>
+                  )}
                 </span>
               </li>
               {selectedNode?.data?.successPotential && (

@@ -7,7 +7,7 @@ import { CodeBracketSquareIcon,
         TableCellsIcon,
         LightBulbIcon
       } from '@heroicons/react/24/outline'
-import { IconLayoutSidebarLeftExpand, IconLayoutSidebarLeftCollapse } from '@tabler/icons-react';
+import { IconLayoutSidebarLeftExpand, IconLayoutSidebarRightExpand, IconLayoutSidebarLeftCollapse } from '@tabler/icons-react';
 
 export default function SideNav({ isPanelCollapsed, onTogglePanel }) {
     return (
@@ -16,7 +16,7 @@ export default function SideNav({ isPanelCollapsed, onTogglePanel }) {
             <img src="/mindfuel_logo_light.svg" alt="Mindfuel Logo" className="w-6"/>
           </div>
           <ul className="w-16 flex flex-col items-center mt-4 gap-6">
-            <li>
+            <li className="border-b border-slate-300 pb-2 w-full flex items-center justify-center">
               <button
                 className="p-2 transition"
                 style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
@@ -24,11 +24,12 @@ export default function SideNav({ isPanelCollapsed, onTogglePanel }) {
                 aria-label={isPanelCollapsed ? 'Expand Graph Control Panel' : 'Collapse Graph Control Panel'}
               >
                 {isPanelCollapsed ? (
-                  <IconLayoutSidebarLeftExpand className="w-6 h-6 text-slate-500" />
+                  <IconLayoutSidebarLeftExpand className="w-8 h-6 text-slate-500 rounded-md hover:bg-slate-300  hover:text-slate-800 transition-colors duration-300" />
                 ) : (
-                  <IconLayoutSidebarLeftCollapse className="w-6 h-6 text-slate-500" />
+                  <IconLayoutSidebarRightExpand className="w-6 h-6 text-slate-500  rounded-md hover:bg-slate-300  hover:text-slate-800 transition-colors duration-300" />
                 )}
               </button>
+          
             </li>
             <li>
               <CodeBracketSquareIcon className="size-6 text-slate-500" strokeWidth={2} />

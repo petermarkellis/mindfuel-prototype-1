@@ -10,14 +10,14 @@ export default function Layout({ children }) {
   const [filters, setFilters] = useState([]);
   const [nodes] = useState(initNodes);
   const [nodeIdToCenter, setNodeIdToCenter] = useState(null);
-  const [panelWidth, setPanelWidth] = useState(320); // default width
+  const [panelWidth, setPanelWidth] = useState(340); // default width
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [lastPanelWidth, setLastPanelWidth] = useState(320);
+  const [lastPanelWidth, setLastPanelWidth] = useState(340);
 
 
 
   const minWidth = 220;
-  const maxWidth = 400;
+  const maxWidth = 420;
 
   const handleFilterChange = (type, isChecked) => {
     setFilters((prevFilters) =>
@@ -34,7 +34,7 @@ export default function Layout({ children }) {
 
   // Handler for expanding the panel from collapsed state
   const handleExpandPanel = () => {
-    setPanelWidth(lastPanelWidth > minWidth ? lastPanelWidth : 320);
+    setPanelWidth(lastPanelWidth > minWidth ? lastPanelWidth : 340);
     setIsCollapsed(false);
     console.log('handleExpandPanel');
   };

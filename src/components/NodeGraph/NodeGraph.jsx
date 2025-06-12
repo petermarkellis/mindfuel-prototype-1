@@ -330,6 +330,22 @@ export default function NodeGraph({ filters, nodeIdToCenter, panelWidth = 320, i
     });
   };
 
+  const handleNodeRiskChange = (id, newRisk) => {
+    setNodes(nds => {
+      const updated = nds.map(node =>
+        node.id === id
+          ? { ...node, data: { ...node.data, risk: newRisk } }
+          : node
+      );
+      // Also update selectedNode if it's the one being edited
+      if (selectedNode && selectedNode.id === id) {
+        const updatedNode = updated.find(node => node.id === id);
+        setSelectedNode(updatedNode);
+      }
+      return updated;
+    });
+  };
+
   return (
     <div>
       <div className="node_graph w-screen h-screen">
@@ -360,7 +376,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, panelWidth = 320, i
         >
           <FlowNavigator nodeIdToCenter={nodeIdToCenter} />
           <Background color="#000000" variant={BackgroundVariant.Dots} />
-          <Controls position="none" />
+          <Controls position="top-center" className='react-flow-control-widget' />
         </ReactFlow>
         {/* Context Menu */}
         {contextMenu.visible && (
@@ -387,6 +403,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, panelWidth = 320, i
           parentNodes={parentNodes} 
           childNodes={childNodes} 
           onTitleChange={handleNodeTitleChange}
+          onRiskChange={handleNodeRiskChange}
         />
       </div>
       
