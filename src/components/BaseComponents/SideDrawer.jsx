@@ -82,6 +82,9 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
   const totalContributionRef = useRef({ value: 0 });
   const potentialBarRef = useRef(null);
   const totalContributionBarRef = useRef(null);
+  // Hover card state for created/updated by
+  const [showCreatedCard, setShowCreatedCard] = useState(false);
+  const [showUpdatedCard, setShowUpdatedCard] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -173,13 +176,10 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
   if (!selectedNode) return null;
 
   return (
-    <div ref={drawerRef} className={`border-l border-slate-300 side-drawer h-screen ${isOpen ? 'open' : 'closed'} backdrop-blur-md bg-white/40 shadow-xl`}>
-      <div className="align-left h-full flex flex-col">
-       
-       
-        {/* Use the CloseButton component */}
-        <CloseButton onClick={onClose} />
-
+    <div ref={drawerRef} className={`border-l border-slate-300 side-drawer h-screen ${isOpen ? 'open' : 'closed'} backdrop-blur-md bg-white/60 flex flex-col`}>
+      {/* Use the CloseButton component */}
+      <CloseButton onClick={onClose} />
+      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-start hide-scrollbar">
         <div className="flex flex-col items-start px-6 py-4">
           <div
             ref={(el) => (contentRef.current[0] = el)}
@@ -199,11 +199,11 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
             <p className="text-md text-left leading-loose">{selectedNode.data.description}</p>
           </div>
 
-          <div className='flex flex-col gap-2 w-full'>
+          <div className='flex flex-col gap-4 w-full'>
             {/* Potential Block */}
-            <div className='relative flex flex-col gap-2 bg-slate-100 border border-slate-400 rounded-md px-2 py-0 h-28 w-full  items-start overflow-hidden'>
+            <div className='relative flex flex-col justify-between gap-2 bg-slate-100 border border-slate-400 rounded-md px-2 py-0 h-16 sm:h-20 md:h-24 lg:h-24 w-full  items-start overflow-hidden'>
               <span className="z-10 font-medium mt-2 text-slate-600 bg-slate-200/60 rounded-lg px-1 py-0">Potential</span> 
-              <span className="z-10 text-4xl text-slate-600 font-light">{Potential}%</span>
+              <span className="z-10 text-lg pl-2 font-medium md:font-light  sm:text-xl md:text-3xl lg:text-4xl text-slate-600 font-light">{Potential}%</span>
               <div
                 ref={potentialBarRef}
                 className='absolute left-0 bottom-0 w-full bg-violet-50 border-t border-violet-400 border-dashed'
@@ -211,9 +211,9 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
               ></div>
             </div>
             {/* Total Contribution Block */}
-            <div className='relative flex flex-col gap-2 bg-slate-100 border border-slate-400 rounded-md px-2 py-0 h-28 w-full items-start overflow-hidden'>
+            <div className='relative flex flex-col justify-between gap-2 bg-slate-100 border border-slate-400 rounded-md px-2 py-0 h-16 sm:h-20 md:h-24 lg:h-24 w-full items-start overflow-hidden'>
               <span className="z-10 font-medium mt-2 text-slate-600 bg-slate-200/60 rounded-lg px-1 py-0">Total Contribution</span> 
-              <span className="z-10 text-4xl text-slate-600 font-light">{TotalContribution}%</span>
+              <span className="z-10 text-lg pl-2 font-medium md:font-light  sm:text-xl md:text-3xl lg:text-4xl text-slate-600 font-light">{TotalContribution}%</span>
               <div
                 ref={totalContributionBarRef}
                 className='absolute left-0 bottom-0 w-full bg-blue-50 border-t border-blue-400 border-dashed'
@@ -221,40 +221,40 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
               ></div>
             </div>
           </div>
-          </div>
+        </div>
 
-          <div className=''>
-            {/* Parent Nodes List */}
-            {parentNodes.length > 0 && (
-              <div className="mt-4 w-full border-t border-slate-200 pt-4 flex flex-col gap-2 items-start">
-                <div className='flex flex-col gap-2 items-start px-6'>
-                <h4 className="text-slate-500 mb-2 font-medium">Contributes to:</h4>
-                <ul className="flex flex-col gap-2 items-start">
-                  {parentNodes.map(node => (
-                    <li key={node.id} className="text-sm text-slate-600">
-                      <span className="font-bold">{node.data.name}</span> <span className="text-sm text-slate-400">({node.data.type})</span>
-                    </li>
-                  ))}
-                </ul>
-                </div>
+        <div className='w-full'>
+          {/* Parent Nodes List */}
+          {parentNodes.length > 0 && (
+            <div className="mt-4 w-full border-t border-slate-200 pt-4 flex flex-col gap-2 items-start">
+              <div className='flex flex-col gap-2 items-start px-6'>
+              <h4 className="text-slate-500 mb-2 font-medium">Contributes to:</h4>
+              <ul className="flex flex-col gap-2 items-start">
+                {parentNodes.map(node => (
+                  <li key={node.id} className="text-sm text-slate-600">
+                    <span className="font-bold">{node.data.name}</span> <span className="text-sm text-slate-400">({node.data.type})</span>
+                  </li>
+                ))}
+              </ul>
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Child Nodes List */}
-            {childNodes.length > 0 && (
-              <div className="mt-4 w-full border-t border-slate-200 pt-4 flex flex-col gap-2 items-start">
-                <div className='flex flex-col gap-2 items-start px-6'>
-                <h4 className="text-slate-500 mb-2 font-medium">Gets Data From:</h4>
-                <ul className="flex flex-col gap-2 items-start">
-                  {childNodes.map(node => (
-                    <li key={node.id} className="text-sm text-slate-600">
-                      <span className="font-bold">{node.data.name}</span> <span className="text-sm text-slate-400">({node.data.type})</span>
-                    </li>
-                  ))}
-                </ul>
-                </div>
+          {/* Child Nodes List */}
+          {childNodes.length > 0 && (
+            <div className="mt-4 w-full border-t border-slate-200 pt-4 flex flex-col gap-2 items-start">
+              <div className='flex flex-col gap-2 items-start px-6'>
+              <h4 className="text-slate-500 mb-2 font-medium">Gets Data From:</h4>
+              <ul className="flex flex-col gap-2 items-start">
+                {childNodes.map(node => (
+                  <li key={node.id} className="text-sm text-slate-600">
+                    <span className="font-bold">{node.data.name}</span> <span className="text-sm text-slate-400">({node.data.type})</span>
+                  </li>
+                ))}
+              </ul>
               </div>
-            )}
+            </div>
+          )}
         </div>
 
         {/* Additional Node Data Section */}
@@ -275,7 +275,12 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
               {selectedNode.data.createdby && (
                 <li className='flex items-center flex-row justify-between w-full'>
                   <span className="text-slate-400">Created by:</span>
-                  <span className="font-bold flex items-center gap-1">
+                  <span
+                    className="font-bold flex items-center gap-1 relative"
+                    onMouseEnter={() => setShowCreatedCard(true)}
+                    onMouseLeave={() => setShowCreatedCard(false)}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <img 
                       src="/avatars/Avatar5.png" 
                       alt="Avatar" 
@@ -283,6 +288,25 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                       style={{ display: 'inline-block' }}
                     />
                     {selectedNode.data.createdby}
+                    {/* Floating card */}
+                    <div
+                      className={`absolute right-full top-1/2 -translate-y-1/2 mr-2 z-50 bg-white border border-slate-200 rounded-lg shadow-lg p-4 min-w-[220px] transition-opacity duration-200 ${showCreatedCard ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+                    >
+                      <div className="flex flex-col items-start">
+                        <div className="flex flex-row items-center gap-2 justify-between w-full">
+                          <img src="/avatars/Avatar5.png" alt="Avatar" className="w-16 h-16 rounded-full mb-2 border" />
+                          <span className="ml-2 px-2 py-0.5 bg-green-50 text-green-500 text-md rounded-full align-middle">Online</span>
+                        </div>
+                        <div className="text-lg">{selectedNode.data.createdby}</div>
+                        <div className="text-sm text-slate-500">Data Steward</div>
+                        <div className="text-sm text-slate-400 font-normal">{selectedNode.data.createdby.split(' ')[0].toLowerCase()}@mindfuel.ai</div>
+                        <div className="mt-2 text-sm flex flex-col items-start text-slate-600 font-normal">
+                          <div>Opportunities: 1</div>
+                          <div>Products: 2</div>
+                          <div>Assets: 5</div>
+                        </div>
+                      </div>
+                    </div>
                   </span>
                 </li>
               )}
@@ -290,9 +314,14 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                 <li className='flex items-center flex-row justify-between w-full'><span className="text-slate-400">Created:</span> <span className="font-bold">{formatDate(selectedNode.data.createdat)}</span></li>
               )}
               {selectedNode.data.updatedby && (
-                <li className='flex items-center flex-row justify-between w-full'>
+                <li className='flex items-start flex-row justify-between w-full'>
                   <span className="text-slate-400">Updated by:</span>
-                  <span className="font-bold flex items-center gap-1">
+                  <span
+                    className="font-bold flex items-start gap-1 relative"
+                    onMouseEnter={() => setShowUpdatedCard(true)}
+                    onMouseLeave={() => setShowUpdatedCard(false)}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <img 
                       src="/avatars/Avatar6.png" 
                       alt="Avatar" 
@@ -300,6 +329,25 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                       style={{ display: 'inline-block' }}
                     />
                     {selectedNode.data.updatedby}
+                    {/* Floating card */}
+                    <div
+                      className={`absolute right-full top-1/2 -translate-y-1/2 mr-2 z-50 bg-white border border-slate-200 rounded-lg shadow-lg p-4 min-w-[220px] transition-opacity duration-200 ${showUpdatedCard ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+                    >
+                      <div className="flex flex-col items-start">
+                      <div className="flex flex-row items-center gap-2 justify-between w-full">
+                          <img src="/avatars/Avatar6.png" alt="Avatar" className="w-16 h-16 rounded-full mb-2 border" />
+                          <span className="ml-2 px-2 py-0.5 bg-slate-50 text-slate-500 text-md rounded-full align-middle">Out of office</span>
+                        </div>
+                        <div className="text-lg">{selectedNode.data.updatedby}</div>
+                        <div className="text-sm text-slate-500">Data Steward</div>
+                        <div className="text-sm text-slate-400 font-normal">{selectedNode.data.updatedby.split(' ')[0].toLowerCase()}@mindfuel.ai</div>
+                        <div className="mt-2 text-sm flex flex-col items-start text-slate-600 font-normal">
+                          <div>Opportunities: 3</div>
+                          <div>Products: 7</div>
+                          <div>Assets: 16</div>
+                        </div>
+                      </div>
+                    </div>
                   </span>
                 </li>
               )}
@@ -309,7 +357,6 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
             </ul>
           </div>
         )}
-
       </div>
     </div>
   );

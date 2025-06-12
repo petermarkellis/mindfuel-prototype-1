@@ -197,7 +197,7 @@ const edgeTypes = {
   custom: CustomEdge,
 };
 
-export default function NodeGraph({ filters, nodeIdToCenter }) {
+export default function NodeGraph({ filters, nodeIdToCenter, panelWidth = 320, isCollapsed = false, sidebarWidth = 64 }) {
   const [selectedNode, setSelectedNode] = useState(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initEdges);
@@ -343,7 +343,7 @@ export default function NodeGraph({ filters, nodeIdToCenter }) {
         >
           <FlowNavigator nodeIdToCenter={nodeIdToCenter} />
           <Background color="#000000" variant={BackgroundVariant.Dots} />
-          <Controls position='none'/>
+          <Controls position="none" />
         </ReactFlow>
         {/* Context Menu */}
         {contextMenu.visible && (
@@ -364,7 +364,7 @@ export default function NodeGraph({ filters, nodeIdToCenter }) {
       <div className="absolute top-0 right-0">
         <SideDrawer selectedNode={selectedNode} isOpen={sideDrawerOpen} onClose={handleCloseSideDrawer} connectedNodes={connectedNodes} parentNodes={parentNodes} childNodes={childNodes} />
       </div>
-      <FixedFooter />
+      
     </div>
   );
 }

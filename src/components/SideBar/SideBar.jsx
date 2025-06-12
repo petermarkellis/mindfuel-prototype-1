@@ -7,40 +7,49 @@ import { CodeBracketSquareIcon,
         TableCellsIcon,
         LightBulbIcon
       } from '@heroicons/react/24/outline'
+import { IconLayoutSidebarLeftExpand, IconLayoutSidebarLeftCollapse } from '@tabler/icons-react';
 
-export default function SideNav() {
+export default function SideNav({ isPanelCollapsed, onTogglePanel }) {
     return (
-      <div>
-        <nav className="side-nav w-16 h-full border-r border-slate-300">
+        <nav className="side-nav fixed top-0 left-0 z-50 w-16 h-screen border-r border-slate-300">
           <div className="flex flex-col items-center w-full py-2">
-          <img src="/mindfuel_logo_light.svg" alt="Mindfuel Logo" className="w-6"/>
+            <img src="/mindfuel_logo_light.svg" alt="Mindfuel Logo" className="w-6"/>
           </div>
-        
-          <ul className="w-16 h-full flex flex-col items-center  mt-8 gap-6">
+          <ul className="w-16 flex flex-col items-center mt-4 gap-6">
             <li>
-            <CodeBracketSquareIcon className="size-6 text-slate-500" strokeWidth={2} />
+              <button
+                className="p-2 transition"
+                style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                onClick={onTogglePanel}
+                aria-label={isPanelCollapsed ? 'Expand Graph Control Panel' : 'Collapse Graph Control Panel'}
+              >
+                {isPanelCollapsed ? (
+                  <IconLayoutSidebarLeftExpand className="w-6 h-6 text-slate-500" />
+                ) : (
+                  <IconLayoutSidebarLeftCollapse className="w-6 h-6 text-slate-500" />
+                )}
+              </button>
             </li>
             <li>
-            <MapIcon className="size-6 text-slate-500" strokeWidth={2} />
+              <CodeBracketSquareIcon className="size-6 text-slate-500" strokeWidth={2} />
             </li>
             <li>
-            <Square3Stack3DIcon className="size-6 text-slate-500" strokeWidth={2} />
+              <MapIcon className="size-6 text-slate-500" strokeWidth={2} />
             </li>
             <li>
-            <ChartBarIcon className="size-6 text-slate-500" strokeWidth={2} />
+              <Square3Stack3DIcon className="size-6 text-slate-500" strokeWidth={2} />
             </li>
             <li>
-            <TableCellsIcon className="size-6 text-slate-500" strokeWidth={2} />
+              <ChartBarIcon className="size-6 text-slate-500" strokeWidth={2} />
             </li>
             <li>
-            <LightBulbIcon className="size-6 text-slate-500" strokeWidth={2} />
+              <TableCellsIcon className="size-6 text-slate-500" strokeWidth={2} />
+            </li>
+            <li>
+              <LightBulbIcon className="size-6 text-slate-500" strokeWidth={2} />
             </li>
           </ul>
-
-       
         </nav>
-        
-      </div>
     )
-  }
+}
   

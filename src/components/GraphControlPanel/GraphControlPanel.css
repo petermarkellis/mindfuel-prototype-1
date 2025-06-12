@@ -1,13 +1,106 @@
 .graph_control_panel{
     box-sizing: border-box;
     /** background: linear-gradient(180deg, #f7f7fa 0%, #e6eaf2 97.18%);*/
+    transition: width 0.2s cubic-bezier(0.4,0,0.2,1);
+    position: relative;
 }
 
-.node_index_list
-{
+.node_index_list {
     list-style-type: none;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
-.node_index_list li{
+.node_index_list li {
+    width: 100%;
+    min-width: 0;
+    display: flex;
 
+    align-items: flex-start;
+    word-break: break-word;
+}
+
+.node_index_list h3 {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.node_index_list span {
+    width: 100%;
+    min-width: 0;
+    display: block;
+}
+
+.node_index_list button {
+    width: auto;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    box-sizing: border-box;
+}
+
+/* Responsive filter list */
+.graph_control_panel ul {
+    width: 100%;
+    min-width: 0;
+}
+
+.graph_control_panel li {
+    min-width: 0;
+    word-break: break-word;
+}
+
+/* Responsive filter action label and checkbox */
+.graph_control_panel label {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+}
+
+@media (max-width: 340px) {
+  .graph_control_panel label {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  .graph_control_panel label > span,
+  .graph_control_panel label > div {
+    width: 100%;
+    min-width: 0;
+    margin-bottom: 2px;
+  }
+}
+
+/* Drag handle styles */
+.graph_control_panel .resize-handle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 8px;
+    height: 100%;
+    cursor: col-resize;
+    z-index: 50;
+    background: transparent;
+    transition: background 0.2s;
+}
+.graph_control_panel .resize-handle:hover {
+    background: #e2e8f0;
 }
