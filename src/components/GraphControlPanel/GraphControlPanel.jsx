@@ -213,7 +213,7 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
         </ul>
         {/* Display Settings filter block, now part of the main scrollable area */}
         <ul ref={filteritems} className="w-full flex flex-col items-start pt-6 pb-16 px-6 gap-2">
-          <li><h3 className="text-md text-slate-500 truncate font-medium flex flex-row items-start gap-1  select-none">
+          <li><h3 className="text-md text-slate-500 truncate font-medium flex flex-row items-start gap-1 select-none">
             <IconAdjustmentsHorizontal className="w-6 h-6" />Display Settings</h3></li>
           {nodeTypes.map(type => (
             <li className="w-full flex flex-row items-start text-left pl-7" key={type}>

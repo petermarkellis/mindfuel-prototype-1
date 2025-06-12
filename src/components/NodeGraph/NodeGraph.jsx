@@ -313,6 +313,23 @@ export default function NodeGraph({ filters, nodeIdToCenter, panelWidth = 320, i
     return null;
   }
 
+  // Add this handler inside NodeGraph
+  const handleNodeTitleChange = (id, newTitle) => {
+    setNodes(nds => {
+      const updated = nds.map(node =>
+        node.id === id
+          ? { ...node, data: { ...node.data, name: newTitle } }
+          : node
+      );
+      // Also update selectedNode if it's the one being edited
+      if (selectedNode && selectedNode.id === id) {
+        const updatedNode = updated.find(node => node.id === id);
+        setSelectedNode(updatedNode);
+      }
+      return updated;
+    });
+  };
+
   return (
     <div>
       <div className="node_graph w-screen h-screen">
@@ -362,7 +379,15 @@ export default function NodeGraph({ filters, nodeIdToCenter, panelWidth = 320, i
         )}
       </div>
       <div className="absolute top-0 right-0">
-        <SideDrawer selectedNode={selectedNode} isOpen={sideDrawerOpen} onClose={handleCloseSideDrawer} connectedNodes={connectedNodes} parentNodes={parentNodes} childNodes={childNodes} />
+        <SideDrawer 
+          selectedNode={selectedNode} 
+          isOpen={sideDrawerOpen} 
+          onClose={handleCloseSideDrawer} 
+          connectedNodes={connectedNodes} 
+          parentNodes={parentNodes} 
+          childNodes={childNodes} 
+          onTitleChange={handleNodeTitleChange}
+        />
       </div>
       
     </div>
