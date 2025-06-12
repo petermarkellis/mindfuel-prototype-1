@@ -226,7 +226,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
             ref={(el) => (contentRef.current[0] = el)}
             className="w-full flex flex-col items-start gap-2 mb-4"
           >
-            <p className={`text-sm jetbrains px-1 py-0 border border-slate-200 rounded-md ${getSubtleColorClassForType(selectedNode?.data?.type)} ${getColorClassForType(selectedNode?.data?.type)}`}>
+            <p className={`text-sm px-1 py-0 border font-medium border-slate-200 rounded-md ${getSubtleColorClassForType(selectedNode?.data?.type)} ${getColorClassForType(selectedNode?.data?.type)}`}>
               {selectedNode?.data?.type}
             </p>
             <div className="flex items-center gap-2 w-full group">
@@ -273,7 +273,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
             ref={(el) => (contentRef.current[1] = el)}
             className="w-full flex flex-col items-start gap-2 mb-4"
           >
-            <p className="text-sm jetbrains bg-slate-200 px-1 py-0 rounded-md">Description</p>
+
             <p className="text-md text-left leading-loose">{selectedNode?.data?.description}</p>
           </div>
 

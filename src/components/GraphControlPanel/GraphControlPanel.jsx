@@ -204,13 +204,14 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
                 {filteredNodesByType[type].map(name => {
                   const node = nodes.find(n => n.data.name === name && n.data.type === type);
                   return (
-                    <span className="w-fit text-left pl-6" key={name} ><GCPActionButton className="w-fit text-left pl-6 truncate"  title={name} onClick={() => node && onNodeListSelect && onNodeListSelect(node.id)} /></span>
+                    <span className="w-full text-left pl-6" key={name} ><GCPActionButton className="w-full text-left pl-6 truncate"  title={name} onClick={() => node && onNodeListSelect && onNodeListSelect(node.id)} /></span>
                   );
                 })}
               </li>
             ))
           )}
         </ul>
+        <div className="w-full h-1 border-b border-slate-300"></div>
         {/* Display Settings filter block, now part of the main scrollable area */}
         <ul ref={filteritems} className="w-full flex flex-col items-start pt-6 pb-16 px-6 gap-2">
           <li><h3 className="text-md text-slate-500 truncate font-medium flex flex-row items-start gap-1 select-none">

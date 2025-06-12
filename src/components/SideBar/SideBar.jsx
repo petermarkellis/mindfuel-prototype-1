@@ -7,7 +7,14 @@ import { CodeBracketSquareIcon,
         TableCellsIcon,
         LightBulbIcon
       } from '@heroicons/react/24/outline'
-import { IconLayoutSidebarLeftExpand, IconLayoutSidebarRightExpand, IconLayoutSidebarLeftCollapse } from '@tabler/icons-react';
+import { 
+        IconLayoutSidebarLeftExpand, 
+        IconLayoutSidebarRightExpand, 
+        IconLayoutSidebarLeftCollapse,
+        IconInbox,
+        IconSquare,
+        IconSquareRoundedPlus
+      } from '@tabler/icons-react';
 
 export default function SideNav({ isPanelCollapsed, onTogglePanel }) {
     return (
@@ -30,6 +37,15 @@ export default function SideNav({ isPanelCollapsed, onTogglePanel }) {
                 )}
               </button>
           
+            </li>
+            <li>
+              <div className="rounded-xl bg-white p-1 border border-slate-300 hover:bg-slate-200 transition-colors duration-300">
+                <IconSquareRoundedPlus className="size-6 text-slate-500" strokeWidth={2} />
+              </div>
+            </li>
+            <li className="relative">
+              <IconInbox className="size-6 text-slate-500" strokeWidth={2} />
+              <span className="text-sm font-medium w-2 h-2 bg-blue-500 rounded-full absolute bottom-0 right-0"></span>
             </li>
             <li>
               <CodeBracketSquareIcon className="size-6 text-slate-500" strokeWidth={2} />

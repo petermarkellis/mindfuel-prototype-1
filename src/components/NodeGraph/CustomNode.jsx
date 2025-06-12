@@ -58,7 +58,7 @@ const CustomNode = ({ data, nodes = [] }) => {
             {data.type === 'Data Asset' && <IconLayersSelected className="w-10 h-10 bg-blue-50 p-1 rounded-lg text-blue-500" />}
           </div>
         </div>
-        <div className={`text-ms font-medium truncate text-left text-4xl capitalize w-full`}>
+        <div className={`text-ms font-medium truncate text-left text-4xl capitalize w-full hover:text-slate-900 transition-colors duration-300`}>
           {data.name}
         </div>
       </div>
@@ -74,24 +74,44 @@ const CustomNode = ({ data, nodes = [] }) => {
         </div>
       </div>
 
-      <Handle type="target" position={Position.Top} className="w-2 h-2" 
+      <Handle type="target" position={Position.Top} id="t" className="custom-handle w-2 h-2" 
         style={{
-          width: 20,
-          height: 20,
+          width: 16,
+          height: 16,
           background: getHandleColorForType(data.type),
-          border: '4px solid #fff',
+          border: '2px solid #fff',
           borderRadius: '50%',
           top: -8,
         }}
       />
-      <Handle type="source" position={Position.Bottom} className="w-2 h-2" 
+      <Handle type="source" position={Position.Bottom} id="b" className="custom-handle w-2 h-2" 
         style={{
-          width: 20,
-          height: 20,
+          width: 16,
+          height: 16,
           background: getHandleColorForType(data.type),
-          border: '4px solid #fff',
+          border: '2px solid #fff',
           borderRadius: '50%',
           bottom: -8,
+        }}
+      />
+      <Handle type="target" position={Position.Left} id="l" className="custom-handle w-2 h-2" 
+        style={{
+          width: 16,
+          height: 16,
+          background: getHandleColorForType(data.type),
+          border: '2px solid #fff',
+          borderRadius: '50%',
+          left: -8,
+        }}
+      />
+      <Handle type="source" position={Position.Right} id="r" className="custom-handle w-2 h-2" 
+        style={{
+          width: 16,
+          height: 16,
+          background: getHandleColorForType(data.type),
+          border: '2px solid #fff',
+          borderRadius: '50%',
+          right: -8,
         }}
       />
     </div>

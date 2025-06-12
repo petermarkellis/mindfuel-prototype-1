@@ -10,6 +10,7 @@ import ReactFlow, {
   useReactFlow
 } from 'reactflow';
 import html2canvas from 'html2canvas';
+import { IconZoomIn, IconZoomOut, IconMaximize, IconArrowBackUp, IconLock, IconLockOpen } from '@tabler/icons-react';
 
 import CustomNode from './CustomNode.jsx'; 
 import SideDrawer from '../BaseComponents/SideDrawer';
@@ -189,13 +190,36 @@ const styles = {
   //background: 'linear-gradient(180deg, #eeeeee 0%, #efefef 100%)',
 };
 
-const nodeTypes = {
+export const nodeTypes = {
   custom: CustomNode,
 };
 
-const edgeTypes = {
+export const edgeTypes = {
   custom: CustomEdge,
 };
+
+function CustomControls({ locked, onToggleLock }) {
+  const { zoomIn, zoomOut, fitView, setViewport } = useReactFlow();
+  return (
+    <div className="flex flex-col gap-1 p-1 bg-white/80 rounded shadow border border-slate-200">
+      <button onClick={zoomIn} title="Zoom In" className="p-2 hover:bg-slate-100 rounded">
+        <IconZoomIn className="w-5 h-5 text-slate-600" />
+      </button>
+      <button onClick={zoomOut} title="Zoom Out" className="p-2 hover:bg-slate-100 rounded">
+        <IconZoomOut className="w-5 h-5 text-slate-600" />
+      </button>
+      <button onClick={fitView} title="Fit View" className="p-2 hover:bg-slate-100 rounded">
+        <IconMaximize className="w-5 h-5 text-slate-600" />
+      </button>
+      <button onClick={() => setViewport({ x: 0, y: 0, zoom: 1 })} title="Reset" className="p-2 hover:bg-slate-100 rounded">
+        <IconArrowBackUp className="w-5 h-5 text-slate-600" />
+      </button>
+      <button onClick={onToggleLock} title={locked ? 'Unlock nodes' : 'Lock nodes'} className="p-2 hover:bg-slate-100 rounded">
+        {locked ? <IconLock className="w-5 h-5 text-slate-600" /> : <IconLockOpen className="w-5 h-5 text-slate-600" />}
+      </button>
+    </div>
+  );
+}
 
 export default function NodeGraph({ filters, nodeIdToCenter, panelWidth = 320, isCollapsed = false, sidebarWidth = 64 }) {
   const [selectedNode, setSelectedNode] = useState(null);
@@ -205,6 +229,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, panelWidth = 320, i
   const [openMenu, setOpenMenu] = useState({ nodeId: null, pos: { x: 0, y: 0 } });
   const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, node: null });
   const contextMenuRef = useRef(null);
+  const [locked, setLocked] = useState(false);
 
   const onConnect = useCallback((params) => setEdges((eds) => addEdge({ ...params, type: 'custom' }, eds)), []);
 
@@ -346,9 +371,33 @@ export default function NodeGraph({ filters, nodeIdToCenter, panelWidth = 320, i
     });
   };
 
+  // Delayed left position for controls
+  const [controlsLeft, setControlsLeft] = useState((isCollapsed ? 0 : panelWidth) + (sidebarWidth || 64) + 16 - 60);
+  useEffect(() => {
+    const delay = 800; // ms
+    const newLeft = (isCollapsed ? 0 : panelWidth) + (sidebarWidth || 64) + 16 - 60;
+    const timeout = setTimeout(() => {
+      setControlsLeft(newLeft);
+    }, delay);
+    return () => clearTimeout(timeout);
+  }, [panelWidth, isCollapsed, sidebarWidth]);
+
+  // Lock/unlock handler
+  const toggleLock = () => {
+    setLocked(l => {
+      setNodes(nds =>
+        nds.map(node => ({
+          ...node,
+          draggable: l ? true : false
+        }))
+      );
+      return !l;
+    });
+  };
+
   return (
     <div>
-      <div className="node_graph w-screen h-screen">
+      <div className="node_graph w-screen h-screen relative">
         {/* React Flow Canvas */}
         <ReactFlow 
           onNodeClick={handleNodeClick}
@@ -365,6 +414,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, panelWidth = 320, i
           fitViewOptions={{
             padding: 2,
           }}
+          connectionLineStyle={{ stroke: '#6366f1', strokeWidth: 4 }}
           className=""
           onPaneClick={() => {
             setContextMenu((cm) => ({ ...cm, visible: false }));
@@ -376,7 +426,18 @@ export default function NodeGraph({ filters, nodeIdToCenter, panelWidth = 320, i
         >
           <FlowNavigator nodeIdToCenter={nodeIdToCenter} />
           <Background color="#000000" variant={BackgroundVariant.Dots} />
-          <Controls position="top-center" className='react-flow-control-widget' />
+          {/* Controls that follow the GraphControlPanel, but inside ReactFlow for context */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 16,
+              left: controlsLeft,
+              zIndex: 50,
+              transition: 'left 0.4s cubic-bezier(0.4,0,0.2,1)',
+            }}
+          >
+            <CustomControls locked={locked} onToggleLock={toggleLock} />
+          </div>
         </ReactFlow>
         {/* Context Menu */}
         {contextMenu.visible && (
