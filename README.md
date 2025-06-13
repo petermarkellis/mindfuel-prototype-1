@@ -60,8 +60,6 @@ The goal of this prototype was to:
 
 4. **Open [http://localhost:5173](http://localhost:5173) in your browser.**
 
-> _Note: The default port is **5173** unless otherwise specified in your environment or package.json scripts._
-
 ## Usage
 
 - Click on nodes to view and edit details in the SideDrawer.
@@ -79,8 +77,6 @@ The goal of this prototype was to:
 ## Screenshot
 
 ![Screenshot of the Prototype](./screenshot.png)
-
-> _Replace the above image with an actual screenshot of your running prototype for best results._
 
 ## Feedback
 
