@@ -17,7 +17,9 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem }) => {
       icon: IconRecharging,
       iconColor: 'text-orange-600',
       iconBgColor: 'bg-orange-50',
-      borderColor: 'border-orange-200'
+      borderColor: 'border-none',
+      cardBGColor: 'bg-slate-50',
+      cardBGHoverColor: 'bg-orange-50'  
     },
     {
       id: 'dataProduct',
@@ -26,7 +28,9 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem }) => {
       icon: IconBox,
       iconColor: 'text-purple-600',
       iconBgColor: 'bg-purple-50',
-      borderColor: 'border-purple-200'
+      borderColor: 'border-none',
+      cardBGColor: 'bg-slate-50',
+      cardBGHoverColor: 'bg-purple-50'   
     },
     {
       id: 'dataAsset',
@@ -35,7 +39,9 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem }) => {
       icon: IconLayersSelected,
       iconColor: 'text-blue-600',
       iconBgColor: 'bg-blue-50',
-      borderColor: 'border-blue-200'
+      borderColor: 'border-none',
+      cardBGColor: 'bg-slate-50',
+      cardBGHoverColor: 'bg-blue-50'    
     },
     {
       id: 'dataSource',
@@ -44,7 +50,9 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem }) => {
       icon: IconDatabase,
       iconColor: 'text-green-600',
       iconBgColor: 'bg-green-50',
-      borderColor: 'border-green-200'
+      borderColor: 'border-none',
+      cardBGColor: 'bg-slate-50',
+      cardBGHoverColor: 'bg-green-50'    
     }
   ];
 
@@ -107,17 +115,18 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem }) => {
     >
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/30 backdrop-blur-sm md:block hidden"
         onClick={onClose}
       />
+      <div className="absolute inset-0 bg-white md:hidden" />
       
       {/* Modal */}
       <div
         ref={modalRef}
-        className="relative bg-white rounded-2xl shadow-2xl w-full max-w-5xl mx-4 max-h-[90vh] overflow-hidden"
+        className="relative bg-white w-full h-full md:rounded-2xl md:shadow-2xl md:max-w-7xl md:mx-4 md:max-h-[90vh] md:h-auto flex flex-col"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 pb-6">
+        <div className="flex items-center justify-between p-4 md:p-6 pb-4 md:pb-6 flex-shrink-0">
           <h2 className="text-2xl font-semibold text-slate-800">
             What do you want to create
           </h2>
@@ -130,15 +139,17 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem }) => {
           </button>
         </div>
 
-        {/* Cards Grid */}
-        <div className="px-8 pb-8">
-          <div className="flex justify-center">
-            <div className="grid grid-cols-4 gap-6 max-w-6xl">
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto pt-4">
+          {/* Cards */}
+          <div className="px-4 md:px-8 pb-4 md:pb-8">
+            <div className="flex justify-center">
+              <div className="flex flex-col md:flex-row gap-4 md:gap-6 max-w-6xl w-full">
               {itemTypes.map((item, index) => (
                 <div
                   key={item.id}
                   ref={(el) => (cardsRef.current[index] = el)}
-                  className="w-full h-full flex"
+                  className="flex-1"
                 >
                   <NewItemCard
                     title={item.title}
@@ -147,8 +158,10 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem }) => {
                     iconColor={item.iconColor}
                     iconBgColor={item.iconBgColor}
                     borderColor={item.borderColor}
+                    cardBGColor={item.cardBGColor}
+                    cardBGHoverColor={item.cardBGHoverColor}
                     onClick={() => handleItemCreate(item.id)}
-                    className="h-full flex-1"
+                    className="h-full"
                   />
                 </div>
               ))}
@@ -158,9 +171,18 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem }) => {
           {/* Training Section */}
           <div className="w-full pb-1 pt-6">
             <div className="flex justify-center">
-              <div className="grid grid-cols-4 gap-6 w-full">
-                <div className="col-span-4 bg-slate-50 rounded-xl p-4 border border-slate-200 w-full">
-                  <div className="flex items-start justify-between gap-24">
+              <div className="flex w-full max-w-6xl">
+                <div 
+                  className="flex-1 rounded-xl p-4 border border-slate-200 w-full relative overflow-hidden"
+                  style={{
+                    backgroundColor: '#F2F7FE',
+                    backgroundImage: 'url(/Mindfuel_Glass_Logo.jpg)',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'right -50px center',
+                    backgroundSize: '300px auto'
+                  }}
+                >
+                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 md:gap-24">
                     <div className="flex-1">
                       <h4 className="text-lg font-medium text-slate-800 mb-2 text-left">
                         Learn about our framework
@@ -168,9 +190,9 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem }) => {
                       <p className="text-md text-slate-600 leading-relaxed text-left">
                         Learn about Opportunities, Products, Data Assets and Sources<br></br>including our tips on how to structure them to match your business requirements.
                       </p>
-                    </div>
-                    <div className="ml-6">
-                      <button className="flex items-center gap-2 px-4 py-2 bg-slate-500 border border-slate-600 rounded-lg hover:bg-slate-600 transition-colors duration-200 text-white font-medium">
+                                          </div>
+                      <div className="md:ml-6">
+                        <button className="flex items-center justify-center gap-2 px-4 py-2 bg-slate-500 border border-slate-600 rounded-lg hover:bg-slate-600 transition-colors duration-200 text-white font-medium w-full md:w-auto">
                         <IconPlayerPlay className="w-4 h-4" strokeWidth={2} />
                         Watch now
                       </button>
@@ -183,6 +205,7 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem }) => {
         </div>
       </div>
     </div>
+  </div>
   );
 };
 

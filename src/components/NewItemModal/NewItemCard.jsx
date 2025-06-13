@@ -8,26 +8,60 @@ const NewItemCard = ({
   iconBgColor, 
   borderColor,
   onClick,
+  cardBGColor,
+  cardBGHoverColor,
   className = ""
 }) => {
+  // Map the hover colors to proper Tailwind classes
+  const getHoverClass = (hoverColor) => {
+    switch (hoverColor) {
+      case 'bg-orange-50':
+        return 'hover:bg-orange-50';
+      case 'bg-purple-50':
+        return 'hover:bg-purple-50';
+      case 'bg-blue-50':
+        return 'hover:bg-blue-50';
+      case 'bg-green-50':
+        return 'hover:bg-green-50';
+      default:
+        return 'hover:bg-slate-100';
+    }
+  };
+
+  // Map icon background colors to their darker hover variants
+  const getIconHoverClass = (iconBgColor) => {
+    switch (iconBgColor) {
+      case 'bg-orange-50':
+        return 'group-hover:bg-orange-100';
+      case 'bg-purple-50':
+        return 'group-hover:bg-purple-100';
+      case 'bg-blue-50':
+        return 'group-hover:bg-blue-100';
+      case 'bg-green-50':
+        return 'group-hover:bg-green-100';
+      default:
+        return 'group-hover:bg-slate-200';
+    }
+  };
+
   return (
     <button
       onClick={onClick}
       className={`
-        group relative w-full p-6 bg-white border-2 rounded-xl 
-        hover:shadow-lg hover:scale-[1.02] hover:border-slate-400
+        group p-6 ${cardBGColor} border-2 rounded-xl 
+        hover:shadow-xl hover:scale-[1.02] ${getHoverClass(cardBGHoverColor)}
         transition-all duration-300 ease-out cursor-pointer
-        text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-        flex flex-col items-center
+        text-left md:text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+        w-full flex flex-row md:flex-col items-start md:items-center
         ${borderColor}
         ${className}
       `}
     >
       {/* Icon Container */}
       <div className={`
-        w-16 h-16 rounded-full flex items-center justify-center mb-4
-        border-2 border-dashed transition-colors duration-300
-        ${iconBgColor} ${iconColor}
+        w-10 h-10 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-4
+        border-2 border-dashed transition-colors duration-300 mr-6 sm:mr-6 md:mr-4
+        ${iconBgColor} ${iconColor} ${getIconHoverClass(iconBgColor)}
       `}>
         <Icon className="w-8 h-8" strokeWidth={2} />
       </div>
