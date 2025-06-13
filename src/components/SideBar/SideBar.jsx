@@ -2,19 +2,13 @@ import React from "react"
 import "./SideBar.css"
 import { CodeBracketSquareIcon, 
         MapIcon,
-        ChartBarIcon,
         Square3Stack3DIcon,
-        TableCellsIcon,
-        LightBulbIcon
       } from '@heroicons/react/24/outline'
 import { 
-        IconLayoutSidebarLeftExpand, 
-        IconLayoutSidebarRightExpand, 
-        IconLayoutSidebarLeftCollapse,
         IconInbox,
-        IconSquare,
         IconSquareRoundedPlus,
-        IconRouteScan
+        IconRouteScan,
+        IconBrandDatabricks
       } from '@tabler/icons-react';
 
 export default function SideNav({ onOpenNewItemModal, onNavigateToInbox, onNavigateToMain, isMainView = true, currentView = 'main' }) {
@@ -106,7 +100,7 @@ export default function SideNav({ onOpenNewItemModal, onNavigateToInbox, onNavig
                   className="rounded-xl bg-none p-1 border border-slate-100 hover:border hover:border-slate-300 hover:bg-slate-200 transition-colors duration-300 cursor-pointer"
                   aria-label="Go to main graph view"
                 >
-                  <ChartBarIcon className="size-6 text-slate-500" strokeWidth={2} />
+                  <IconBrandDatabricks className="size-6 text-slate-500" strokeWidth={2} />
                 </button>
               </li>
             </ul>
