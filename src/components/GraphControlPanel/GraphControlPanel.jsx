@@ -139,7 +139,7 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
         listcontainer.current = el;
         containerRef.current = el;
       }}
-      className="graph_control_panel h-screen z-50 flex flex-col border-r border-slate-300 bg-[var(--color-panel-bg)]/60  backdrop-blur-md relative"
+      className="graph_control_panel mt-10 h-screen z-50 flex flex-col border-r border-t border-slate-300 bg-[var(--color-panel-bg)]/60  backdrop-blur-md relative"
       style={{
         minWidth: 0,
         maxWidth: maxWidth,

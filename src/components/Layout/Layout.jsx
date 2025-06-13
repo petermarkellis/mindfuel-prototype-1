@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import SideBar from '../SideBar/SideBar'
 import GraphControlPanel from '../GraphControlPanel/GraphControlPanel'
+import PanelToggleBox from '../GraphControlPanel/PanelToggleBox'
 import NodeGraph, { initNodes } from '../NodeGraph/NodeGraph'
 import { NewItemModal } from '../NewItemModal'
 import './Layout.css'
 import FixedFooter from '../BaseComponents/FixedFooter';
 
 
-export default function Layout({ children }) {
+export default function Layout({ children, onNavigateToInbox, onNavigateToMain }) {
   const [filters, setFilters] = useState([]);
   const [nodes] = useState(initNodes);
   const [nodeIdToCenter, setNodeIdToCenter] = useState(null);
@@ -70,9 +71,11 @@ export default function Layout({ children }) {
   return (
     <div className="layout flex flex-row shrink relative">
       <SideBar 
-        isPanelCollapsed={isCollapsed} 
-        onTogglePanel={handleTogglePanel}
         onOpenNewItemModal={handleOpenNewItemModal}
+        onNavigateToInbox={onNavigateToInbox}
+        onNavigateToMain={onNavigateToMain}
+        isMainView={true}
+        currentView="main"
       />
       <div className='flex flex-row relative ml-16 w-full'>
         <GraphControlPanel
@@ -87,6 +90,7 @@ export default function Layout({ children }) {
           maxWidth={maxWidth}
           isCollapsed={isCollapsed}
         />
+        
         <div className="absolute z-0">
           <NodeGraph 
             filters={filters} 
@@ -94,6 +98,7 @@ export default function Layout({ children }) {
             nodeIdToSelect={nodeIdToSelect}
             panelWidth={panelWidth}
             isCollapsed={isCollapsed}
+            onTogglePanel={handleTogglePanel}
           />
         </div>
         <div className='z-40'>

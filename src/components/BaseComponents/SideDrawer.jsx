@@ -215,7 +215,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
   if (!selectedNode) return null;
 
   return (
-    <div ref={drawerRef} className={`border-l border-slate-300 side-drawer h-screen ${isOpen ? 'open' : 'closed'} bg-[var(--color-panel-bg)]/80 backdrop-blur-md flex flex-col`}>
+    <div ref={drawerRef} className={`border-l border-slate-300 side-drawer h-screen ${isOpen ? 'open' : 'closed'} bg-[var(--color-panel-bg)]/70 backdrop-blur-md flex flex-col`}>
       {/* Use the CloseButton component */}
       <CloseButton onClick={onClose} />
       <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-start hide-scrollbar">

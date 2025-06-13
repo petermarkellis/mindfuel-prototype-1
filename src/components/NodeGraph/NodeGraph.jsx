@@ -10,7 +10,7 @@ import ReactFlow, {
   useReactFlow
 } from 'reactflow';
 import html2canvas from 'html2canvas';
-import { IconZoomIn, IconZoomOut, IconMaximize, IconArrowBackUp, IconLock, IconLockOpen } from '@tabler/icons-react';
+import { IconZoomIn, IconZoomOut, IconMaximize, IconArrowBackUp, IconLock, IconLockOpen, IconLayoutSidebarLeftExpand, IconLayoutSidebarRightExpand } from '@tabler/icons-react';
 
 import CustomNode from './CustomNode.jsx'; 
 import SideDrawer from '../BaseComponents/SideDrawer';
@@ -198,30 +198,48 @@ export const edgeTypes = {
   custom: CustomEdge,
 };
 
-function CustomControls({ locked, onToggleLock }) {
+function CustomControls({ locked, onToggleLock, isPanelCollapsed, onTogglePanel }) {
   const { zoomIn, zoomOut, fitView, setViewport } = useReactFlow();
   return (
-    <div className="flex flex-col gap-1 p-1 bg-white/80 rounded shadow border border-slate-200">
-      <button onClick={zoomIn} title="Zoom In" className="p-2 hover:bg-slate-100 rounded">
-        <IconZoomIn className="w-5 h-5 text-slate-600" />
-      </button>
-      <button onClick={zoomOut} title="Zoom Out" className="p-2 hover:bg-slate-100 rounded">
-        <IconZoomOut className="w-5 h-5 text-slate-600" />
-      </button>
-      <button onClick={fitView} title="Fit View" className="p-2 hover:bg-slate-100 rounded">
-        <IconMaximize className="w-5 h-5 text-slate-600" />
-      </button>
-      <button onClick={() => setViewport({ x: 0, y: 0, zoom: 1 })} title="Reset" className="p-2 hover:bg-slate-100 rounded">
-        <IconArrowBackUp className="w-5 h-5 text-slate-600" />
-      </button>
-      <button onClick={onToggleLock} title={locked ? 'Unlock nodes' : 'Lock nodes'} className="p-2 hover:bg-slate-100 rounded">
-        {locked ? <IconLock className="w-5 h-5 text-slate-600" /> : <IconLockOpen className="w-5 h-5 text-slate-600" />}
-      </button>
+    <div className="flex flex-col gap-2">
+      {/* Zoom and view controls */}
+      <div className="flex flex-col gap-1 p-1 py-2 bg-white/80 rounded-2xl shadow border border-slate-200">
+        <button onClick={zoomIn} title="Zoom In" className="p-2 hover:bg-slate-100 rounded">
+          <IconZoomIn className="w-5 h-5 text-slate-600" />
+        </button>
+        <button onClick={zoomOut} title="Zoom Out" className="p-2 hover:bg-slate-100 rounded">
+          <IconZoomOut className="w-5 h-5 text-slate-600" />
+        </button>
+        <button onClick={fitView} title="Fit View" className="p-2 hover:bg-slate-100 rounded">
+          <IconMaximize className="w-5 h-5 text-slate-600" />
+        </button>
+        <button onClick={() => setViewport({ x: 0, y: 0, zoom: 1 })} title="Reset" className="p-2 hover:bg-slate-100 rounded">
+          <IconArrowBackUp className="w-5 h-5 text-slate-600" />
+        </button>
+        <button onClick={onToggleLock} title={locked ? 'Unlock nodes' : 'Lock nodes'} className="p-2 hover:bg-slate-100 rounded">
+          {locked ? <IconLock className="w-5 h-5 text-slate-600" /> : <IconLockOpen className="w-5 h-5 text-slate-600" />}
+        </button>
+      </div>
+      
+      {/* Panel toggle button */}
+      <div className="bg-white/80 rounded-2xl shadow border border-slate-200 p-1 py-1">
+        <button
+          className="p-2 transition hover:bg-slate-100 rounded"
+          onClick={onTogglePanel}
+          title={isPanelCollapsed ? 'Expand Graph Control Panel' : 'Collapse Graph Control Panel'}
+        >
+          {isPanelCollapsed ? (
+            <IconLayoutSidebarLeftExpand className="w-5 h-5 text-slate-600" />
+          ) : (
+            <IconLayoutSidebarRightExpand className="w-5 h-5 text-slate-600" />
+          )}
+        </button>
+      </div>
     </div>
   );
 }
 
-export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, panelWidth = 320, isCollapsed = false, sidebarWidth = 64 }) {
+export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, panelWidth = 320, isCollapsed = false, sidebarWidth = 64, onTogglePanel }) {
   const [selectedNode, setSelectedNode] = useState(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initEdges);
@@ -421,6 +439,11 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
 
   return (
     <div>
+       {/* Header */}
+       <div className="bg-white border-b border-slate-300 px-4 py-2 flex items-center gap-4 flex-shrink-0">
+          <h3 className="text-md font-semibold text-slate-800 select-none">Portfolio Overview</h3>
+      </div>
+
       <div className="node_graph w-screen h-screen relative">
         {/* React Flow Canvas */}
         <ReactFlow 
@@ -452,15 +475,20 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
           <Background color="#000000" variant={BackgroundVariant.Dots} />
           {/* Controls that follow the GraphControlPanel, but inside ReactFlow for context */}
           <div
-            style={{
-              position: 'absolute',
-              top: 16,
-              left: controlsLeft,
-              zIndex: 50,
-              transition: 'left 0.4s cubic-bezier(0.4,0,0.2,1)',
-            }}
+                          style={{
+                position: 'absolute',
+                top: 10,
+                left: controlsLeft,
+                zIndex: 50,
+                transition: 'left 0.4s cubic-bezier(0.645, 0.045, 0.355, 1)',
+              }}
           >
-            <CustomControls locked={locked} onToggleLock={toggleLock} />
+            <CustomControls 
+              locked={locked} 
+              onToggleLock={toggleLock} 
+              isPanelCollapsed={isCollapsed}
+              onTogglePanel={onTogglePanel}
+            />
           </div>
         </ReactFlow>
         {/* Context Menu */}

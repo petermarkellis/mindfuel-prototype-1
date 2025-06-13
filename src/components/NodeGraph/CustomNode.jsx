@@ -47,7 +47,7 @@ const CustomNode = ({ data, nodes = [] }) => {
   
 
   return (
-    <div className="rounded-3xl p-2 bg-[var(--color-node-bg)] text-slate-500 border-4 border-[var(--color-node-border)] rounded-2xl max-w-[800px]" onClick={nodeInteractionHandler}>
+    <div className="rounded-3xl p-2 bg-[var(--color-node-bg)] text-slate-500 border-4 border-[var(--color-node-border)] rounded-2xl max-w-[800px] group" onClick={nodeInteractionHandler}>
       <div className="px-8 py-4  flex flex-col gap-6 items-start">
         <div className={`text-ms font-medium truncate text-3xl capitalize w-full flex flex-row justify-between gap-1 ${getTypeColorClass(data.type)}`}>
           <span>{data.type}</span>
@@ -58,7 +58,7 @@ const CustomNode = ({ data, nodes = [] }) => {
             {data.type === 'Data Asset' && <IconLayersSelected className="w-10 h-10 bg-[var(--color-data-asset-subtle)] p-1 rounded-lg text-[var(--color-data-asset-base)]" />}
           </div>
         </div>
-        <div className={`text-ms font-medium truncate text-left text-4xl capitalize w-full hover:text-slate-900 transition-colors duration-300`}>
+        <div className={`text-md font-medium truncate text-left text-4xl capitalize w-full hover:text-slate-900 transition-colors duration-300`}>
           {data.name}
         </div>
       </div>
@@ -74,40 +74,40 @@ const CustomNode = ({ data, nodes = [] }) => {
         </div>
       </div>
 
-      <Handle type="target" position={Position.Top} id="t" className="custom-handle w-2 h-2" 
+      <Handle type="target" position={Position.Top} id="t" className="custom-handle w-2 h-2 opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 ease-out" 
         style={{
-          width: 16,
-          height: 16,
+          width: 20,
+          height: 20,
           background: getHandleColorForType(data.type),
           border: '2px solid #fff',
           borderRadius: '50%',
           top: -8,
         }}
       />
-      <Handle type="source" position={Position.Bottom} id="b" className="custom-handle w-2 h-2" 
+      <Handle type="source" position={Position.Bottom} id="b" className="custom-handle w-2 h-2 opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 ease-out" 
         style={{
-          width: 16,
-          height: 16,
+          width: 20,
+          height: 20,
           background: getHandleColorForType(data.type),
           border: '2px solid #fff',
           borderRadius: '50%',
           bottom: -8,
         }}
       />
-      <Handle type="target" position={Position.Left} id="l" className="custom-handle w-2 h-2" 
+      <Handle type="target" position={Position.Left} id="l" className="custom-handle w-2 h-2 opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 ease-out" 
         style={{
-          width: 16,
-          height: 16,
+          width: 20,
+          height: 20,
           background: getHandleColorForType(data.type),
           border: '2px solid #fff',
           borderRadius: '50%',
           left: -8,
         }}
       />
-      <Handle type="source" position={Position.Right} id="r" className="custom-handle w-2 h-2" 
+      <Handle type="source" position={Position.Right} id="r" className="custom-handle w-2 h-2 opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 ease-out" 
         style={{
-          width: 16,
-          height: 16,
+          width: 20,
+          height: 20,
           background: getHandleColorForType(data.type),
           border: '2px solid #fff',
           borderRadius: '50%',

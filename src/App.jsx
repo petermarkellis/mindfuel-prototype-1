@@ -5,17 +5,30 @@ import React from 'react';
 
 import Layout from './components/Layout/Layout'
 import NodeGraph from './components/NodeGraph/NodeGraph'
+import Inbox from './components/Inbox'
  
 
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [currentView, setCurrentView] = useState('main') // 'main' or 'inbox'
+
+  const navigateToInbox = () => {
+    setCurrentView('inbox')
+  }
+
+  const navigateToMain = () => {
+    setCurrentView('main')
+  }
 
   return (
     <div>
-      <Layout>
-        
-      </Layout>
+      {currentView === 'inbox' ? (
+        <Inbox onNavigateBack={navigateToMain} />
+      ) : (
+        <Layout onNavigateToInbox={navigateToInbox} onNavigateToMain={navigateToMain}>
+          
+        </Layout>
+      )}
     </div>
   )
 }

@@ -54,7 +54,7 @@ const NewItemCard = ({
         transition-all duration-300 ease-out cursor-pointer
         text-left md:text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
         w-full flex flex-row md:flex-col items-start md:items-center
-        ${borderColor}
+        border-slate-400 border-2 md:border-none
         ${className}
       `}
     >
