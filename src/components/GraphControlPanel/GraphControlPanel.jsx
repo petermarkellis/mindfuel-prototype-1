@@ -116,6 +116,7 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
         width: panelWidth,
         duration: 0.4,
         ease: 'power2.inOut',
+        delay: 0.7,
         clearProps: 'pointerEvents',
       });
     }

@@ -22,7 +22,13 @@ export default function SideNav({ onOpenNewItemModal, onNavigateToInbox, onNavig
         <nav className="side-nav fixed top-0 left-0 z-50 w-16 h-screen border-r border-slate-300 flex flex-col">
           {/* Logo at top */}
           <div className="flex flex-col items-center w-full py-2">
-            <img src="/mindfuel_logo_light.svg" alt="Mindfuel Logo" className="w-6"/>
+            <button
+              onClick={onNavigateToMain}
+              className="p-2 rounded-lg hover:bg-slate-100 transition-colors duration-200 cursor-pointer"
+              aria-label="Go to main graph view"
+            >
+              <img src="/mindfuel_logo_light.svg" alt="Mindfuel Logo" className="w-6"/>
+            </button>
           </div>
           
           {/* Main navigation items - flex-1 to take up remaining space */}
