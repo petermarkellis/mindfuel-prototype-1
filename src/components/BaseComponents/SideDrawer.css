@@ -2,17 +2,12 @@
 .side-drawer {
   position: fixed;
   top: 0;
-  right: -420px; /* Initially closed, off-screen */
+  right: -400px;
   width: 420px;
   height: 100svh;
   background-color: #f5f6fa;
-  transition: right 0.5s ease, opacity 0.5s ease; /* Slide and fade transition */
-  opacity: 0; /* Start with invisible */
-}
-
-.side-drawer.open {
-  right: 0; /* Slide in from the right */
-  opacity: 1; /* Fade in when open */
+  transition: none;
+  opacity: 0;
 }
 
 /* Close button styling */

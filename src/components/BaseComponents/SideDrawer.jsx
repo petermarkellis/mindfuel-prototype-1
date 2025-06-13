@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import closeIcon from '/icon_close.svg';
 import './SideDrawer.css';
-import { IconCheck, IconX } from '@tabler/icons-react';
+import { IconCheck, IconX, IconArrowsDownUp } from '@tabler/icons-react';
 
 const CloseButton = ({ onClick }) => (
   <button className="close-button hover:bg-slate-200 absolute top-1 right-1 transition-colors duration-200 ease-in-out" onClick={onClick}>
@@ -97,11 +97,13 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState(selectedNode?.data?.name || "");
   const [editingRisk, setEditingRisk] = useState(false);
+  const prevIsOpen = useRef(isOpen);
 
   useEffect(() => {
-    if (isOpen) {
-      // Animate the side drawer sliding in
+    if (isOpen && !prevIsOpen.current) {
+      // Only animate in if transitioning from closed to open
       if (drawerRef.current) {
+        gsap.set(drawerRef.current, { right: '-400px', opacity: 0 });
         gsap.to(drawerRef.current, {
           duration: 0.5,
           right: 0,
@@ -156,7 +158,9 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
           }
         });
       }
-    } else {
+    }
+    prevIsOpen.current = isOpen;
+    if (!isOpen) {
       // Close the drawer (slide out) and hide the content
       if (drawerRef.current) {
         gsap.to(drawerRef.current, {
@@ -280,7 +284,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
           <div className='flex flex-col gap-4 w-full'>
             {/* Potential Block */}
             <div className='relative flex flex-col justify-between gap-2 bg-slate-100 border border-slate-400 rounded-md px-2 py-0 h-16 sm:h-20 md:h-24 lg:h-24 w-full  items-start overflow-hidden'>
-              <span className="z-10 font-medium mt-2 text-slate-600 bg-slate-200/60 rounded-lg px-1 py-0">Potential</span> 
+              <span className="z-10 font-medium mt-2 text-slate-600 bg-slate-200/60 rounded-lg px-1 py-0 select-none">Potential</span> 
               <span className="z-10 text-lg pl-2 font-medium md:font-light  sm:text-xl md:text-3xl lg:text-4xl text-slate-600 font-light">{Potential}%</span>
               <div
                 ref={potentialBarRef}
@@ -290,7 +294,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
             </div>
             {/* Total Contribution Block */}
             <div className='relative flex flex-col justify-between gap-2 bg-slate-100 border border-slate-400 rounded-md px-2 py-0 h-16 sm:h-20 md:h-24 lg:h-24 w-full items-start overflow-hidden'>
-              <span className="z-10 font-medium mt-2 text-slate-600 bg-slate-200/60 rounded-lg px-1 py-0">Total Contribution</span> 
+              <span className="z-10 font-medium mt-2 text-slate-600 bg-slate-200/60 rounded-lg px-1 py-0 select-none">Total Contribution</span> 
               <span className="z-10 text-lg pl-2 font-medium md:font-light  sm:text-xl md:text-3xl lg:text-4xl text-slate-600 font-light">{TotalContribution}%</span>
               <div
                 ref={totalContributionBarRef}
@@ -304,12 +308,12 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
         <div className='w-full'>
           {/* Parent Nodes List */}
           {parentNodes.length > 0 && (
-            <div className="mt-4 w-full border-t border-slate-200 pt-4 flex flex-col gap-2 items-start">
+            <div className="mt-4 w-full pt-4 flex flex-col gap-2 items-start relative">
               <div className='flex flex-col gap-2 items-start px-6'>
-              <h4 className="text-slate-500 mb-2 font-medium">Contributes to:</h4>
+              <h4 className="text-slate-500 mb-2 font-medium select-none">Contributes to:</h4>
               <ul className="flex flex-col gap-2 items-start">
                 {parentNodes.map(node => (
-                  <li key={node.id} className="text-sm text-slate-600">
+                  <li key={node.id} className="text-sm text-slate-600 select-all">
                     <span className="font-bold">{node?.data?.name}</span> <span className="text-sm text-slate-400">({node?.data?.type})</span>
                   </li>
                 ))}
@@ -319,13 +323,20 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
           )}
 
           {/* Child Nodes List */}
+          {(parentNodes.length > 0) && (childNodes.length > 0) && (
+          <div className='w-full h-0 bg-slate-200 border-t border-slate-200 mt-4 relative'>
+          <IconArrowsDownUp className='bg-slate-50 z-50 rounded-full p-1 size-6 text-slate-400 absolute -bottom-3 left-6' stroke={3}/>
+          </div>
+          )}
+
+          {/* Child Nodes List */}
           {childNodes.length > 0 && (
-            <div className="mt-4 w-full border-t border-slate-200 pt-4 flex flex-col gap-2 items-start">
+            <div className="mt-2 w-full  pt-4 flex flex-col gap-2 items-start">
               <div className='flex flex-col gap-2 items-start px-6'>
-              <h4 className="text-slate-500 mb-2 font-medium">Gets Data From:</h4>
+              <h4 className="text-slate-500 mb-2 font-medium select-none">Gets Data From:</h4>
               <ul className="flex flex-col gap-2 items-start">
                 {childNodes.map(node => (
-                  <li key={node.id} className="text-sm text-slate-600">
+                  <li key={node.id} className="text-sm text-slate-600 select-all">
                     <span className="font-bold">{node?.data?.name}</span> <span className="text-sm text-slate-400">({node?.data?.type})</span>
                   </li>
                 ))}
@@ -338,11 +349,11 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
         {/* Additional Node Data Section */}
         {selectedNode && (
           <div className="mt-4 w-full border-t border-slate-200 pt-4 flex flex-col gap-2 items-start px-6">
-            <h4 className="text-slate-500 mb-2 font-medium">Node Details</h4>
+            <h4 className="text-slate-500 mb-2 font-medium select-none">Node Details</h4>
             <ul className="flex flex-col gap-4 items-start text-slate-600 text-sm w-full">
               {/* Risk as enum badge */}
               <li className='flex flex-row justify-between w-full'>
-                <span className="text-slate-400">Risk:</span>
+                <span className="text-slate-400 select-none">Risk:</span>
                 <span className="w-auto flex flex-row items-end select-none flex-row-reverse">
                   {editingRisk ? (
                     <select
@@ -376,11 +387,11 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                 </span>
               </li>
               {selectedNode?.data?.successPotential && (
-                <li className='flex items-center flex-row justify-between w-full'><span className="text-slate-400">Success Potential:</span> <span className="font-bold">{selectedNode?.data?.successPotential}%</span></li>
+                <li className='flex items-center flex-row justify-between w-full'><span className="text-slate-400 select-none">Success Potential:</span> <span className="font-bold">{selectedNode?.data?.successPotential}%</span></li>
               )}
               {selectedNode?.data?.createdby && (
                 <li className='flex items-center flex-row justify-between w-full'>
-                  <span className="text-slate-400">Created by:</span>
+                  <span className="text-slate-400 select-none">Created by:</span>
                   <span
                     className="font-bold flex items-center gap-1 relative"
                     onMouseEnter={() => setShowCreatedCard(true)}
@@ -407,9 +418,9 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                         <div className="text-sm text-slate-500">Data Steward</div>
                         <div className="text-sm text-slate-400 font-normal">{selectedNode?.data?.createdby.split(' ')[0].toLowerCase()}@mindfuel.ai</div>
                         <div className="mt-2 text-sm flex flex-col items-start text-slate-600 font-normal">
-                          <div>Opportunities: 1</div>
-                          <div>Products: 2</div>
-                          <div>Assets: 5</div>
+                          <div className=' select-none'>Opportunities: 1</div>
+                          <div className='select-none'>Products: 2</div>
+                          <div className='select-none'>Assets: 5</div>
                         </div>
                       </div>
                     </div>
@@ -417,13 +428,13 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                 </li>
               )}
               {selectedNode?.data?.createdat && (
-                <li className='flex items-center flex-row justify-between w-full'><span className="text-slate-400">Created:</span> <span className="font-bold">{formatDate(selectedNode?.data?.createdat)}</span></li>
+                <li className='flex items-center flex-row justify-between w-full'><span className="text-slate-400  select-none">Created:</span> <span className="font-bold">{formatDate(selectedNode?.data?.createdat)}</span></li>
               )}
               {selectedNode?.data?.updatedby && (
-                <li className='flex items-start flex-row justify-between w-full'>
-                  <span className="text-slate-400">Updated by:</span>
+                <li className='flex items-center flex-row justify-between w-full'>
+                  <span className="text-slate-400 select-none">Updated by:</span>
                   <span
-                    className="font-bold flex items-start gap-1 relative"
+                    className="font-bold flex items-center gap-1 relative"
                     onMouseEnter={() => setShowUpdatedCard(true)}
                     onMouseLeave={() => setShowUpdatedCard(false)}
                     style={{ cursor: 'pointer' }}
@@ -448,9 +459,9 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                         <div className="text-sm text-slate-500">Data Steward</div>
                         <div className="text-sm text-slate-400 font-normal">{selectedNode?.data?.updatedby.split(' ')[0].toLowerCase()}@mindfuel.ai</div>
                         <div className="mt-2 text-sm flex flex-col items-start text-slate-600 font-normal">
-                          <div>Opportunities: 3</div>
-                          <div>Products: 7</div>
-                          <div>Assets: 16</div>
+                          <div className='select-none'>Opportunities: 3</div>
+                          <div className='select-none'>Products: 7</div>
+                          <div className='select-none'>Assets: 16</div>
                         </div>
                       </div>
                     </div>
@@ -458,7 +469,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                 </li>
               )}
               {selectedNode?.data?.updatedat && (
-                <li className='flex items-center flex-row justify-between w-full'><span className="text-slate-400">Updated:</span> <span className="font-bold">{formatDate(selectedNode?.data?.updatedat)}</span></li>
+                <li className='flex items-center flex-row justify-between w-full'><span className="text-slate-400 select-none">Updated:</span> <span className="font-bold">{formatDate(selectedNode?.data?.updatedat)}</span></li>
               )}
             </ul>
           </div>
