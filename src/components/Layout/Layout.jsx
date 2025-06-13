@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import SideBar from '../SideBar/SideBar'
 import GraphControlPanel from '../GraphControlPanel/GraphControlPanel'
 import NodeGraph, { initNodes } from '../NodeGraph/NodeGraph'
+import { NewItemModal } from '../NewItemModal'
 import './Layout.css'
 import FixedFooter from '../BaseComponents/FixedFooter';
 
@@ -14,6 +15,7 @@ export default function Layout({ children }) {
   const [panelWidth, setPanelWidth] = useState(340); // default width
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [lastPanelWidth, setLastPanelWidth] = useState(340);
+  const [isNewItemModalOpen, setIsNewItemModalOpen] = useState(false);
 
 
 
@@ -48,9 +50,30 @@ export default function Layout({ children }) {
     setIsCollapsed(!isCollapsed);
   };
 
+  // Handler for opening the new item modal
+  const handleOpenNewItemModal = () => {
+    setIsNewItemModalOpen(true);
+  };
+
+  // Handler for closing the new item modal
+  const handleCloseNewItemModal = () => {
+    setIsNewItemModalOpen(false);
+  };
+
+  // Handler for creating a new item
+  const handleCreateNewItem = (itemType) => {
+    // TODO: Implement node creation logic
+    console.log('Creating new item:', itemType);
+    // This is where you would add the new node to your graph
+  };
+
   return (
     <div className="layout flex flex-row shrink relative">
-      <SideBar isPanelCollapsed={isCollapsed} onTogglePanel={handleTogglePanel} />
+      <SideBar 
+        isPanelCollapsed={isCollapsed} 
+        onTogglePanel={handleTogglePanel}
+        onOpenNewItemModal={handleOpenNewItemModal}
+      />
       <div className='flex flex-row relative ml-16 w-full'>
         <GraphControlPanel
           onFilterChange={handleFilterChange}
@@ -78,6 +101,12 @@ export default function Layout({ children }) {
         </div>
       </div>
 
+      {/* New Item Modal */}
+      <NewItemModal
+        isOpen={isNewItemModalOpen}
+        onClose={handleCloseNewItemModal}
+        onCreateItem={handleCreateNewItem}
+      />
     </div>
   );
 }

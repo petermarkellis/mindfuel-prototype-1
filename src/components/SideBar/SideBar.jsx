@@ -16,7 +16,7 @@ import {
         IconSquareRoundedPlus
       } from '@tabler/icons-react';
 
-export default function SideNav({ isPanelCollapsed, onTogglePanel }) {
+export default function SideNav({ isPanelCollapsed, onTogglePanel, onOpenNewItemModal }) {
     return (
         <nav className="side-nav fixed top-0 left-0 z-50 w-16 h-screen border-r border-slate-300">
           <div className="flex flex-col items-center w-full py-2">
@@ -39,9 +39,14 @@ export default function SideNav({ isPanelCollapsed, onTogglePanel }) {
           
             </li>
             <li>
-              <div className="rounded-xl bg-white p-1 border border-slate-300 hover:bg-slate-200 transition-colors duration-300">
+              {/* Allows user to create a new item. Displays a modal with the options to create a new item. */}
+              <button 
+                onClick={onOpenNewItemModal}
+                className="rounded-xl bg-white p-1 border border-slate-300 hover:bg-slate-200 transition-colors duration-300 cursor-pointer"
+                aria-label="Create new item"
+              >
                 <IconSquareRoundedPlus className="size-6 text-slate-500" strokeWidth={2} />
-              </div>
+              </button>
             </li>
             <li className="relative">
               <IconInbox className="size-6 text-slate-500" strokeWidth={2} />
