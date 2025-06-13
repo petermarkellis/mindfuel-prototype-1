@@ -1,12 +1,24 @@
 import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
-import { IconX, IconRecharging, IconBox, IconLayersSelected, IconDatabase, IconPlayerPlay } from '@tabler/icons-react';
+import { 
+    IconX, 
+    IconRecharging, 
+    IconBox, 
+    IconLayersSelected, 
+    IconDatabase, 
+    IconPlayerPlay, 
+    IconBrandDiscord,
+    IconBrandYoutube,
+    IconBrandDatabricks
+} from '@tabler/icons-react';
 import NewItemCard from './NewItemCard';
 
 const NewItemModal = ({ isOpen, onClose, onCreateItem }) => {
   const overlayRef = useRef(null);
   const modalRef = useRef(null);
   const cardsRef = useRef([]);
+  const educationPanelRef = useRef(null);
+  const buttonsRef = useRef([]);
 
   // Modal data using your existing color scheme
   const itemTypes = [
@@ -63,6 +75,8 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem }) => {
       gsap.set(overlayRef.current, { opacity: 0 });
       gsap.set(modalRef.current, { scale: 0.9, opacity: 0 });
       gsap.set(cardsRef.current, { y: 40, opacity: 0 });
+      gsap.set(educationPanelRef.current, { y: 60, opacity: 0 });
+      gsap.set(buttonsRef.current, { y: 30, opacity: 0 });
 
       // Animate in
       const tl = gsap.timeline();
@@ -71,10 +85,23 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem }) => {
         .to(cardsRef.current, { 
           y: 0, 
           opacity: 1, 
-          duration: 0.6, 
+          duration: 0.3, 
+          stagger: 0.2,
+          ease: 'power3.out', 
+        }, 0.4)
+        .to(educationPanelRef.current, {
+          y: 0,
+          opacity: 1,
+          duration: 0.5,
+          ease: 'power3.out'
+        }, 0.7)
+        .to(buttonsRef.current, {
+          y: 0,
+          opacity: 1,
+          duration: 0.4,
           stagger: 0.1,
-          ease: 'power3.out' 
-        }, 0.3);
+          ease: 'power3.out'
+        }, 0.9);
     } else if (overlayRef.current) {
       // Animate out
       gsap.to(overlayRef.current, { opacity: 0, duration: 0.2 });
@@ -144,7 +171,7 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem }) => {
           {/* Cards */}
           <div className="px-4 md:px-8 pb-4 md:pb-8">
             <div className="flex justify-center">
-              <div className="flex flex-col md:flex-row gap-4 md:gap-6 max-w-6xl w-full">
+              <div className="flex flex-col md:flex-row gap-4 md:gap-6 max-w-7xl w-full">
               {itemTypes.map((item, index) => (
                 <div
                   key={item.id}
@@ -171,15 +198,12 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem }) => {
           {/* Training Section */}
           <div className="w-full pb-1 pt-6">
             <div className="flex justify-center">
-              <div className="flex w-full max-w-6xl">
+              <div className="flex w-full max-w-7xl">
                 <div 
-                  className="flex-1 rounded-xl p-4 border border-slate-200 w-full relative overflow-hidden"
+                  ref={educationPanelRef}
+                  className="flex-1 rounded-xl p-4 border border-slate-50 w-full relative overflow-hidden training-panel"
                   style={{
-                    backgroundColor: '#F2F7FE',
-                    backgroundImage: 'url(/Mindfuel_Glass_Logo.jpg)',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'right -50px center',
-                    backgroundSize: '300px auto'
+                    backgroundColor: '#F2F7FE'
                   }}
                 >
                   <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 md:gap-24">
@@ -188,16 +212,34 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem }) => {
                         Learn about our framework
                       </h4>
                       <p className="text-md text-slate-600 leading-relaxed text-left">
-                        Learn about Opportunities, Products, Data Assets and Sources<br></br>including our tips on how to structure them to match your business requirements.
+                        Learn about Opportunities, Products, Data Assets and Sources<br></br>including our tips on how to structure them to match your business requirements.<br></br><br></br>Discuss with the community and get help from the experts by joining the Discord community.
                       </p>
-                                          </div>
-                      <div className="md:ml-6">
-                        <button className="flex items-center justify-center gap-2 px-4 py-2 bg-slate-500 border border-slate-600 rounded-lg hover:bg-slate-600 transition-colors duration-200 text-white font-medium w-full md:w-auto">
-                        <IconPlayerPlay className="w-4 h-4" strokeWidth={2} />
-                        Watch now
-                      </button>
+                     </div>
+                      <div className="md:ml-6 flex flex-col gap-2">
+                        <button 
+                          ref={(el) => (buttonsRef.current[0] = el)}
+                          className="flex items-start gap-2 px-4 py-2 bg-slate-950/60 backdrop-blur-xs border border-slate-600 rounded-lg hover:bg-slate-600 transition-colors duration-200 text-white hover:text-white font-medium w-full md:w-auto"
+                        >
+                          <IconBrandYoutube className="w-6 h-6" strokeWidth={2} />
+                          Watch now
+                        </button>
+                        <button 
+                          ref={(el) => (buttonsRef.current[1] = el)}
+                          className="flex items-start gap-2 px-4 py-2 bg-slate-100/80 backdrop-blur-xs border border-slate-600 rounded-lg hover:bg-slate-600 transition-colors duration-200 text-slate-800 hover:text-white font-medium w-full md:w-auto"
+                        >
+                          <IconBrandDatabricks className="w-6 h-6" strokeWidth={2} />
+                          Join Mindfuel Academy
+                        </button>
+                        <button 
+                          ref={(el) => (buttonsRef.current[2] = el)}
+                          className="flex items-center gap-2 px-4 py-2 bg-slate-100/80 backdrop-blur-xs border border-slate-600 rounded-lg hover:bg-slate-600 transition-colors duration-200 text-slate-800 hover:text-white font-medium w-full md:w-auto"
+                        >
+                          <IconBrandDiscord className="w-6 h-6" strokeWidth={2} />
+                          Join the Discord community
+                        </button>
                     </div>
                   </div>
+
                 </div>
               </div>
             </div>

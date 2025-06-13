@@ -54,3 +54,13 @@ h1 {
   font-size: 3.2em;
   line-height: 1.1;
 }
+
+/* Training panel background image - only show on medium screens and larger */
+@media (min-width: 768px) {
+  .training-panel {
+    background-image: url(/Mindfuel_Glass_Logo.jpg);
+    background-repeat: no-repeat;
+    background-position: right 300px center;
+    background-size: 200px auto;
+  }
+}

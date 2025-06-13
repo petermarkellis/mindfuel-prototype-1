@@ -1,5 +1,6 @@
 import React from 'react';
 
+
 const NewItemCard = ({ 
   title, 
   description, 
@@ -67,7 +68,7 @@ const NewItemCard = ({
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex flex-col space-y-2">
+      <div className="flex-1 flex flex-col space-y-2 md:items-center">
         <h3 className="text-lg font-semibold text-slate-800 group-hover:text-slate-900">
           {title}
         </h3>
