@@ -5,8 +5,8 @@ import './SideDrawer.css';
 import { IconCheck, IconX, IconArrowsDownUp } from '@tabler/icons-react';
 
 const CloseButton = ({ onClick }) => (
-  <button className="close-button hover:bg-slate-200 absolute top-1 right-1 transition-colors duration-200 ease-in-out" onClick={onClick}>
-    <img src={closeIcon} alt="Close" className="close-icon" />
+  <button className="absolute hover:bg-slate-200 absolute top-4 rounded-md right-6 transition-colors duration-200 ease-in-out" onClick={onClick}>
+    <IconX stroke={2.5} className=''/>
   </button>
 );
 
@@ -98,6 +98,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
   const [titleValue, setTitleValue] = useState(selectedNode?.data?.name || "");
   const [editingRisk, setEditingRisk] = useState(false);
   const prevIsOpen = useRef(isOpen);
+  const prevSelectedNodeId = useRef(selectedNode?.id);
 
   useEffect(() => {
     if (isOpen && !prevIsOpen.current) {
@@ -109,53 +110,6 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
           right: 0,
           opacity: 1,
           ease: 'power2.inOut',
-        });
-      }
-
-      // Animate the content blocks sliding up one by one with a stagger effect
-      /*gsap.fromTo(
-        contentRef.current,
-        {
-          opacity: 0,
-          y: 20,
-        },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.5,
-          stagger: 0.1, // Delay between each content block's animation
-          ease: 'power2.out',
-        }
-      );*/
-
-      // Animate Potential to selectedNode.data.potential
-      if (potentialRef.current && potentialBarRef.current) {
-        gsap.to(potentialRef.current, {
-          value: selectedNode?.data?.potential ?? 0,
-          duration: 0.5,
-          ease: 'power2.out',
-          onUpdate: function () {
-            const val = Math.round(potentialRef.current ? potentialRef.current.value : 0);
-            setPotential(val);
-            if (potentialBarRef.current) {
-              gsap.set(potentialBarRef.current, { height: `${val}%` });
-            }
-          }
-        });
-      }
-      // Animate TotalContribution to selectedNode.data.totalContribution
-      if (totalContributionRef.current && totalContributionBarRef.current) {
-        gsap.to(totalContributionRef.current, {
-          value: selectedNode?.data?.totalContribution ?? 0,
-          duration: 0.5,
-          ease: 'power2.out',
-          onUpdate: function () {
-            const val = Math.round(totalContributionRef.current ? totalContributionRef.current.value : 0);
-            setTotalContribution(val);
-            if (totalContributionBarRef.current) {
-              gsap.set(totalContributionBarRef.current, { height: `${val}%` });
-            }
-          }
         });
       }
     }
@@ -170,24 +124,64 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
           ease: 'power2.in',
         });
       }
-
-      // Hide content with a slight upward movement
-      /*if (contentRef.current) {
-        gsap.to(contentRef.current, {
-          opacity: 0,
-          y: 10,
-          duration: 0.5,
-          stagger: 0.1,
-        });
-      }*/
-      //setPotential(0);
-      //setTotalContribution(0);
-      //potentialRef.current.value = 0;
-      //totalContributionRef.current.value = 0;
-      //if (potentialBarRef.current) gsap.set(potentialBarRef.current, { height: '0%' });
-      //if (totalContributionBarRef.current) gsap.set(totalContributionBarRef.current, { height: '0%' });
     }
-  }, [isOpen, selectedNode?.data?.potential, selectedNode?.data?.totalContribution]);
+  }, [isOpen]);
+
+  // Separate useEffect for animating values when node changes or drawer opens
+  useEffect(() => {
+    if (isOpen && selectedNode && (selectedNode.id !== prevSelectedNodeId.current || !prevIsOpen.current)) {
+      // Reset to 0 first
+      if (potentialRef.current) {
+        potentialRef.current.value = 0;
+      }
+      if (totalContributionRef.current) {
+        totalContributionRef.current.value = 0;
+      }
+      setPotential(0);
+      setTotalContribution(0);
+      if (potentialBarRef.current) {
+        gsap.set(potentialBarRef.current, { height: '0%' });
+      }
+      if (totalContributionBarRef.current) {
+        gsap.set(totalContributionBarRef.current, { height: '0%' });
+      }
+
+      // Then animate to new values after a short delay
+      setTimeout(() => {
+        // Animate Potential to selectedNode.data.potential
+        if (potentialRef.current && potentialBarRef.current) {
+          gsap.to(potentialRef.current, {
+            value: selectedNode?.data?.potential ?? 0,
+            duration: 0.5,
+            ease: 'power2.out',
+            onUpdate: function () {
+              const val = Math.round(potentialRef.current ? potentialRef.current.value : 0);
+              setPotential(val);
+              if (potentialBarRef.current) {
+                gsap.set(potentialBarRef.current, { height: `${val}%` });
+              }
+            }
+          });
+        }
+        // Animate TotalContribution to selectedNode.data.totalContribution
+        if (totalContributionRef.current && totalContributionBarRef.current) {
+          gsap.to(totalContributionRef.current, {
+            value: selectedNode?.data?.totalContribution ?? 0,
+            duration: 0.5,
+            ease: 'power2.out',
+            onUpdate: function () {
+              const val = Math.round(totalContributionRef.current ? totalContributionRef.current.value : 0);
+              setTotalContribution(val);
+              if (totalContributionBarRef.current) {
+                gsap.set(totalContributionBarRef.current, { height: `${val}%` });
+              }
+            }
+          });
+        }
+      }, 100); // Small delay to ensure reset is visible
+    }
+    prevSelectedNodeId.current = selectedNode?.id;
+  }, [isOpen, selectedNode?.id, selectedNode?.data?.potential, selectedNode?.data?.totalContribution]);
 
   useEffect(() => {
     setTitleValue(selectedNode?.data?.name || "");
@@ -221,7 +215,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
   if (!selectedNode) return null;
 
   return (
-    <div ref={drawerRef} className={`border-l border-slate-300 side-drawer h-screen ${isOpen ? 'open' : 'closed'} backdrop-blur-md bg-white/60 flex flex-col`}>
+    <div ref={drawerRef} className={`border-l border-slate-300 side-drawer h-screen ${isOpen ? 'open' : 'closed'} bg-[var(--color-panel-bg)]/80 backdrop-blur-md flex flex-col`}>
       {/* Use the CloseButton component */}
       <CloseButton onClick={onClose} />
       <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-start hide-scrollbar">

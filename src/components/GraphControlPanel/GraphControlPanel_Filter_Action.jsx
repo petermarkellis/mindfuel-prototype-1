@@ -23,7 +23,7 @@ export default function GraphControlPanelFilterAction(props) {
                     onChange={handleCheckboxChange}
                 />
             </div>
-        </label>
+      </label>
 
    
         )

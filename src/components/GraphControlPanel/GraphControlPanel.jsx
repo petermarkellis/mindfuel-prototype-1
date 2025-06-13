@@ -139,7 +139,7 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
         listcontainer.current = el;
         containerRef.current = el;
       }}
-      className="graph_control_panel h-screen z-50 flex flex-col border-r border-slate-300 bg-white/60 backdrop-blur-md relative"
+      className="graph_control_panel h-screen z-50 flex flex-col border-r border-slate-300 bg-[var(--color-panel-bg)]/60  backdrop-blur-md relative"
       style={{
         minWidth: 0,
         maxWidth: maxWidth,
@@ -181,10 +181,10 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
         )}
       </div>
         
-        <ul ref={listitems} className="node_index_list flex flex-col items-start gap-4 px-4 pb-2 ">
+        <ul ref={listitems} className="node_index_list flex flex-col items-start gap-4 p-4">
           {filteredNodeTypes.length === 0 ? (
-            <li className="flex flex-row items-start w-full">
-              <span className="text-red-600 font-semibold select-none text-left">No results</span>
+            <li className="flex flex-row items-start w-full px-4 py-2">
+              <span className="text-slate-500 font-medium select-none text-left">No results found</span>
               <button
                 className="px-2 py-0.5 border border-slate-600 text-slate-600 rounded hover:bg-slate-50 transition text-sm font-medium select-none"
                 onClick={() => setSearch("")}
@@ -193,7 +193,7 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
             </li>
           ) : (
             filteredNodeTypes.map(type => (
-              <li key={type} className="w-full flex flex-col items-start">
+              <li key={type} className="w-full flex flex-col items-start px-4">
                 <h3 className="text-md mt-4 mb-2 text-slate-500 truncate font-medium flex flex-row items-center gap-1 select-none">
                   {type === 'Opportunity' && <IconRecharging className="w-6 h-6 text-orange-500" />}
                   {type === 'Product' && <IconBox className="w-6 h-6 text-purple-500" />}
@@ -211,7 +211,7 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
             ))
           )}
         </ul>
-        <div className="w-full h-1 border-b border-slate-300"></div>
+        <div className="w-full h-1 border-b border-slate-300 mt-4"></div>
         {/* Display Settings filter block, now part of the main scrollable area */}
         <ul ref={filteritems} className="w-full flex flex-col items-start pt-6 pb-16 px-6 gap-2">
           <li><h3 className="text-md text-slate-500 truncate font-medium flex flex-row items-start gap-1 select-none">

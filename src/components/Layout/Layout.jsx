@@ -10,6 +10,7 @@ export default function Layout({ children }) {
   const [filters, setFilters] = useState([]);
   const [nodes] = useState(initNodes);
   const [nodeIdToCenter, setNodeIdToCenter] = useState(null);
+  const [nodeIdToSelect, setNodeIdToSelect] = useState(null);
   const [panelWidth, setPanelWidth] = useState(340); // default width
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [lastPanelWidth, setLastPanelWidth] = useState(340);
@@ -25,11 +26,15 @@ export default function Layout({ children }) {
     );
   };
 
-  // Helper to set and then reset nodeIdToCenter
+  // Helper to set and then reset nodeIdToCenter and nodeIdToSelect
   const handleNodeListSelect = (id) => {
     setNodeIdToCenter(id);
+    setNodeIdToSelect(id);
     // Reset after a short delay to allow animation
-    setTimeout(() => setNodeIdToCenter(null), 1000);
+    setTimeout(() => {
+      setNodeIdToCenter(null);
+      setNodeIdToSelect(null);
+    }, 1000);
   };
 
   // Handler for expanding the panel from collapsed state
@@ -63,6 +68,7 @@ export default function Layout({ children }) {
           <NodeGraph 
             filters={filters} 
             nodeIdToCenter={nodeIdToCenter} 
+            nodeIdToSelect={nodeIdToSelect}
             panelWidth={panelWidth}
             isCollapsed={isCollapsed}
           />

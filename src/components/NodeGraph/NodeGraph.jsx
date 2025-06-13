@@ -221,7 +221,7 @@ function CustomControls({ locked, onToggleLock }) {
   );
 }
 
-export default function NodeGraph({ filters, nodeIdToCenter, panelWidth = 320, isCollapsed = false, sidebarWidth = 64 }) {
+export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, panelWidth = 320, isCollapsed = false, sidebarWidth = 64 }) {
   const [selectedNode, setSelectedNode] = useState(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initEdges);
@@ -331,12 +331,36 @@ export default function NodeGraph({ filters, nodeIdToCenter, panelWidth = 320, i
       if (nodeIdToCenter) {
         const node = reactFlow.getNodes().find(n => n.id === nodeIdToCenter);
         if (node) {
-          reactFlow.setCenter(node.position.x, node.position.y, { zoom: 0.8, duration: 1200 });
+          // Check if sidedrawer will be open (since navigation triggers selection)
+          const sideDrawerOffset = 300; // 300px offset to account for sidedrawer width
+          const adjustedX = node.position.x + sideDrawerOffset;
+          reactFlow.setCenter(adjustedX, node.position.y, { zoom: 0.8, duration: 1200 });
         }
       }
     }, [nodeIdToCenter, reactFlow]);
     return null;
   }
+
+  // Handle node selection from navigation
+  useEffect(() => {
+    if (nodeIdToSelect) {
+      const nodeToSelect = nodes.find(n => n.id === nodeIdToSelect);
+      if (nodeToSelect) {
+        // Set the selected node
+        setSelectedNode(nodeToSelect);
+        // Open the sidedrawer
+        setSideDrawerOpen(true);
+        // Set the highlight state
+        setNodes((nds) =>
+          nds.map((n) =>
+            n.id === nodeIdToSelect
+              ? { ...n, className: 'highlighted' }
+              : { ...n, className: '' }
+          )
+        );
+      }
+    }
+  }, [nodeIdToSelect, nodes, setNodes]);
 
   // Add this handler inside NodeGraph
   const handleNodeTitleChange = (id, newTitle) => {
