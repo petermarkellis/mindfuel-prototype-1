@@ -23,7 +23,9 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
     return map;
   }, [nodes]);
 
-  const nodeTypes = Object.keys(nodesByType);
+  // Define the desired order for node types
+  const nodeTypeOrder = ['Opportunity', 'Product', 'Data Asset', 'Data Source'];
+  const nodeTypes = nodeTypeOrder.filter(type => nodesByType[type]);
 
   const [search, setSearch] = useState("");
 
@@ -43,7 +45,7 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
     return filtered;
   }, [nodesByType, search]);
 
-  const filteredNodeTypes = Object.keys(filteredNodesByType);
+  const filteredNodeTypes = nodeTypeOrder.filter(type => filteredNodesByType[type]);
 
   const listitems = useRef(null);
   const listcontainer = useRef(null);
@@ -156,31 +158,34 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
       />
      
 
-      {/* Main scrollable content: node list and filter settings together */}
-      <div className="flex-1 min-h-0 overflow-y-auto w-full">
-
-      <div className="relative mb-2 w-full">
-        <input
-          ref={searchInputRef}
-          type="text"
-          placeholder="Search"
-          className="px-4 py-2 border-b border-slate-300 w-full pr-10"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          onKeyDown={handleSearchKeyDown}
-        />
-        {search && (
-          <button
-            type="button"
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
-            onClick={() => setSearch("")}
-            tabIndex={-1}
-            aria-label="Clear search"
-          >
-            <IconX className="w-5 h-5" stroke={2.5} />
-          </button>
-        )}
+      {/* Sticky search box */}
+      <div className="sticky top-0 z-50 bg-[var(--color-panel-bg)]/90 backdrop-blur-md border-b border-slate-200 mb-2 w-full">
+        <div className="relative w-full">
+          <input
+            ref={searchInputRef}
+            type="text"
+            placeholder="Search"
+            className="px-4 py-2 border-b border-slate-300 w-full pr-10 bg-transparent"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
+          />
+          {search && (
+            <button
+              type="button"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+              onClick={() => setSearch("")}
+              tabIndex={-1}
+              aria-label="Clear search"
+            >
+              <IconX className="w-5 h-5" stroke={2.5} />
+            </button>
+          )}
+        </div>
       </div>
+
+      {/* Main scrollable content: node list and filter settings together */}
+      <div className="flex-1 min-h-0 overflow-y-auto w-full panel-content">
         
         <ul ref={listitems} className="node_index_list flex flex-col items-start gap-4 p-4">
           {filteredNodeTypes.length === 0 ? (
@@ -200,7 +205,7 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
                   {type === 'Product' && <IconBox className="w-6 h-6 text-purple-500" />}
                   {type === 'Data Asset' && <IconLayersSelected className="w-6 h-6 text-blue-500" />}
                   {type === 'Data Source' && <IconDatabase className="w-6 h-6 text-green-500" />}
-                  {type}
+                  {type} ({filteredNodesByType[type].length})
                 </h3>
                 {filteredNodesByType[type].map(name => {
                   const node = nodes.find(n => n.data.name === name && n.data.type === type);

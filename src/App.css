@@ -1,33 +1,9 @@
 :root {
-  --color-panel-bg: #fff;      /* White panels */
-
-  /* Opportunity */
-  --color-opportunity-base: #f59e42;      /* orange-500 */
-  --color-opportunity-subtle: #fef3e2;    /* orange-50 */
-  --color-opportunity-emphasis: #ea580c;  /* orange-600 */
-
-  /* Product */
-  --color-product-base: #7c3aed;          /* purple-600 */
-  --color-product-subtle: #ede9fe;        /* purple-50 */
-  --color-product-emphasis: #6d28d9;      /* purple-700 */
-
-  /* Data Asset */
-  --color-data-asset-base: #2563eb;       /* blue-600 */
-  --color-data-asset-subtle: #dbeafe;     /* blue-50 */
-  --color-data-asset-emphasis: #1d4ed8;   /* blue-700 */
-
-  /* Data Source */
-  --color-data-source-base: #059669;      /* green-600 */
-  --color-data-source-subtle: #d1fae5;    /* green-50 */
-  --color-data-source-emphasis: #047857;  /* green-700 */
-
   /* Node background and borders */
   --color-node-bg: #fff;
   --color-node-border: #e5e7eb;           /* slate-200 */
   --color-node-selected-border: #8b92ae;
 }
-
-/* You can now use bg-opportunity-base, text-product-emphasis, etc. in your Tailwind classes! */
 
 #root {
   margin: 0 auto;

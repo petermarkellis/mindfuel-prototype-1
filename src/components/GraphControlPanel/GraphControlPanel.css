@@ -104,3 +104,14 @@
 .graph_control_panel .resize-handle:hover {
     background: #e2e8f0;
 }
+
+/* Hide scrollbar in the main content area */
+.graph_control_panel .panel-content {
+    /* Chrome, Safari and Opera */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+.graph_control_panel .panel-content::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+}

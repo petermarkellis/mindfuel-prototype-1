@@ -6,38 +6,56 @@ import { CodeBracketSquareIcon,
 } from '@heroicons/react/24/outline'
 import { IconDatabase, IconRecharging, IconBox, IconLayersSelected } from '@tabler/icons-react';
 
-// Function to map data type to Tailwind theme token class
-const getTypeColorClass = (type) => {
+// Function to get direct color values (temporary fix)
+const getTypeColor = (type) => {
   switch (type) {
     case "Opportunity":
-      return "text-[var(--color-opportunity-base)]";
+      return "#f59e42"; // opportunity-500
     case "Product":
     case "Data Product":
-      return "text-[var(--color-product-base)]";
+      return "#7c3aed"; // product-600
     case "Asset":
     case "Data Asset":
-      return "text-[var(--color-data-asset-base)]";
+      return "#2563eb"; // data-asset-600
     case "Data Source":
     case "Source":
-      return "text-[var(--color-data-source-base)]";
+      return "#059669"; // data-source-600
     default:
-      return "text-slate-600";
+      return "#64748b"; // slate-500
+  }
+};
+
+const getTypeBgColor = (type) => {
+  switch (type) {
+    case "Opportunity":
+      return "#fef3e2"; // opportunity-50
+    case "Product":
+    case "Data Product":
+      return "#ede9fe"; // product-50
+    case "Asset":
+    case "Data Asset":
+      return "#dbeafe"; // data-asset-50
+    case "Data Source":
+    case "Source":
+      return "#d1fae5"; // data-source-50
+    default:
+      return "#f1f5f9"; // slate-100
   }
 };
 
 const getHandleColorForType = (type) => {
   switch (type) {
     case 'Opportunity':
-      return '#f59e42'; // orange-500
+      return '#f59e42'; // opportunity-500
     case 'Product':
     case 'Data Product':
-      return '#7c3aed'; // purple-600
+      return '#7c3aed'; // product-600
     case 'Asset':
     case 'Data Asset':
-      return '#2563eb'; // blue-600
+      return '#2563eb'; // data-asset-600
     case 'Data Source':
     case 'Source':
-      return '#059669'; // green-600
+      return '#059669'; // data-source-600
     default:
       return '#64748b'; // slate-500
   }
@@ -47,22 +65,54 @@ const CustomNode = ({ data, nodes = [] }) => {
   
 
   return (
-    <div className="rounded-3xl p-2 bg-[var(--color-node-bg)] text-slate-500 border-4 border-[var(--color-node-border)] rounded-2xl max-w-[800px] group" onClick={nodeInteractionHandler}>
+    <div className="rounded-3xl p-2 bg-white text-slate-500 border-4 border-slate-200 rounded-2xl max-w-[800px] group" onClick={nodeInteractionHandler}>
       <div className="px-8 py-4  flex flex-col gap-6 items-start">
-        <div className={`text-ms font-medium truncate text-3xl capitalize w-full flex flex-row justify-between gap-1 ${getTypeColorClass(data.type)}`}>
+        <div className="text-ms font-medium truncate text-3xl capitalize w-full flex flex-row justify-between gap-1" style={{ color: getTypeColor(data.type) }}>
           <span>{data.type}</span>
           <div>
-            {data.type === 'Data Source' && <IconDatabase className="w-10 h-10 bg-[var(--color-data-source-subtle)] p-1 rounded-lg text-[var(--color-data-source-base)]" />}
-            {data.type === 'Opportunity' && <IconRecharging className="w-10 h-10 bg-[var(--color-opportunity-subtle)] p-1 rounded-lg text-[var(--color-opportunity-base)]" />}
-            {data.type === 'Product' && <IconBox className="w-10 h-10 bg-[var(--color-product-subtle)] p-1 rounded-lg text-[var(--color-product-base)]" />} 
-            {data.type === 'Data Asset' && <IconLayersSelected className="w-10 h-10 bg-[var(--color-data-asset-subtle)] p-1 rounded-lg text-[var(--color-data-asset-base)]" />}
+            {data.type === 'Data Source' && (
+              <IconDatabase 
+                className="w-10 h-10 p-1 rounded-lg" 
+                style={{ 
+                  backgroundColor: getTypeBgColor(data.type),
+                  color: getTypeColor(data.type)
+                }} 
+              />
+            )}
+            {data.type === 'Opportunity' && (
+              <IconRecharging 
+                className="w-10 h-10 p-1 rounded-lg" 
+                style={{ 
+                  backgroundColor: getTypeBgColor(data.type),
+                  color: getTypeColor(data.type)
+                }} 
+              />
+            )}
+            {data.type === 'Product' && (
+              <IconBox 
+                className="w-10 h-10 p-1 rounded-lg" 
+                style={{ 
+                  backgroundColor: getTypeBgColor(data.type),
+                  color: getTypeColor(data.type)
+                }} 
+              />
+            )}
+            {data.type === 'Data Asset' && (
+              <IconLayersSelected 
+                className="w-10 h-10 p-1 rounded-lg" 
+                style={{ 
+                  backgroundColor: getTypeBgColor(data.type),
+                  color: getTypeColor(data.type)
+                }} 
+              />
+            )}
           </div>
         </div>
         <div className={`text-md font-medium truncate text-left text-4xl capitalize w-full hover:text-slate-900 transition-colors duration-300`}>
           {data.name}
         </div>
       </div>
-      <div className="w-full h-px bg-[var(--color-node-border)]"></div>
+      <div className="w-full h-px bg-slate-200"></div>
 
       <div className="px-8 py-4 flex flex-row w-full items-center justify-between bg-slate-50">
         <div className="flex flex-row gap-2">

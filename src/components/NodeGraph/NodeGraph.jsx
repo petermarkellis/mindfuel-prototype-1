@@ -10,13 +10,14 @@ import ReactFlow, {
   useReactFlow
 } from 'reactflow';
 import html2canvas from 'html2canvas';
-import { IconZoomIn, IconZoomOut, IconMaximize, IconArrowBackUp, IconLock, IconLockOpen, IconLayoutSidebarLeftExpand, IconLayoutSidebarRightExpand } from '@tabler/icons-react';
+import { IconZoomIn, IconZoomOut, IconMaximize, IconArrowBackUp, IconLock, IconLockOpen, IconLayoutSidebarLeftExpand, IconLayoutSidebarRightExpand, IconRecharging, IconBox, IconLayersSelected, IconDatabase, IconCheck } from '@tabler/icons-react';
 
 import CustomNode from './CustomNode.jsx'; 
 import SideDrawer from '../BaseComponents/SideDrawer';
 import CustomEdge from './CustomEdge.jsx';
 import GraphControlPanel from '../GraphControlPanel/GraphControlPanel';
 import FixedFooter from '../BaseComponents/FixedFooter';
+import { useSupabaseNodes } from '../../hooks/useSupabaseNodes';
 
 import 'reactflow/dist/style.css';
 import './NodeGraph.css';
@@ -239,23 +240,103 @@ function CustomControls({ locked, onToggleLock, isPanelCollapsed, onTogglePanel 
   );
 }
 
-export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, panelWidth = 320, isCollapsed = false, sidebarWidth = 64, onTogglePanel }) {
+export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, panelWidth = 320, isCollapsed = false, sidebarWidth = 64, onTogglePanel, supabaseHook }) {
   const [selectedNode, setSelectedNode] = useState(null);
-  const [nodes, setNodes, onNodesChange] = useNodesState(initNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initEdges);
   const [sideDrawerOpen, setSideDrawerOpen] = useState(false); 
   const [openMenu, setOpenMenu] = useState({ nodeId: null, pos: { x: 0, y: 0 } });
   const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, node: null });
+  const [submenuVisible, setSubmenuVisible] = useState(false);
+  const submenuTimeout = useRef(null);
   const contextMenuRef = useRef(null);
   const [locked, setLocked] = useState(false);
 
-  const onConnect = useCallback((params) => setEdges((eds) => addEdge({ ...params, type: 'custom' }, eds)), []);
+  // Available node types for the submenu
+  const availableNodeTypes = ['Opportunity', 'Product', 'Data Asset', 'Data Source'];
+
+  // Use shared Supabase hook from Layout
+  const { 
+    nodes, 
+    edges, 
+    loading, 
+    error, 
+    createEdge, 
+    updateNode,
+    updateNodePosition,
+    setNodes,
+    setEdges 
+  } = supabaseHook;
+
+  // React Flow hooks for local state management
+  const [localNodes, setLocalNodes, onNodesChange] = useNodesState(nodes);
+  const [localEdges, setLocalEdges, onEdgesChange] = useEdgesState(edges);
+
+  // Debounced position save to prevent flickering during drag
+  const positionSaveTimeouts = useRef({});
+  
+  // Enhanced onNodesChange that saves position updates to database (debounced)
+  const handleNodesChange = useCallback((changes) => {
+    // Apply changes to local state first (immediate)
+    onNodesChange(changes);
+    
+    // Handle position changes with debouncing
+    changes.forEach((change) => {
+      if (change.type === 'position' && change.position) {
+        // Clear existing timeout for this node
+        if (positionSaveTimeouts.current[change.id]) {
+          clearTimeout(positionSaveTimeouts.current[change.id]);
+        }
+        
+        // Set new timeout to save position after user stops dragging
+        positionSaveTimeouts.current[change.id] = setTimeout(async () => {
+          try {
+            await updateNode(change.id, { position: change.position });
+            delete positionSaveTimeouts.current[change.id];
+          } catch (error) {
+            console.error('Failed to save node position:', error);
+          }
+        }, 500); // Save 500ms after user stops moving the node
+      }
+    });
+  }, [onNodesChange, updateNode]);
+
+  // Sync Supabase data with local React Flow state
+  useEffect(() => {
+    setLocalNodes(nodes);
+  }, [nodes, setLocalNodes]);
+
+  useEffect(() => {
+    setLocalEdges(edges);
+  }, [edges, setLocalEdges]);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(positionSaveTimeouts.current).forEach(clearTimeout);
+      if (submenuTimeout.current) {
+        clearTimeout(submenuTimeout.current);
+      }
+    };
+  }, []);
+
+  const onConnect = useCallback(async (params) => {
+    try {
+      const newEdge = { ...params, type: 'custom' };
+      // Optimistically update local state
+      setLocalEdges((eds) => addEdge(newEdge, eds));
+      // Save to database
+      await createEdge(newEdge);
+    } catch (error) {
+      console.error('Failed to create edge:', error);
+      // Revert local state if database save fails
+      setLocalEdges(edges);
+    }
+  }, [createEdge, setLocalEdges, edges]);
 
   const handleNodeClick = useCallback((event, node) => {
     if (event.button === 0) {
       setSelectedNode(node);
       setSideDrawerOpen(true);
-      setNodes((nds) =>
+      setLocalNodes((nds) =>
         nds.map((n) =>
           n.id === node.id
             ? { ...n, className: 'highlighted' }
@@ -263,7 +344,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
         )
       );
     }
-  }, []);
+  }, [setLocalNodes]);
 
   const handleNodeContextMenu = useCallback((event, node) => {
     event.preventDefault();
@@ -278,10 +359,10 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
   const handleCloseSideDrawer = useCallback(() => {
     setSideDrawerOpen(false);
     
-    setNodes((nds) =>
+    setLocalNodes((nds) =>
       nds.map((n) => ({ ...n, className: '' }))
     );
-  }, []);
+  }, [setLocalNodes]);
 
   // Close context menu on click outside
   useEffect(() => {
@@ -289,6 +370,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     function handleClick(e) {
       if (contextMenuRef.current && !contextMenuRef.current.contains(e.target)) {
         setContextMenu((cm) => ({ ...cm, visible: false }));
+        setSubmenuVisible(false);
       }
     }
     document.addEventListener('mousedown', handleClick);
@@ -301,6 +383,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     function handleKeyDown(e) {
       if (e.key === 'Escape') {
         setContextMenu((cm) => ({ ...cm, visible: false }));
+        setSubmenuVisible(false);
       }
     }
     document.addEventListener('keydown', handleKeyDown);
@@ -312,35 +395,36 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     if (!contextMenu.visible) return;
     function handleBlur() {
       setContextMenu((cm) => ({ ...cm, visible: false }));
+      setSubmenuVisible(false);
     }
     window.addEventListener('blur', handleBlur);
     return () => window.removeEventListener('blur', handleBlur);
   }, [contextMenu.visible]);
 
   // Filter nodes dynamically based on the filters prop
-  const filteredNodes = nodes.filter(node => !filters.includes(node.data.type));
+  const filteredNodes = localNodes.filter(node => !filters.includes(node.data.type));
 
   // Compute connected nodes for the selected node
   const selectedNodeId = selectedNode?.id;
-  const connectedNodeIds = edges
+  const connectedNodeIds = localEdges
     .filter(
       edge => edge.source === selectedNodeId || edge.target === selectedNodeId
     )
     .map(edge =>
       edge.source === selectedNodeId ? edge.target : edge.source
     );
-  const connectedNodes = nodes.filter(node => connectedNodeIds.includes(node.id));
+  const connectedNodes = localNodes.filter(node => connectedNodeIds.includes(node.id));
 
   // Compute parent and child nodes for the selected node
-  const parentNodeIds = edges
+  const parentNodeIds = localEdges
     .filter(edge => edge.target === selectedNodeId)
     .map(edge => edge.source);
-  const parentNodes = nodes.filter(node => parentNodeIds.includes(node.id));
+  const parentNodes = localNodes.filter(node => parentNodeIds.includes(node.id));
 
-  const childNodeIds = edges
+  const childNodeIds = localEdges
     .filter(edge => edge.source === selectedNodeId)
     .map(edge => edge.target);
-  const childNodes = nodes.filter(node => childNodeIds.includes(node.id));
+  const childNodes = localNodes.filter(node => childNodeIds.includes(node.id));
 
   // Helper component to center the view on a node
   function FlowNavigator({ nodeIdToCenter }) {
@@ -381,37 +465,110 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
   }, [nodeIdToSelect, nodes, setNodes]);
 
   // Add this handler inside NodeGraph
-  const handleNodeTitleChange = (id, newTitle) => {
-    setNodes(nds => {
-      const updated = nds.map(node =>
-        node.id === id
-          ? { ...node, data: { ...node.data, name: newTitle } }
-          : node
-      );
-      // Also update selectedNode if it's the one being edited
-      if (selectedNode && selectedNode.id === id) {
-        const updatedNode = updated.find(node => node.id === id);
-        setSelectedNode(updatedNode);
-      }
-      return updated;
-    });
-  };
+  const handleNodeTitleChange = useCallback(async (id, newTitle) => {
+    try {
+      // Optimistically update local state
+      setLocalNodes(nds => {
+        const updated = nds.map(node =>
+          node.id === id
+            ? { ...node, data: { ...node.data, name: newTitle } }
+            : node
+        );
+        // Also update selectedNode if it's the one being edited
+        if (selectedNode && selectedNode.id === id) {
+          const updatedNode = updated.find(node => node.id === id);
+          setSelectedNode(updatedNode);
+        }
+        return updated;
+      });
+      
+      // Save to database
+      await updateNode(id, { data: { name: newTitle } });
+    } catch (error) {
+      console.error('Failed to update node title:', error);
+      // Revert optimistic update if database save fails
+      setLocalNodes(nodes);
+    }
+  }, [updateNode, setLocalNodes, nodes, selectedNode]);
 
-  const handleNodeRiskChange = (id, newRisk) => {
-    setNodes(nds => {
-      const updated = nds.map(node =>
-        node.id === id
-          ? { ...node, data: { ...node.data, risk: newRisk } }
-          : node
-      );
-      // Also update selectedNode if it's the one being edited
-      if (selectedNode && selectedNode.id === id) {
-        const updatedNode = updated.find(node => node.id === id);
-        setSelectedNode(updatedNode);
+  const handleNodeRiskChange = useCallback(async (id, newRisk) => {
+    try {
+      // Optimistically update local state
+      setLocalNodes(nds => {
+        const updated = nds.map(node =>
+          node.id === id
+            ? { ...node, data: { ...node.data, risk: newRisk } }
+            : node
+        );
+        // Also update selectedNode if it's the one being edited
+        if (selectedNode && selectedNode.id === id) {
+          const updatedNode = updated.find(node => node.id === id);
+          setSelectedNode(updatedNode);
+        }
+        return updated;
+      });
+      
+      // Save to database
+      await updateNode(id, { data: { risk: newRisk } });
+    } catch (error) {
+      console.error('Failed to update node risk:', error);
+      // Revert optimistic update if database save fails
+      setLocalNodes(nodes);
+    }
+  }, [updateNode, setLocalNodes, nodes, selectedNode]);
+
+  const handleNodeTypeChange = useCallback(async (nodeId, newType) => {
+    try {
+      // Optimistically update local state
+      setLocalNodes(nds => {
+        const updated = nds.map(node =>
+          node.id === nodeId
+            ? { ...node, data: { ...node.data, type: newType } }
+            : node
+        );
+        // Also update selectedNode if it's the one being edited
+        if (selectedNode && selectedNode.id === nodeId) {
+          const updatedNode = updated.find(node => node.id === nodeId);
+          setSelectedNode(updatedNode);
+        }
+        return updated;
+      });
+      
+      // Save to database
+      await updateNode(nodeId, { data: { type: newType } });
+      
+      // Close context menu and submenu
+      setContextMenu({ visible: false, x: 0, y: 0, node: null });
+      setSubmenuVisible(false);
+      if (submenuTimeout.current) {
+        clearTimeout(submenuTimeout.current);
       }
-      return updated;
-    });
-  };
+    } catch (error) {
+      console.error('Failed to update node type:', error);
+      // Revert optimistic update if database save fails
+      setLocalNodes(nodes);
+    }
+  }, [updateNode, setLocalNodes, nodes, selectedNode]);
+
+  // Submenu management with delays
+  const showSubmenu = useCallback(() => {
+    if (submenuTimeout.current) {
+      clearTimeout(submenuTimeout.current);
+    }
+    setSubmenuVisible(true);
+  }, []);
+
+  const hideSubmenu = useCallback(() => {
+    submenuTimeout.current = setTimeout(() => {
+      setSubmenuVisible(false);
+    }, 150); // 150ms delay before hiding
+  }, []);
+
+  const cancelHideSubmenu = useCallback(() => {
+    if (submenuTimeout.current) {
+      clearTimeout(submenuTimeout.current);
+    }
+  }, []);
 
   // Delayed left position for controls
   const [controlsLeft, setControlsLeft] = useState((isCollapsed ? 0 : panelWidth) + (sidebarWidth || 64) + 16 - 60);
@@ -437,6 +594,34 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     });
   };
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="w-screen h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Loading data from Supabase...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="w-screen h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center p-8 max-w-md">
+          <div className="text-red-500 text-4xl mb-4">⚠️</div>
+          <h3 className="text-lg font-semibold text-slate-800 mb-2">Database Connection Error</h3>
+          <p className="text-slate-600 mb-4">{error}</p>
+          <p className="text-sm text-slate-500">
+            Make sure your Supabase environment variables are configured correctly.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
        {/* Header */}
@@ -451,8 +636,8 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
           onNodeContextMenu={handleNodeContextMenu}
           style={styles} 
           nodes={filteredNodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
+          edges={localEdges}
+          onNodesChange={handleNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           nodeTypes={nodeTypes}
@@ -495,15 +680,95 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
         {contextMenu.visible && (
           <div
             ref={contextMenuRef}
-            className="fixed bg-white border border-slate-300 rounded-lg  shadow-lg py-2 px-2 text-left min-w-[180px] w-auto z-[9999]"
+            className="fixed bg-white border border-slate-300 rounded-lg shadow-lg py-2 px-2 text-left min-w-[180px] w-auto z-[9999]"
             style={{ left: contextMenu.x, top: contextMenu.y }}
           >
             
-            <div className="py-2 px-3 hover:bg-slate-100 hover:rounded-md cursor-pointer text-md" onClick={() => setContextMenu((cm) => ({ ...cm, visible: false }))}>Edit</div>
-            <div className="py-2 px-3 hover:bg-slate-100 hover:rounded-md cursor-pointer text-md" onClick={() => setContextMenu((cm) => ({ ...cm, visible: false }))}>New Connection</div>
-            <div className="py-2 px-3 hover:bg-slate-100 hover:rounded-md cursor-pointer text-md" onClick={() => setContextMenu((cm) => ({ ...cm, visible: false }))}>Share</div>
-            <div className="py-2 px-3 hover:bg-slate-100 hover:rounded-md cursor-pointer text-md" onClick={() => setContextMenu((cm) => ({ ...cm, visible: false }))}>Change Type</div>
-            <div className="py-2 px-3 text-red-500 hover:bg-red-50 hover:rounded-md cursor-pointer text-md" onClick={() => setContextMenu((cm) => ({ ...cm, visible: false }))}>Delete</div>
+            <div 
+              className="py-2 px-3 hover:bg-slate-100 hover:rounded-md cursor-pointer text-md" 
+              onClick={() => {
+                setContextMenu((cm) => ({ ...cm, visible: false }));
+                setSubmenuVisible(false);
+              }}
+            >
+              Edit
+            </div>
+            
+            <div 
+              className="py-2 px-3 hover:bg-slate-100 hover:rounded-md cursor-pointer text-md" 
+              onClick={() => {
+                setContextMenu((cm) => ({ ...cm, visible: false }));
+                setSubmenuVisible(false);
+              }}
+            >
+              New Connection
+            </div>
+            
+            <div 
+              className="py-2 px-3 hover:bg-slate-100 hover:rounded-md cursor-pointer text-md" 
+              onClick={() => {
+                setContextMenu((cm) => ({ ...cm, visible: false }));
+                setSubmenuVisible(false);
+              }}
+            >
+              Share
+            </div>
+            
+            <div 
+              className="py-2 px-3 hover:bg-slate-100 hover:rounded-md cursor-pointer text-md relative flex items-center justify-between" 
+              onMouseEnter={showSubmenu}
+              onMouseLeave={hideSubmenu}
+            >
+              Change Type
+              <span className="text-slate-400 ml-2">→</span>
+              
+              {/* Type Submenu */}
+              {submenuVisible && (
+                <div 
+                  className="absolute left-full top-0 -ml-1 bg-white border border-slate-300 rounded-lg shadow-lg py-2 px-2 min-w-[200px] z-[10000]"
+                  onMouseEnter={cancelHideSubmenu}
+                  onMouseLeave={hideSubmenu}
+                >
+                  {availableNodeTypes.map((type) => (
+                    <div
+                      key={type}
+                      className={`py-2 px-3 hover:bg-slate-100 hover:rounded-md cursor-pointer text-sm flex items-center ${
+                        contextMenu.node?.data?.type === type ? 'bg-blue-50 text-blue-700' : ''
+                      }`}
+                      onClick={() => handleNodeTypeChange(contextMenu.node?.id, type)}
+                    >
+                      {/* Icon for each type */}
+                      <span className="mr-2 flex-shrink-0">
+                        {type === 'Opportunity' && <IconRecharging className="w-4 h-4 text-orange-500" />}
+                        {type === 'Product' && <IconBox className="w-4 h-4 text-purple-500" />}
+                        {type === 'Data Asset' && <IconLayersSelected className="w-4 h-4 text-blue-500" />}
+                        {type === 'Data Source' && <IconDatabase className="w-4 h-4 text-green-500" />}
+                      </span>
+                      
+                   
+                      
+                      {/* Type name */}
+                      <span className="flex-1">{type}</span>
+                      
+                      {/* Check mark for current selection */}
+                      {contextMenu.node?.data?.type === type && (
+                        <IconCheck className="ml-auto text-blue-600 flex-shrink-0 w-4 h-4" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <div 
+              className="py-2 px-3 text-red-500 hover:bg-red-50 hover:rounded-md cursor-pointer text-md" 
+              onClick={() => {
+                setContextMenu((cm) => ({ ...cm, visible: false }));
+                setSubmenuVisible(false);
+              }}
+            >
+              Delete
+            </div>
           </div>
         )}
       </div>

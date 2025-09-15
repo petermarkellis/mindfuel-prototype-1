@@ -6,11 +6,15 @@ import NodeGraph, { initNodes } from '../NodeGraph/NodeGraph'
 import { NewItemModal } from '../NewItemModal'
 import './Layout.css'
 import FixedFooter from '../BaseComponents/FixedFooter';
+import { useSupabaseNodes } from '../../hooks/useSupabaseNodes';
 
 
 export default function Layout({ children, onNavigateToInbox, onNavigateToMain }) {
   const [filters, setFilters] = useState([]);
-  const [nodes] = useState(initNodes);
+  
+  // Get nodes from Supabase - this will be shared with NodeGraph
+  const supabaseHook = useSupabaseNodes();
+  const { nodes } = supabaseHook;
   const [nodeIdToCenter, setNodeIdToCenter] = useState(null);
   const [nodeIdToSelect, setNodeIdToSelect] = useState(null);
   const [panelWidth, setPanelWidth] = useState(340); // default width
@@ -99,6 +103,7 @@ export default function Layout({ children, onNavigateToInbox, onNavigateToMain }
             panelWidth={panelWidth}
             isCollapsed={isCollapsed}
             onTogglePanel={handleTogglePanel}
+            supabaseHook={supabaseHook}
           />
         </div>
         <div className='z-40'>

@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
-import closeIcon from '/icon_close.svg';
 import './SideDrawer.css';
 import { IconCheck, IconX, IconArrowsDownUp } from '@tabler/icons-react';
 
 const CloseButton = ({ onClick }) => (
-  <button className="absolute hover:bg-slate-200 absolute top-4 rounded-md right-6 transition-colors duration-200 ease-in-out" onClick={onClick}>
-    <IconX stroke={2.5} className=''/>
+  <button 
+    className="absolute top-1 right-5 bg-transparent border-none cursor-pointer p-3 rounded-full w-12 h-12 flex justify-center items-center z-[9999] hover:bg-white/10 transition-colors duration-200" 
+    onClick={onClick}
+  >
+    <IconX stroke={2.5} className="w-[20px] h-auto" />
   </button>
 );
 
@@ -74,6 +76,30 @@ function formatDate(dateStr) {
   });
 }
 
+// Helper to calculate optimal hover card position
+function calculateOptimalPosition(triggerElement) {
+  if (!triggerElement) return { right: true, top: false };
+  
+  const rect = triggerElement.getBoundingClientRect();
+  const cardWidth = 220; // min-w-[220px]
+  const cardHeight = 200; // Approximate height
+  const margin = 16; // Safety margin
+  
+  // Check if there's space to the left
+  const spaceLeft = rect.left;
+  const spaceRight = window.innerWidth - rect.right;
+  const spaceTop = rect.top;
+  const spaceBottom = window.innerHeight - rect.bottom;
+  
+  // Determine horizontal position
+  const showRight = spaceLeft < cardWidth + margin && spaceRight >= cardWidth + margin;
+  
+  // Determine vertical position  
+  const showTop = spaceBottom < cardHeight + margin && spaceTop >= cardHeight + margin;
+  
+  return { right: !showRight, top: showTop };
+}
+
 // Add enum for risk options
 const RISK_OPTIONS = [
   { value: 'low', label: 'Low' },
@@ -94,6 +120,11 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
   // Hover card state for created/updated by
   const [showCreatedCard, setShowCreatedCard] = useState(false);
   const [showUpdatedCard, setShowUpdatedCard] = useState(false);
+  // Refs for hover card positioning
+  const createdCardRef = useRef(null);
+  const updatedCardRef = useRef(null);
+  const [createdCardPosition, setCreatedCardPosition] = useState({ right: true, top: false });
+  const [updatedCardPosition, setUpdatedCardPosition] = useState({ right: true, top: false });
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState(selectedNode?.data?.name || "");
   const [editingRisk, setEditingRisk] = useState(false);
@@ -215,7 +246,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
   if (!selectedNode) return null;
 
   return (
-    <div ref={drawerRef} className={`border-l border-slate-300 side-drawer h-screen ${isOpen ? 'open' : 'closed'} bg-[var(--color-panel-bg)]/70 backdrop-blur-md flex flex-col`}>
+    <div ref={drawerRef} className={`fixed top-0 right-0 w-[420px] h-screen border-l border-slate-300 side-drawer ${isOpen ? 'open' : 'closed'} bg-[var(--color-panel-bg)]/70 backdrop-blur-md flex flex-col transition-none opacity-0`}>
       {/* Use the CloseButton component */}
       <CloseButton onClick={onClose} />
       <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-start hide-scrollbar">
@@ -342,7 +373,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
 
         {/* Additional Node Data Section */}
         {selectedNode && (
-          <div className="mt-4 w-full border-t border-slate-200 pt-4 flex flex-col gap-2 items-start px-6">
+          <div className="mt-4 w-full border-t border-slate-200 pt-4 flex flex-col gap-2 items-start px-6 pb-8">
             <h4 className="text-slate-500 mb-2 font-medium select-none">Node Details</h4>
             <ul className="flex flex-col gap-4 items-start text-slate-600 text-sm w-full">
               {/* Risk as enum badge */}
@@ -387,8 +418,13 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                 <li className='flex items-center flex-row justify-between w-full'>
                   <span className="text-slate-400 select-none">Created by:</span>
                   <span
+                    ref={createdCardRef}
                     className="font-bold flex items-center gap-1 relative"
-                    onMouseEnter={() => setShowCreatedCard(true)}
+                    onMouseEnter={(e) => {
+                      const position = calculateOptimalPosition(e.currentTarget);
+                      setCreatedCardPosition(position);
+                      setShowCreatedCard(true);
+                    }}
                     onMouseLeave={() => setShowCreatedCard(false)}
                     style={{ cursor: 'pointer' }}
                   >
@@ -401,7 +437,17 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                     {selectedNode?.data?.createdby}
                     {/* Floating card */}
                     <div
-                      className={`absolute right-full top-1/2 -translate-y-1/2 mr-2 z-50 bg-white border border-slate-200 rounded-lg shadow-lg p-4 min-w-[220px] transition-opacity duration-200 ${showCreatedCard ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+                      className={`absolute z-50 bg-white border border-slate-200 rounded-lg shadow-lg p-4 min-w-[220px] transition-opacity duration-200 ${
+                        showCreatedCard ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+                      } ${
+                        createdCardPosition.right 
+                          ? 'right-full mr-2' 
+                          : 'left-full ml-2'
+                      } ${
+                        createdCardPosition.top 
+                          ? 'bottom-full mb-2' 
+                          : 'top-1/2 -translate-y-1/2'
+                      }`}
                     >
                       <div className="flex flex-col items-start">
                         <div className="flex flex-row items-center gap-2 justify-between w-full">
@@ -428,8 +474,13 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                 <li className='flex items-center flex-row justify-between w-full'>
                   <span className="text-slate-400 select-none">Updated by:</span>
                   <span
+                    ref={updatedCardRef}
                     className="font-bold flex items-center gap-1 relative"
-                    onMouseEnter={() => setShowUpdatedCard(true)}
+                    onMouseEnter={(e) => {
+                      const position = calculateOptimalPosition(e.currentTarget);
+                      setUpdatedCardPosition(position);
+                      setShowUpdatedCard(true);
+                    }}
                     onMouseLeave={() => setShowUpdatedCard(false)}
                     style={{ cursor: 'pointer' }}
                   >
@@ -442,7 +493,17 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                     {selectedNode?.data?.updatedby}
                     {/* Floating card */}
                     <div
-                      className={`absolute right-full top-1/2 -translate-y-1/2 mr-2 z-50 bg-white border border-slate-200 rounded-lg shadow-lg p-4 min-w-[220px] transition-opacity duration-200 ${showUpdatedCard ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+                      className={`absolute z-50 bg-white border border-slate-200 rounded-lg shadow-lg p-4 min-w-[220px] transition-opacity duration-200 ${
+                        showUpdatedCard ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+                      } ${
+                        updatedCardPosition.right 
+                          ? 'right-full mr-2' 
+                          : 'left-full ml-2'
+                      } ${
+                        updatedCardPosition.top 
+                          ? 'bottom-full mb-2' 
+                          : 'top-1/2 -translate-y-1/2'
+                      }`}
                     >
                       <div className="flex flex-col items-start">
                       <div className="flex flex-row items-center gap-2 justify-between w-full">

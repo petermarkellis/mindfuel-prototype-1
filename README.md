@@ -14,13 +14,21 @@ The goal of this prototype was to:
 
 ## Tech Stack
 
-- **Next.js** – React framework for server-side rendering and routing
-- **TypeScript** – Type-safe JavaScript for robust development
-- **React Flow** – Interactive node-based graph visualization
+### Frontend
+- **React + Vite** – Modern React development with fast HMR
+- **React Flow** – Interactive node-based graph visualization  
 - **Tailwind CSS** – Utility-first CSS framework for rapid UI development
 - **GSAP** – Animation library for smooth UI transitions
 - **Tabler Icons** – Modern icon set for UI controls
-- **Vercel** – Hosting and CI/CD platform
+
+### Backend & Database
+- **Supabase** – PostgreSQL database with real-time features
+- **Supabase JS Client** – Type-safe database operations
+- **PostgreSQL** – Robust relational database for data persistence
+
+### Deployment
+- **Vercel** – Frontend hosting and CI/CD platform
+- **Supabase Cloud** – Managed database hosting
 
 ## Features
 
@@ -38,6 +46,12 @@ The goal of this prototype was to:
 
 ## Getting Started
 
+### Prerequisites
+- Node.js 18+ and npm/yarn
+- A Supabase account (for database functionality)
+
+### Setup Instructions
+
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/your-username/your-repo.git
@@ -51,14 +65,44 @@ The goal of this prototype was to:
    yarn install
    ```
 
-3. **Run the development server:**
+3. **Set up Supabase Database:**
+   - Create a new project at [supabase.com](https://supabase.com)
+   - Go to your project's SQL Editor
+   - Run the SQL commands from `supabase/migrations/001_initial_schema.sql` to create tables and insert sample data
+   - Get your project URL and anon key from Settings > API
+   - See `supabase/README.md` for detailed setup instructions
+
+4. **Configure Environment Variables:**
+   Create a `.env` file in the root directory:
+   ```env
+   VITE_SUPABASE_URL=your_supabase_project_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+5. **Run the development server:**
    ```bash
    npm run dev
    # or
    yarn dev
    ```
 
-4. **Open [http://localhost:5173](http://localhost:5173) in your browser.**
+6. **Open [http://localhost:5173](http://localhost:5173) in your browser.**
+
+### Quick Setup Helper
+For a guided setup experience, run:
+```bash
+./supabase/setup.sh
+```
+
+This script will:
+- Check your environment variables
+- Display the SQL migration content for easy copying
+- Provide step-by-step setup instructions
+
+### Database Migration (Optional)
+If you want to migrate from the hardcoded data to Supabase:
+- The app includes a migration tool that will appear if no environment variables are detected
+- Follow the on-screen instructions to migrate existing node data to your Supabase database
 
 ## Usage
 
