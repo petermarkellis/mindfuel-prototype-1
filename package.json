@@ -1,7 +1,15 @@
 {
-  "name": "my-react-flow-app",
+  "name": "mindfuel-reactflow-prototype",
+  "description": "Interactive node-based graph visualization prototype for Mindfuel.ai - Built with React Flow, Supabase, and Tailwind CSS",
+  "version": "1.0.0",
+  "author": "Peter Ellis",
+  "keywords": ["react", "reactflow", "supabase", "tailwind", "node-graph", "visualization", "prototype", "mindfuel"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/petermarkellis/mindfuel-prototype-1.git"
+  },
+  "homepage": "https://github.com/petermarkellis/mindfuel-prototype-1",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
