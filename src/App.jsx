@@ -5,6 +5,7 @@ import React from 'react';
 
 import Layout from './components/Layout/Layout'
 import Inbox from './components/Inbox'
+import PasswordGate from './components/PasswordGate'
  
 
 
@@ -20,15 +21,17 @@ function App() {
   }
 
   return (
-    <div>
-      {currentView === 'inbox' ? (
-        <Inbox onNavigateBack={navigateToMain} />
-      ) : (
-        <Layout onNavigateToInbox={navigateToInbox} onNavigateToMain={navigateToMain}>
-          
-        </Layout>
-      )}
-    </div>
+    <PasswordGate>
+      <div>
+        {currentView === 'inbox' ? (
+          <Inbox onNavigateBack={navigateToMain} />
+        ) : (
+          <Layout onNavigateToInbox={navigateToInbox} onNavigateToMain={navigateToMain}>
+            
+          </Layout>
+        )}
+      </div>
+    </PasswordGate>
   )
 }
 
