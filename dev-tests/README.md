@@ -26,6 +26,25 @@ node dev-tests/test-supabase-connection.js
 - Before deploying to verify everything works
 - When onboarding new developers
 
+### `keep-alive.js`
+**Purpose**: Prevents Supabase database from sleeping due to inactivity
+
+**Usage**:
+```bash
+node dev-tests/keep-alive.js
+```
+
+**What it does**:
+- 🏓 Sends a simple ping query to the database
+- ✅ Keeps database active on free tier
+- 📝 Logs timestamp and response status
+
+**Automation options**:
+- **GitHub Actions**: Run every 6 days via workflow
+- **Cron Job**: Schedule locally with `crontab`
+- **Vercel**: Deploy as serverless function
+- **Manual**: Run periodically as needed
+
 ## Running Tests
 
 Make sure you have the required dependencies:

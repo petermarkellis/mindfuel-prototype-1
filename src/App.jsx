@@ -4,7 +4,6 @@ import './App.css'
 import React from 'react';
 
 import Layout from './components/Layout/Layout'
-import NodeGraph from './components/NodeGraph/NodeGraph'
 import Inbox from './components/Inbox'
  
 
