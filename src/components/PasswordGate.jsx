@@ -19,12 +19,20 @@ const PasswordGate = ({ children }) => {
     setIsLoading(true);
     setError('');
 
-    // Multiple valid passwords for different stakeholders
+    // Get valid passwords from environment variables
     const validPasswords = [
-      'mindfuel2024',     // Main demo password
-      'client_preview',   // For client reviews
-      'demo_access',      // For investor demos
-    ];
+      import.meta.env.VITE_DEMO_PASSWORD,        // Main demo password
+      import.meta.env.VITE_CLIENT_PASSWORD,      // For client reviews
+      import.meta.env.VITE_INVESTOR_PASSWORD,    // For investor demos
+    ].filter(Boolean); // Remove any undefined/empty passwords
+
+    // Debug: Log environment variables (remove in production)
+    console.log('Environment passwords loaded:', {
+      demo: import.meta.env.VITE_DEMO_PASSWORD ? '✓' : '✗',
+      client: import.meta.env.VITE_CLIENT_PASSWORD ? '✓' : '✗',
+      investor: import.meta.env.VITE_INVESTOR_PASSWORD ? '✓' : '✗',
+      total: validPasswords.length
+    });
 
     // Simulate a brief loading state for better UX
     await new Promise(resolve => setTimeout(resolve, 800));
@@ -123,7 +131,13 @@ const PasswordGate = ({ children }) => {
         {/* Contact Info */}
         <div className="mt-8 pt-6 border-t border-gray-200">
           <p className="text-center text-xs text-gray-500">
-            Need access? Contact the development team
+            Need access? Contact{' '}
+            <a 
+              href="mailto:petermarkellis@gmail.com" 
+              className="text-blue-600 hover:text-blue-800 underline"
+            >
+              petermarkellis@gmail.com
+            </a>
           </p>
         </div>
       </div>
