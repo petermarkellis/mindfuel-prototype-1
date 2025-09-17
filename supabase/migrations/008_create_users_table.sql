@@ -19,7 +19,7 @@ CREATE TABLE users (
 -- Insert mock team members
 INSERT INTO users (first_name, last_name, email, role, availability) VALUES 
 ('Marius', 'Thompson', 'marius@mindfuel.ai', 'Product Manager', 'online'),
-('Sarah', 'Chen', 'sarah@mindfuel.ai', 'Data Scientist', 'online'),
+('Peter', 'Ellis', 'peter@mindfuel.ai', 'Data Scientist', 'online'),
 ('James', 'Rodriguez', 'james@mindfuel.ai', 'Software Engineer', 'offline'),
 ('Emily', 'Johnson', 'emily@mindfuel.ai', 'UX Designer', 'online'),
 ('Michael', 'Kim', 'michael@mindfuel.ai', 'DevOps Engineer', 'offline'),

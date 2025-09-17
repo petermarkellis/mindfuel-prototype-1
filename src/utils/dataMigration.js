@@ -54,11 +54,11 @@ export function transformNodeFromDatabase(dbNode) {
       // Handle both old string format and new user object format
       createdby: dbNode.creator 
         ? `${dbNode.creator.first_name} ${dbNode.creator.last_name}`
-        : (typeof dbNode.created_by === 'string' ? dbNode.created_by : 'Unknown User'),
+        : (typeof dbNode.created_by === 'string' ? dbNode.created_by : `User ${dbNode.created_by || 'Unknown'}`),
       createdat: dbNode.created_at ? new Date(dbNode.created_at).toISOString().split('T')[0] : '',
       updatedby: dbNode.updater 
         ? `${dbNode.updater.first_name} ${dbNode.updater.last_name}`
-        : (typeof dbNode.updated_by === 'string' ? dbNode.updated_by : 'Unknown User'),
+        : (typeof dbNode.updated_by === 'string' ? dbNode.updated_by : `User ${dbNode.updated_by || 'Unknown'}`),
       updatedat: dbNode.updated_at ? new Date(dbNode.updated_at).toISOString().split('T')[0] : '',
       // Add user objects for more detailed info in SideDrawer
       creatorUser: dbNode.creator,
