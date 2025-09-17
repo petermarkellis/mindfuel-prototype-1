@@ -461,7 +461,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                         </div>
                         <div className="text-lg">{selectedNode?.data?.createdby}</div>
                         <div className="text-sm text-slate-500">{selectedNode?.data?.creatorUser?.role || 'Data Steward'}</div>
-                        <div className="text-sm text-slate-400 font-normal">{selectedNode?.data?.creatorUser?.email || `${selectedNode?.data?.createdby?.split(' ')[0]?.toLowerCase()}@mindfuel.ai`}</div>
+                        <div className="text-sm text-slate-400 font-normal">{selectedNode?.data?.creatorUser?.email || `${typeof selectedNode?.data?.createdby === 'string' ? selectedNode?.data?.createdby?.split(' ')[0]?.toLowerCase() : 'user'}@mindfuel.ai`}</div>
                         <div className="mt-2 text-sm flex flex-col items-start text-slate-600 font-normal">
                           <div className=' select-none'>Opportunities: 1</div>
                           <div className='select-none'>Products: 2</div>
