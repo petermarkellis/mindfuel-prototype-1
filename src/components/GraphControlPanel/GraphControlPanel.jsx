@@ -105,7 +105,6 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
       }}
       className="graph_control_panel mt-10 h-screen z-50 flex flex-col border-r border-t border-slate-300 bg-[var(--color-panel-bg)]/60 backdrop-blur-md relative"
       style={{ 
-        width: '340px',
         overflow: 'hidden' // Prevent content from showing when collapsed
       }}
     >
