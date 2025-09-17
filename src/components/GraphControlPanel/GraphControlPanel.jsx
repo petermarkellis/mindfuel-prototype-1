@@ -122,7 +122,7 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
             onChange={e => setSearch(e.target.value)}
             onKeyDown={handleSearchKeyDown}
           />
-          {search && (
+          {search &&  (
             <button
               type="button"
               className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
