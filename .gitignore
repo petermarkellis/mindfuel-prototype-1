@@ -31,3 +31,4 @@ dist-ssr
 # Development tests output (keep the tests, ignore any output files)
 dev-tests/*.log
 dev-tests/output/
+.vercel
