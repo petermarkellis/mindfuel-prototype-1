@@ -169,7 +169,7 @@ const CustomNode = ({ data, nodes = [] }) => {
 }
 
 const nodeInteractionHandler = (data) => {
-  //console.log(data);
+  // Handle node interaction
 };
 
 export default memo(CustomNode);

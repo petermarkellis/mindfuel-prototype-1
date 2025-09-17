@@ -1,12 +1,8 @@
 import { useState } from 'react'
 import './App.css'
-
-import React from 'react';
-
 import Layout from './components/Layout/Layout'
 import Inbox from './components/Inbox'
 import PasswordGate from './components/PasswordGate'
- 
 
 
 function App() {

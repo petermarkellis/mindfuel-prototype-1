@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import './SideDrawer.css';
 import { IconCheck, IconX, IconArrowsDownUp } from '@tabler/icons-react';
+import Chip from './Chip';
 
 const CloseButton = ({ onClick }) => (
   <button 
@@ -255,9 +256,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
             ref={(el) => (contentRef.current[0] = el)}
             className="w-full flex flex-col items-start gap-2 mb-4"
           >
-            <p className={`text-sm px-1 py-0 border font-medium border-slate-200 rounded-md ${getSubtleColorClassForType(selectedNode?.data?.type)} ${getColorClassForType(selectedNode?.data?.type)}`}>
-              {selectedNode?.data?.type}
-            </p>
+            <Chip type={selectedNode?.data?.type} size="sm" variant="default" />
             <div className="flex items-center gap-2 w-full group">
               {editingTitle ? (
                 <>

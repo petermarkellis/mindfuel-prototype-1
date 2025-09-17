@@ -48,7 +48,6 @@ export default function Layout({ children, onNavigateToInbox, onNavigateToMain }
   const handleExpandPanel = () => {
     setPanelWidth(lastPanelWidth > minWidth ? lastPanelWidth : 340);
     setIsCollapsed(false);
-    console.log('handleExpandPanel');
   };
 
   const handleTogglePanel = () => {
@@ -65,11 +64,56 @@ export default function Layout({ children, onNavigateToInbox, onNavigateToMain }
     setIsNewItemModalOpen(false);
   };
 
+  // Map modal item types to database enum values
+  const mapItemTypeToNodeType = (itemType) => {
+    const typeMap = {
+      'opportunity': 'Opportunity',
+      'dataProduct': 'Product',
+      'dataAsset': 'Data Asset',
+      'dataSource': 'Data Source'
+    };
+    return typeMap[itemType] || itemType;
+  };
+
   // Handler for creating a new item
-  const handleCreateNewItem = (itemType) => {
-    // TODO: Implement node creation logic
-    console.log('Creating new item:', itemType);
-    // This is where you would add the new node to your graph
+  const handleCreateNewItem = async (formData) => {
+    try {
+      const nodeType = mapItemTypeToNodeType(formData.type);
+      const newNodeData = {
+        id: `node_${Date.now()}`,
+        type: 'custom',
+        data: {
+          type: nodeType,
+          name: formData.title,
+          description: formData.description || '',
+          potential: 0,
+          totalContribution: 0,
+          risk: 'notset',
+          successPotential: 0,
+          createdby: 'User',
+          updatedby: 'User'
+        },
+        position: { x: Math.random() * 400, y: Math.random() * 400 }
+      };
+      
+      // Create the node first
+      const createdNode = await supabaseHook.createNode(newNodeData);
+      
+      // If a connection is specified, create an edge
+      if (formData.connectionNodeId && createdNode) {
+        const edgeData = {
+          id: `edge_${Date.now()}`,
+          source: formData.connectionNodeId,
+          target: createdNode.id,
+          type: 'custom'
+        };
+        await supabaseHook.createEdge(edgeData);
+      }
+      
+    } catch (error) {
+      console.error('Failed to create new node:', error);
+      throw error; // Re-throw so modal can handle the error
+    }
   };
 
   return (
@@ -116,6 +160,7 @@ export default function Layout({ children, onNavigateToInbox, onNavigateToMain }
         isOpen={isNewItemModalOpen}
         onClose={handleCloseNewItemModal}
         onCreateItem={handleCreateNewItem}
+        nodes={nodes}
       />
     </div>
   );
