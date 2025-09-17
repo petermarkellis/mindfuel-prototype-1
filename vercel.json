@@ -16,11 +16,4 @@
       "dest": "/index.html"
     }
   ],
-  "env": {
-    "VITE_SUPABASE_URL": "@vite_supabase_url",
-    "VITE_SUPABASE_ANON_KEY": "@vite_supabase_anon_key",
-    "VITE_DEMO_PASSWORD": "@vite_demo_password",
-    "VITE_CLIENT_PASSWORD": "@vite_client_password",
-    "VITE_INVESTOR_PASSWORD": "@vite_investor_password"
-  }
 }
