@@ -5,6 +5,17 @@ const PasswordGate = ({ children }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Get valid passwords from environment variables
+  const validPasswords = [
+    import.meta.env.VITE_DEMO_PASSWORD,        // Main demo password
+    import.meta.env.VITE_CLIENT_PASSWORD,      // For client reviews
+    import.meta.env.VITE_INVESTOR_PASSWORD,    // For investor demos
+  ].filter(Boolean); // Remove any undefined/empty passwords
+
+
+  // If no passwords are configured, bypass the gate (fail-safe)
+  const shouldShowGate = validPasswords.length > 0;
 
   // Check if already authenticated (stored in sessionStorage)
   useEffect(() => {
@@ -18,21 +29,6 @@ const PasswordGate = ({ children }) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-
-    // Get valid passwords from environment variables
-    const validPasswords = [
-      import.meta.env.VITE_DEMO_PASSWORD,        // Main demo password
-      import.meta.env.VITE_CLIENT_PASSWORD,      // For client reviews
-      import.meta.env.VITE_INVESTOR_PASSWORD,    // For investor demos
-    ].filter(Boolean); // Remove any undefined/empty passwords
-
-    // Debug: Log environment variables (remove in production)
-    console.log('Environment passwords loaded:', {
-      demo: import.meta.env.VITE_DEMO_PASSWORD ? '✓' : '✗',
-      client: import.meta.env.VITE_CLIENT_PASSWORD ? '✓' : '✗',
-      investor: import.meta.env.VITE_INVESTOR_PASSWORD ? '✓' : '✗',
-      total: validPasswords.length
-    });
 
     // Simulate a brief loading state for better UX
     await new Promise(resolve => setTimeout(resolve, 800));
@@ -53,17 +49,20 @@ const PasswordGate = ({ children }) => {
     setPassword('');
   };
 
-  if (isAuthenticated) {
+  // If no passwords configured or already authenticated, show the app
+  if (!shouldShowGate || isAuthenticated) {
     return (
       <div>
-        {/* Logout button - hidden in top right */}
-        <button
-          onClick={handleLogout}
-          className="fixed top-4 right-4 z-50 bg-gray-800 text-white px-3 py-1 rounded text-sm opacity-20 hover:opacity-100 transition-opacity"
-          title="Logout"
-        >
-          🚪
-        </button>
+        {/* Show logout button only if gate was bypassed due to authentication */}
+        {shouldShowGate && isAuthenticated && (
+          <button
+            onClick={handleLogout}
+            className="fixed top-4 right-4 z-50 bg-gray-800 text-white px-3 py-1 rounded text-sm opacity-20 hover:opacity-100 transition-opacity"
+            title="Logout"
+          >
+            🚪
+          </button>
+        )}
         {children}
       </div>
     );
