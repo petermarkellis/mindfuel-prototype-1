@@ -580,7 +580,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
   // Delayed left position for controls
   const [controlsLeft, setControlsLeft] = useState((isCollapsed ? 0 : panelWidth) + (sidebarWidth || 64) + 16 - 60);
   useEffect(() => {
-    const delay = 800; // ms
+    const delay = 300; // ms
     const newLeft = (isCollapsed ? 0 : panelWidth) + (sidebarWidth || 64) + 16 - 60;
     const timeout = setTimeout(() => {
       setControlsLeft(newLeft);
