@@ -14,6 +14,8 @@ export default {
     'text-data-asset-50', 'text-data-asset-600', 'text-data-asset-700',
     'bg-data-source-50', 'bg-data-source-600', 'bg-data-source-700',
     'text-data-source-50', 'text-data-source-600', 'text-data-source-700',
+    // Risk level classes
+    'risk-notset', 'risk-low', 'risk-medium', 'risk-high', 'risk-critical',
   ],
   theme: {
     extend: {
@@ -55,6 +57,22 @@ export default {
           '-ms-overflow-style': 'none',
           'scrollbar-width': 'none',
           'scroll-behavior': 'smooth',
+        },
+        // Risk level semantic classes
+        '.risk-notset': {
+          '@apply bg-slate-50 text-slate-700 border-slate-200': {},
+        },
+        '.risk-low': {
+          '@apply bg-yellow-50 text-yellow-700 border-yellow-200': {},
+        },
+        '.risk-medium': {
+          '@apply bg-blue-50 text-blue-700 border-blue-200': {},
+        },
+        '.risk-high': {
+          '@apply bg-red-50 text-red-700 border-red-200': {},
+        },
+        '.risk-critical': {
+          '@apply bg-red-100 text-red-800 border-red-300': {},
         },
       }
       addUtilities(newUtilities)

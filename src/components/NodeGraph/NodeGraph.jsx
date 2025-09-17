@@ -17,6 +17,7 @@ import SideDrawer from '../BaseComponents/SideDrawer';
 import CustomEdge from './CustomEdge.jsx';
 import GraphControlPanel from '../GraphControlPanel/GraphControlPanel';
 import FixedFooter from '../BaseComponents/FixedFooter';
+import { ConfirmationModal } from '../BaseComponents';
 import { useSupabaseNodes } from '../../hooks/useSupabaseNodes';
 
 import 'reactflow/dist/style.css';
@@ -29,162 +30,8 @@ export const Risk = {
   NOTSET: 'notset',
 };
 
-export const initNodes = [
-  {
-    id: '1',
-    type: 'custom',
-    data: { 
-      type: 'Opportunity',
-      name: 'Enhance Customer Experience',
-      description: 'Drive satisfaction and loyalty by leveraging comprehensive data insights to deliver personalized experiences and support, ensuring each interaction resonates with customers on a deeper level and strengthens their connection to the brand.',
-      potential: 72,
-      totalContribution: 45,
-      risk: Risk.MEDIUM, 
-      successPotential: 92,
-      createdby: 'Peter Ellis',
-      createdat: '2024-05-01',
-      updatedby: 'Marius Försch',
-      updatedat: '2024-06-12'
-    },
-    position: { x: 0, y: 50 },
-  },
-  {
-    id: '2',
-    type: 'custom',
-    data: {
-      type: 'Product', 
-      name: 'Customer Engagement Platform',
-      description: 'Empower businesses to foster meaningful interactions and support through tailored messaging, proactive engagement strategies, and personalized assistance, ultimately enhancing customer satisfaction and loyalty.',
-      potential: 88,
-      totalContribution: 45,
-      risk: Risk.LOW, 
-      successPotential: 92,
-      createdby: 'Peter Ellis',
-      createdat: '2024-05-01',
-      updatedby: 'Marius Försch',
-      updatedat: '2024-06-12'
-    },
-    position: { x: -350, y: 450 },
-  },
-  {
-    id: '3',
-    type: 'custom',
-    data: { 
-      type: 'Product', 
-      name: 'Personalized Recommendation System',
-      description: 'Enhance user satisfaction and retention by providing highly relevant product recommendations based on individual preferences, past behavior, and demographic information, delivering a more personalized and engaging shopping experience.',
-      potential: 66,
-      totalContribution: 78,
-      risk: Risk.MEDIUM, 
-      successPotential: 92,
-      createdby: 'Peter Ellis',
-      createdat: '2024-05-01',
-      updatedby: 'Marius Försch',
-      updatedat: '2024-06-12'
-    },
-    position: { x: 350, y: 450 },
-  },
-  {
-    id: '4',
-    type: 'custom',
-    data: { 
-      type: 'Data Asset', 
-      name: 'Interaction History',
-      description: 'Track and analyze customer engagement patterns across various touchpoints to optimize communication strategies, improve response times, and enhance overall customer satisfaction.',
-      potential: 88,
-      totalContribution: 98,
-      risk: Risk.MEDIUM, 
-      successPotential: 92,
-      createdby: 'Peter Ellis',
-      createdat: '2024-05-01',
-      updatedby: '',
-      updatedat: ''
-    },
-    position: { x: -240, y: 720 },
-  },
-  {
-    id: '5',
-    type: 'custom',
-    data: { 
-      type: 'Data Asset', 
-      name: 'Demographic Data',
-      description: 'Gain valuable insights into customer demographics, such as age, gender, location, and income level, to tailor marketing campaigns, promotions, and product offerings to specific audience segments.',
-      potential: 59,
-      totalContribution: 87,
-      risk: Risk.LOW, 
-      successPotential: 92,
-      createdby: 'Marcus Schwimmer',
-      createdat: '2024-08-12',
-      updatedby: '',
-      updatedat: ''
-    },
-    position: { x: -245, y: 1000 },
-  },
-  {
-    id: '6',
-    type: 'custom',
-    data: { 
-      type: 'Data Source', 
-      name: 'User Profile Data',
-      description: 'Gain valuable insights into customer demographics, such as age, gender, location, and income level, to tailor marketing campaigns, promotions, and product offerings to specific audience segments.',
-      potential: 32,
-      totalContribution: 69,
-      risk: Risk.LOW, 
-      successPotential: 92,
-      createdby: 'Alicia Vikander',
-      createdat: '2024-06-22',
-      updatedby: '',
-      updatedat: ''
-    },
-    position: { x: -450, y: 1350 },
-  },
-  {
-    id: '7',
-    type: 'custom',
-    data: { 
-      type: 'Data Source', 
-      name: 'User Transaction Logs',
-      description: 'Gain valuable insights into customer demographics, such as age, gender, location, and income level, to tailor marketing campaigns, promotions, and product offerings to specific audience segments.',
-      potential: 76,
-      totalContribution: 42,
-      risk: Risk.LOW, 
-      successPotential: 92,
-      createdby: 'Henry Cavill',
-      createdat: '2024-05-01',
-      updatedby: 'Genny Zöd',
-      updatedat: '2024-07-05'
-    },
-    position: { x: 80, y: 1350 },
-  },{
-    id: '8',
-    type: 'custom',
-    data: { 
-      type: 'Data Asset', 
-      name: 'Platform Inventory',
-      description: 'Gain valuable insights into customer demographics, such as age, gender, location, and income level, to tailor marketing campaigns, promotions, and product offerings to specific audience segments.',
-      potential: 34,
-      totalContribution: 56,
-      risk: Risk.HIGH, 
-      successPotential: 92,
-      createdby: 'Peter Ellis',
-      createdat: '2024-06-12',
-      updatedby: 'Marius Försch',
-      updatedat: '2024-06-12'
-    },
-    position: { x: 510, y: 850 },
-  },
-];
-
-const initEdges = [
-  { id: 'e1-2', source: '1', target: '2', type: 'custom' },
-  { id: 'e1-3', source: '1', target: '3', type: 'custom' },
-  { id: 'e1-4', source: '2', target: '4', type: 'custom' },
-  { id: 'e1-5', source: '4', target: '5', type: 'custom' },
-  { id: 'e1-6', source: '5', target: '6', type: 'custom' },
-  { id: 'e1-7', source: '5', target: '7', type: 'custom' },
-
-  { id: 'e1-8', source: '3', target: '8', type: 'custom' },
-];
+// Note: Initial node and edge data has been moved to src/data/initialData.js
+// This component now uses live data from Supabase via the supabaseHook prop
 
 const styles = {
   background: 'linear-gradient(180deg, #f7f7fa 0%, #e6eaf2 100%)',
@@ -240,7 +87,7 @@ function CustomControls({ locked, onToggleLock, isPanelCollapsed, onTogglePanel 
   );
 }
 
-export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, panelWidth = 320, isCollapsed = false, sidebarWidth = 64, onTogglePanel, supabaseHook }) {
+export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, panelWidth = 320, isCollapsed = false, sidebarWidth = 64, onTogglePanel, supabaseHook, onOpenNewItemModal }) {
   const [selectedNode, setSelectedNode] = useState(null);
   const [sideDrawerOpen, setSideDrawerOpen] = useState(false); 
   const [openMenu, setOpenMenu] = useState({ nodeId: null, pos: { x: 0, y: 0 } });
@@ -249,6 +96,12 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
   const submenuTimeout = useRef(null);
   const contextMenuRef = useRef(null);
   const [locked, setLocked] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState({ 
+    isOpen: false, 
+    node: null, 
+    message: '', 
+    title: ''
+  });
 
   // Available node types for the submenu
   const availableNodeTypes = ['Opportunity', 'Product', 'Data Asset', 'Data Source'];
@@ -262,6 +115,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     createEdge, 
     updateNode,
     updateNodePosition,
+    deleteNode,
     setNodes,
     setEdges 
   } = supabaseHook;
@@ -348,10 +202,43 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
 
   const handleNodeContextMenu = useCallback((event, node) => {
     event.preventDefault();
+    
+    // Get viewport dimensions
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    // Estimated menu dimensions (you can adjust these based on your actual menu size)
+    const menuWidth = 180;
+    const menuHeight = 250; // Approximate height with all menu items
+    
+    // Initial position from mouse click
+    let x = event.clientX;
+    let y = event.clientY;
+    
+    // Adjust horizontal position if menu would go off right edge
+    if (x + menuWidth > viewportWidth) {
+      x = viewportWidth - menuWidth - 10; // 10px padding from edge
+    }
+    
+    // Adjust vertical position if menu would go off bottom edge
+    if (y + menuHeight > viewportHeight) {
+      y = viewportHeight - menuHeight - 10; // 10px padding from edge
+    }
+    
+    // Ensure menu doesn't go off left edge
+    if (x < 10) {
+      x = 10; // 10px padding from left edge
+    }
+    
+    // Ensure menu doesn't go off top edge
+    if (y < 10) {
+      y = 10; // 10px padding from top edge
+    }
+    
     setContextMenu({
       visible: true,
-      x: event.clientX,
-      y: event.clientY,
+      x,
+      y,
       node,
     });
   }, []);
@@ -550,6 +437,126 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     }
   }, [updateNode, setLocalNodes, nodes, selectedNode]);
 
+  const handleDeleteNode = useCallback((node) => {
+    // Find parent and child connections before deletion
+    const parentEdges = localEdges.filter(edge => edge.target === node.id);
+    const childEdges = localEdges.filter(edge => edge.source === node.id);
+    
+    // Check if this node is a bridge (has both parents and children)
+    const hasParents = parentEdges.length > 0;
+    const hasChildren = childEdges.length > 0;
+    const isBridge = hasParents && hasChildren;
+    
+    // Create confirmation message based on node type
+    let confirmMessage = `Are you sure you want to delete "${node.data.name}"?`;
+    
+    if (isBridge) {
+      const parentInfos = parentEdges.map(edge => {
+        const parentNode = localNodes.find(n => n.id === edge.source);
+        const name = parentNode?.data?.name || 'Unknown';
+        const type = parentNode?.data?.type || 'Unknown';
+        return `${type}|${name}`;
+      }).join('||');
+      
+      const childInfos = childEdges.map(edge => {
+        const childNode = localNodes.find(n => n.id === edge.target);
+        const name = childNode?.data?.name || 'Unknown';
+        const type = childNode?.data?.type || 'Unknown';
+        return `${type}|${name}`;
+      }).join('||');
+      
+      confirmMessage += `\n\nThis node connects:\nParents: ${parentInfos}\nChildren: ${childInfos}\n\nThe children will be reconnected to the parents to maintain the flow.`;
+    } else if (hasChildren) {
+      const childInfos = childEdges.map(edge => {
+        const childNode = localNodes.find(n => n.id === edge.target);
+        const name = childNode?.data?.name || 'Unknown';
+        const type = childNode?.data?.type || 'Unknown';
+        return `${type}|${name}`;
+      }).join('||');
+      
+      confirmMessage += `\n\nThis will disconnect:\nChildren: ${childInfos}`;
+    } else if (hasParents) {
+      const parentInfos = parentEdges.map(edge => {
+        const parentNode = localNodes.find(n => n.id === edge.source);
+        const name = parentNode?.data?.name || 'Unknown';
+        const type = parentNode?.data?.type || 'Unknown';
+        return `${type}|${name}`;
+      }).join('||');
+      
+      confirmMessage += `\n\nThis will disconnect from:\nParents: ${parentInfos}`;
+    }
+    
+    confirmMessage += '\n\nThis action cannot be undone.';
+    
+    // Show confirmation modal instead of browser confirm
+    setDeleteConfirmation({
+      isOpen: true,
+      node: node,
+      title: 'Delete Node',
+      message: confirmMessage
+    });
+    
+    // Close context menu immediately when showing modal
+    setContextMenu({ visible: false, x: 0, y: 0, node: null });
+    setSubmenuVisible(false);
+  }, [localEdges, localNodes]);
+
+  // Function to actually perform the deletion after confirmation
+  const performDelete = useCallback(async (node) => {
+    // Find parent and child connections before deletion
+    const parentEdges = localEdges.filter(edge => edge.target === node.id);
+    const childEdges = localEdges.filter(edge => edge.source === node.id);
+    
+    // Check if this node is a bridge (has both parents and children)
+    const hasParents = parentEdges.length > 0;
+    const hasChildren = childEdges.length > 0;
+    const isBridge = hasParents && hasChildren;
+
+    try {
+      // Close side drawer if this node is selected
+      if (selectedNode?.id === node.id) {
+        setSideDrawerOpen(false);
+        setSelectedNode(null);
+      }
+      
+      // If this is a bridge node, create new connections between parents and children
+      if (isBridge) {
+        for (const parentEdge of parentEdges) {
+          for (const childEdge of childEdges) {
+            const newEdge = {
+              id: `edge_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+              source: parentEdge.source,
+              target: childEdge.target,
+              type: 'custom'
+            };
+            
+            try {
+              // Create the new edge in the database
+              await createEdge(newEdge);
+              
+              // Add to local state immediately for better UX
+              setLocalEdges((eds) => [...eds, newEdge]);
+            } catch (edgeError) {
+              console.error('Failed to create reconnection edge:', edgeError);
+              // Continue with other connections even if one fails
+            }
+          }
+        }
+      }
+      
+      // Delete from database (this will also remove from local state via the hook)
+      await deleteNode(node.id);
+      
+      // Remove from local React Flow state immediately for better UX
+      setLocalNodes((nds) => nds.filter((n) => n.id !== node.id));
+      setLocalEdges((eds) => eds.filter((e) => e.source !== node.id && e.target !== node.id));
+      
+    } catch (error) {
+      console.error('Failed to delete node:', error);
+      alert('Failed to delete node. Please try again.');
+    }
+  }, [deleteNode, createEdge, selectedNode, setLocalNodes, setLocalEdges, localNodes, localEdges]);
+
   // Submenu management with delays
   const showSubmenu = useCallback(() => {
     if (submenuTimeout.current) {
@@ -699,6 +706,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
               onClick={() => {
                 setContextMenu((cm) => ({ ...cm, visible: false }));
                 setSubmenuVisible(false);
+                onOpenNewItemModal && onOpenNewItemModal(contextMenu.node?.id);
               }}
             >
               New Connection
@@ -762,10 +770,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
             
             <div 
               className="py-2 px-3 text-red-500 hover:bg-red-50 hover:rounded-md cursor-pointer text-md" 
-              onClick={() => {
-                setContextMenu((cm) => ({ ...cm, visible: false }));
-                setSubmenuVisible(false);
-              }}
+              onClick={() => handleDeleteNode(contextMenu.node)}
             >
               Delete
             </div>
@@ -784,6 +789,18 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
           onRiskChange={handleNodeRiskChange}
         />
       </div>
+      
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={deleteConfirmation.isOpen}
+        onClose={() => setDeleteConfirmation({ isOpen: false, node: null, message: '', title: '' })}
+        onConfirm={() => performDelete(deleteConfirmation.node)}
+        title={deleteConfirmation.title}
+        message={deleteConfirmation.message}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
       
     </div>
   );

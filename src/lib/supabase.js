@@ -16,7 +16,25 @@ export const nodeService = {
   async getNodes() {
     const { data, error } = await supabase
       .from('nodes')
-      .select('*')
+      .select(`
+        *,
+        creator:created_by(
+          id,
+          first_name,
+          last_name,
+          email,
+          role,
+          availability
+        ),
+        updater:updated_by(
+          id,
+          first_name,
+          last_name,
+          email,
+          role,
+          availability
+        )
+      `)
       .order('created_at', { ascending: false })
     
     if (error) {
@@ -89,6 +107,39 @@ export const nodeService = {
     }
     
     return true
+  }
+}
+
+export const riskService = {
+  // Get all risk definitions
+  async getRisks() {
+    const { data, error } = await supabase
+      .from('risks')
+      .select('*')
+      .order('sort_order')
+    
+    if (error) {
+      console.error('Error fetching risks:', error)
+      throw error
+    }
+    
+    return data
+  },
+
+  // Get risk information for a specific level
+  async getRiskInfo(riskLevel) {
+    const { data, error } = await supabase
+      .from('risks')
+      .select('*')
+      .eq('level', riskLevel)
+      .single()
+    
+    if (error) {
+      console.error('Error fetching risk info:', error)
+      throw error
+    }
+    
+    return data
   }
 }
 

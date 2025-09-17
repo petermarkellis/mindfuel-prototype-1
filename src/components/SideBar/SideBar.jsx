@@ -3,6 +3,7 @@ import "./SideBar.css"
 import { CodeBracketSquareIcon, 
         MapIcon,
         Square3Stack3DIcon,
+        ArrowLeftEndOnRectangleIcon
       } from '@heroicons/react/24/outline'
 import { 
         IconInbox,
@@ -106,9 +107,9 @@ export default function SideNav({ onOpenNewItemModal, onNavigateToInbox, onNavig
             </ul>
           </div>
 
-          {/* Create button at bottom */}
-          {isMainView && (
-            <div className="w-16 flex flex-col items-center pb-4">
+          {/* Create button and logout at bottom */}
+          <div className="w-16 flex flex-col items-center pb-4 gap-3">
+            {isMainView && (
               <button 
                 onClick={onOpenNewItemModal}
                 className="rounded-xl bg-white p-1 border border-slate-300 hover:bg-slate-200 transition-colors duration-300 cursor-pointer"
@@ -116,8 +117,19 @@ export default function SideNav({ onOpenNewItemModal, onNavigateToInbox, onNavig
               >
                 <IconSquareRoundedPlus className="size-6 text-slate-500" strokeWidth={2} />
               </button>
-            </div>
-          )}
+            )}
+            <button 
+              onClick={() => {
+                sessionStorage.removeItem('mindfuel_auth');
+                window.location.reload();
+              }}
+              className="rounded-xl bg-white p-1 border border-slate-300 hover:bg-red-50 hover:border-red-300 transition-colors duration-300 cursor-pointer"
+              aria-label="Logout"
+              title="Logout"
+            >
+              <ArrowLeftEndOnRectangleIcon className="size-6 text-slate-500 hover:text-red-600" strokeWidth={2} />
+            </button>
+          </div>
         </nav>
     )
 }

@@ -53,16 +53,6 @@ const PasswordGate = ({ children }) => {
   if (!shouldShowGate || isAuthenticated) {
     return (
       <div>
-        {/* Show logout button only if gate was bypassed due to authentication */}
-        {shouldShowGate && isAuthenticated && (
-          <button
-            onClick={handleLogout}
-            className="fixed top-4 right-4 z-50 bg-gray-800 text-white px-3 py-1 rounded text-sm opacity-20 hover:opacity-100 transition-opacity"
-            title="Logout"
-          >
-            🚪
-          </button>
-        )}
         {children}
       </div>
     );

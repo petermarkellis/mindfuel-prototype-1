@@ -1,16 +1,5 @@
 import { nodeService, edgeService } from '../lib/supabase.js'
-import { initNodes } from '../components/NodeGraph/NodeGraph.jsx'
-
-// Import edges - we'll need to import this separately since it's not exported
-const initEdges = [
-  { id: 'e1-2', source: '1', target: '2', type: 'custom' },
-  { id: 'e1-3', source: '1', target: '3', type: 'custom' },
-  { id: 'e1-4', source: '2', target: '4', type: 'custom' },
-  { id: 'e1-5', source: '4', target: '5', type: 'custom' },
-  { id: 'e1-6', source: '5', target: '6', type: 'custom' },
-  { id: 'e1-7', source: '5', target: '7', type: 'custom' },
-  { id: 'e1-8', source: '3', target: '8', type: 'custom' },
-]
+import { initNodes, initEdges } from '../data/initialData.js'
 
 /**
  * Transform a ReactFlow node to Supabase database format
@@ -62,10 +51,18 @@ export function transformNodeFromDatabase(dbNode) {
       totalContribution: dbNode.total_contribution,
       risk: dbNode.risk,
       successPotential: dbNode.success_potential,
-      createdby: dbNode.created_by,
+      // Handle both old string format and new user object format
+      createdby: dbNode.creator 
+        ? `${dbNode.creator.first_name} ${dbNode.creator.last_name}`
+        : (typeof dbNode.created_by === 'string' ? dbNode.created_by : 'Unknown User'),
       createdat: dbNode.created_at ? new Date(dbNode.created_at).toISOString().split('T')[0] : '',
-      updatedby: dbNode.updated_by,
-      updatedat: dbNode.updated_at ? new Date(dbNode.updated_at).toISOString().split('T')[0] : ''
+      updatedby: dbNode.updater 
+        ? `${dbNode.updater.first_name} ${dbNode.updater.last_name}`
+        : (typeof dbNode.updated_by === 'string' ? dbNode.updated_by : 'Unknown User'),
+      updatedat: dbNode.updated_at ? new Date(dbNode.updated_at).toISOString().split('T')[0] : '',
+      // Add user objects for more detailed info in SideDrawer
+      creatorUser: dbNode.creator,
+      updaterUser: dbNode.updater
     },
     position: { 
       x: dbNode.position_x || 0, 

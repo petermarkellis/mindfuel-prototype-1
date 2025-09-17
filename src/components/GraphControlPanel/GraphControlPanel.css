@@ -89,21 +89,6 @@
   }
 }
 
-/* Drag handle styles */
-.graph_control_panel .resize-handle {
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 8px;
-    height: 100%;
-    cursor: col-resize;
-    z-index: 50;
-    background: transparent;
-    transition: background 0.2s;
-}
-.graph_control_panel .resize-handle:hover {
-    background: #e2e8f0;
-}
 
 /* Hide scrollbar in the main content area */
 .graph_control_panel .panel-content {

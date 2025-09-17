@@ -9,12 +9,13 @@ import {
     IconArrowLeft,
     IconCheck,
     IconChevronRight,
-    IconArrowsDownUp
+    IconArrowsDownUp,
+    IconSearch
 } from '@tabler/icons-react';
 import NewItemCard from './NewItemCard';
 import Chip from '../BaseComponents/Chip';
 
-const NewItemModal = ({ isOpen, onClose, onCreateItem, nodes = [] }) => {
+const NewItemModal = ({ isOpen, onClose, onCreateItem, nodes = [], preSelectedConnectionId = null }) => {
   const overlayRef = useRef(null);
   const modalRef = useRef(null);
   const contentRef = useRef(null);
@@ -30,6 +31,7 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem, nodes = [] }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Modal data using your existing color scheme
   const itemTypes = [
@@ -156,6 +158,7 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem, nodes = [] }) => {
 
   const handleBackToForm = () => {
     setStep('form');
+    setSearchTerm(''); // Clear search when going back
   };
 
   const handleOpenConnectionSelect = () => {
@@ -164,6 +167,7 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem, nodes = [] }) => {
 
   const handleConnectionSelect = (nodeId) => {
     setFormData(prev => ({ ...prev, connectionNodeId: nodeId }));
+    setSearchTerm(''); // Clear search when selecting
     setStep('form');
   };
 
@@ -221,6 +225,23 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem, nodes = [] }) => {
     }
   };
 
+  // Handle pre-selected connection when modal opens
+  useEffect(() => {
+    if (isOpen && preSelectedConnectionId) {
+      // Set pre-selected connection and start on form step
+      setFormData(prev => ({ ...prev, connectionNodeId: preSelectedConnectionId }));
+      setStep('form');
+    } else if (isOpen && !preSelectedConnectionId) {
+      // Reset to normal flow when no pre-selection
+      setStep('select');
+      setFormData({ title: '', description: '', connectionNodeId: null });
+      setSelectedType(null);
+      setErrors({});
+      setSubmitError('');
+      setSearchTerm('');
+    }
+  }, [isOpen, preSelectedConnectionId]);
+
   const selectedTypeData = selectedType ? itemTypes.find(t => t.id === selectedType) : null;
   const selectedNode = formData.connectionNodeId ? nodes.find(n => n.id === formData.connectionNodeId) : null;
 
@@ -264,7 +285,7 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem, nodes = [] }) => {
             )}
             <h2 className="text-2xl font-semibold text-slate-800">
               {step === 'select' && 'What do you want to create?'}
-              {step === 'form' && `Create ${selectedTypeData?.title}`}
+              {step === 'form' && (selectedTypeData ? `Create ${selectedTypeData?.title}` : 'Create New Node')}
               {step === 'connection' && 'Select Connection'}
             </h2>
           </div>
@@ -301,29 +322,53 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem, nodes = [] }) => {
             </div>
           ) : step === 'form' ? (
             /* Form Step */
-            <div className="max-w-2xl mx-auto space-y-6">
-              {/* Selected Type Display */}
-              <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg relative">
-                <div className={`p-3 rounded-lg ${selectedTypeData?.iconBgColor}`}>
-                  {selectedTypeData?.icon && (
-                    <selectedTypeData.icon className={`w-6 h-6 ${selectedTypeData.iconColor}`} />
-                  )}
-                </div>
-                <div className="flex-1 text-left">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Chip type={selectedTypeData?.title} size="xs" variant="default" />
-                    <h3 className="font-semibold text-slate-800">{selectedTypeData?.title}</h3>
+            <div className="max-w-2xl mx-auto space-y-3">
+              {/* Type Selection - show if no type selected yet */}
+              {!selectedType && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-medium text-slate-700 mb-4 text-left">Select type to create:</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    {itemTypes.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => setSelectedType(item.id)}
+                        className="p-4 border-2 border-slate-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors text-left group"
+                      >
+                        <div className={`p-2 rounded-lg ${item.iconBgColor} mb-3 inline-block`}>
+                          <item.icon className={`w-5 h-5 ${item.iconColor}`} />
+                        </div>
+                        <h4 className="font-medium text-slate-900 mb-1">{item.title}</h4>
+                        <p className="text-sm text-slate-600 line-clamp-2">{item.description}</p>
+                      </button>
+                    ))}
                   </div>
-                  <p className="text-sm text-slate-600">{selectedTypeData?.description}</p>
                 </div>
-                <button
-                  onClick={handleBackToSelect}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                >
-                  Change
-                </button>
-                <IconArrowsDownUp className='bg-slate-50 z-50 rounded-full p-1 size-6 text-slate-400 absolute -bottom-3 left-6' stroke={3}/>
-              </div>
+              )}
+
+              {/* Selected Type Display and Form - show if type is selected */}
+              {selectedType && (
+                <>
+                  <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg relative">
+                    <div className={`p-3 rounded-lg ${selectedTypeData?.iconBgColor}`}>
+                      {selectedTypeData?.icon && (
+                        <selectedTypeData.icon className={`w-6 h-6 ${selectedTypeData.iconColor}`} />
+                      )}
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Chip type={selectedTypeData?.title} size="xs" variant="default" />
+                        <h3 className="font-semibold text-slate-800">{selectedTypeData?.title}</h3>
+                      </div>
+                      <p className="text-sm text-slate-600">{selectedTypeData?.description}</p>
+                    </div>
+                    <button
+                      onClick={handleBackToSelect}
+                      className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      Change
+                    </button>
+                    <IconArrowsDownUp className='bg-slate-50 z-50 rounded-full p-1 size-6 text-slate-400 absolute -bottom-4 left-7' stroke={3}/>
+                  </div>
 
               {/* Connection Selection */}
               <div className="p-4 bg-slate-50 rounded-lg">
@@ -427,7 +472,7 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem, nodes = [] }) => {
                     id="description"
                     value={formData.description}
                     onChange={(e) => handleFormChange('description', e.target.value)}
-                    rows={3}
+                    rows={2}
                     maxLength={500}
                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors resize-y ${
                       errors.description ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-slate-300'
@@ -439,10 +484,32 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem, nodes = [] }) => {
                   )}
                 </div>
               </div>
+                </>
+              )}
             </div>
           ) : step === 'connection' ? (
             /* Connection Selection Step */
             <div className="space-y-4 max-w-xl mx-auto">
+              {/* Search Bar */}
+              <div className="relative">
+                <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search nodes..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-10 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm('')}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    <IconX className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+
               {/* No Connection Option */}
               <div
                 onClick={() => handleConnectionSelect(null)}
@@ -467,7 +534,16 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem, nodes = [] }) => {
               <div className="space-y-3">
                 <h3 className="text-md font-medium text-slate-700 text-left">Connect to existing node:</h3>
                 <div className="grid gap-3">
-                  {nodes.map((node) => {
+                  {nodes
+                    .filter((node) => {
+                      if (!searchTerm) return true;
+                      return (
+                        node.data.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        node.data.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        (node.data.description && node.data.description.toLowerCase().includes(searchTerm.toLowerCase()))
+                      );
+                    })
+                    .map((node) => {
                     // Get type styling based on node type
                     const getTypestyling = (type) => {
                       switch (type) {
@@ -546,11 +622,28 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem, nodes = [] }) => {
                 </div>
               </div>
 
-              {nodes.length === 0 && (
-                <div className="text-center py-8">
-                  <p className="text-slate-500">No existing nodes to connect to</p>
-                </div>
-              )}
+          {nodes.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-slate-500">No existing nodes to connect to</p>
+            </div>
+          ) : nodes.filter((node) => {
+            if (!searchTerm) return true;
+            return (
+              node.data.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              node.data.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              (node.data.description && node.data.description.toLowerCase().includes(searchTerm.toLowerCase()))
+            );
+          }).length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-slate-500">No nodes match your search</p>
+              <button
+                onClick={() => setSearchTerm('')}
+                className="mt-3 text-blue-600 hover:text-blue-700 font-medium transition-colors"
+              >
+                Clear search
+              </button>
+            </div>
+          )}
             </div>
           ) : null}
         </div>
@@ -573,7 +666,8 @@ const NewItemModal = ({ isOpen, onClose, onCreateItem, nodes = [] }) => {
               </button>
               <button
                 onClick={handleBackToForm}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
+                disabled={!formData.title.trim()}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
               >
                 Continue
               </button>

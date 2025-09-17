@@ -7,7 +7,7 @@ import GCPActionFilterSwitch from "./GraphControlPanel_Filter_Action";
 
 import { IconAdjustmentsHorizontal, IconLayersSelected, IconDatabase, IconBox, IconBrandUnity, IconRecharging, IconX } from '@tabler/icons-react';
 
-export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSelect, panelWidth, setPanelWidth, setIsCollapsed, setLastPanelWidth, minWidth, maxWidth, isCollapsed }) {
+export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSelect, isCollapsed }) {
   const handleFilterChange = (label, checked) => {
     onFilterChange(label, checked);
   };
@@ -52,46 +52,8 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
   const filterscontainer = useRef(null);
   const filteritems = useRef(null);
   const searchInputRef = useRef(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const startXRef = useRef(null);
-  const startWidthRef = useRef(null);
   const containerRef = useRef(null);
 
-  // Drag handlers for resizing
-  const handleMouseDown = (e) => {
-    setIsDragging(true);
-    startXRef.current = e.clientX;
-    startWidthRef.current = panelWidth;
-    document.body.style.cursor = 'col-resize';
-  };
-
-  useEffect(() => {
-    if (!isDragging) return;
-    const handleMouseMove = (e) => {
-      const dx = e.clientX - startXRef.current;
-      let newWidth = startWidthRef.current + dx;
-      if (newWidth < minWidth) {
-        setIsCollapsed(true);
-        setLastPanelWidth(startWidthRef.current);
-        setIsDragging(false);
-        document.body.style.cursor = '';
-        return;
-      }
-      if (newWidth > maxWidth) newWidth = maxWidth;
-      setPanelWidth(newWidth);
-    };
-    const handleMouseUp = () => {
-      setIsDragging(false);
-      setLastPanelWidth(panelWidth);
-      document.body.style.cursor = '';
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging, minWidth, maxWidth, setPanelWidth, setIsCollapsed, setLastPanelWidth, panelWidth]);
 
   // Handler to clear search on Escape key
   const handleSearchKeyDown = (e) => {
@@ -103,7 +65,7 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
     }
   };
 
-  // Animate panel open/close and on mount
+  // Animate panel open/close
   useEffect(() => {
     if (!containerRef.current) return;
     if (isCollapsed) {
@@ -111,30 +73,29 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
         width: 0,
         duration: 0.4,
         ease: 'power2.inOut',
-        clearProps: 'pointerEvents',
       });
     } else {
       gsap.to(containerRef.current, {
-        width: panelWidth,
+        width: 340, // Fixed width of 340px when open
         duration: 0.4,
         ease: 'power2.inOut',
-        delay: 0.7,
-        clearProps: 'pointerEvents',
+        delay: 0.1,
       });
     }
-  }, [isCollapsed, panelWidth]);
+  }, [isCollapsed]);
 
   // On initial mount, slide in from width 0
   useEffect(() => {
     if (!containerRef.current) return;
     gsap.set(containerRef.current, { width: 0 });
     gsap.to(containerRef.current, {
-      width: panelWidth,
-      duration: 0.2,
+      width: 340, // Fixed width of 340px
+      duration: 0.3,
       delay: 0.2,
       ease: 'power2.out',
     });
   }, []);
+
 
   return (
     <div
@@ -142,20 +103,12 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
         listcontainer.current = el;
         containerRef.current = el;
       }}
-      className="graph_control_panel mt-10 h-screen z-50 flex flex-col border-r border-t border-slate-300 bg-[var(--color-panel-bg)]/60  backdrop-blur-md relative"
-      style={{
-        minWidth: 0,
-        maxWidth: maxWidth,
-        pointerEvents: isCollapsed ? 'none' : 'auto',
-        transition: isDragging ? 'none' : 'width 0.2s cubic-bezier(0.4,0,0.2,1)',
+      className="graph_control_panel mt-10 h-screen z-50 flex flex-col border-r border-t border-slate-300 bg-[var(--color-panel-bg)]/60 backdrop-blur-md relative"
+      style={{ 
+        width: '340px',
+        overflow: 'hidden' // Prevent content from showing when collapsed
       }}
     >
-      {/* Drag handle on the right side */}
-      <div
-        className="absolute right-0 top-0 h-full w-2 cursor-col-resize z-50 bg-transparent hover:bg-slate-200 transition"
-        onMouseDown={handleMouseDown}
-        aria-label="Resize Graph Control Panel"
-      />
      
 
       {/* Sticky search box */}

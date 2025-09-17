@@ -3,10 +3,11 @@ import { gsap } from 'gsap';
 import './SideDrawer.css';
 import { IconCheck, IconX, IconArrowsDownUp } from '@tabler/icons-react';
 import Chip from './Chip';
+import RiskChip from './RiskChip';
 
 const CloseButton = ({ onClick }) => (
   <button 
-    className="absolute top-1 right-5 bg-transparent border-none cursor-pointer p-3 rounded-full w-12 h-12 flex justify-center items-center z-[9999] hover:bg-white/10 transition-colors duration-200" 
+    className="absolute top-1 right-5 bg-white/80 rounded-full border-none cursor-pointer p-1 rounded-full w-12 h-12 flex justify-center items-center z-[9999] hover:bg-white/10 transition-colors duration-200" 
     onClick={onClick}
   >
     <IconX stroke={2.5} className="w-[20px] h-auto" />
@@ -247,11 +248,11 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
   if (!selectedNode) return null;
 
   return (
-    <div ref={drawerRef} className={`fixed top-0 right-0 w-[420px] h-screen border-l border-slate-300 side-drawer ${isOpen ? 'open' : 'closed'} bg-[var(--color-panel-bg)]/70 backdrop-blur-md flex flex-col transition-none opacity-0`}>
+    <div ref={drawerRef} className={`fixed top-0 right-0 w-[420px] h-screen border-l border-slate-300 side-drawer ${isOpen ? 'open' : 'closed'} bg-white/50 backdrop-blur-md flex flex-col transition-none opacity-0`}>
       {/* Use the CloseButton component */}
       <CloseButton onClick={onClose} />
       <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-start hide-scrollbar">
-        <div className="flex flex-col items-start px-6 py-4">
+        <div className="flex flex-col items-start px-6 py-4 w-full">
           <div
             ref={(el) => (contentRef.current[0] = el)}
             className="w-full flex flex-col items-start gap-2 mb-4"
@@ -307,7 +308,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
 
           <div className='flex flex-col gap-4 w-full'>
             {/* Potential Block */}
-            <div className='relative flex flex-col justify-between gap-2 bg-slate-100 border border-slate-400 rounded-md px-2 py-0 h-16 sm:h-20 md:h-24 lg:h-24 w-full  items-start overflow-hidden'>
+            <div className='relative flex flex-col justify-between gap-2 bg-slate-100 border border-slate-400 rounded-md px-2 py-0 h-16 sm:h-20 md:h-24 lg:h-24 w-full items-start overflow-hidden'>
               <span className="z-10 font-medium mt-2 text-slate-600 bg-slate-200/60 rounded-lg px-1 py-0 select-none">Potential</span> 
               <span className="z-10 text-lg pl-2 font-medium md:font-light  sm:text-xl md:text-3xl lg:text-4xl text-slate-600 font-light">{Potential}%</span>
               <div
@@ -375,13 +376,13 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
           <div className="mt-4 w-full border-t border-slate-200 pt-4 flex flex-col gap-2 items-start px-6 pb-8">
             <h4 className="text-slate-500 mb-2 font-medium select-none">Node Details</h4>
             <ul className="flex flex-col gap-4 items-start text-slate-600 text-sm w-full">
-              {/* Risk as enum badge */}
-              <li className='flex flex-row justify-between w-full'>
+              {/* Risk chip */}
+              <li className='flex flex-row justify-between w-full group'>
                 <span className="text-slate-400 select-none">Risk:</span>
-                <span className="w-auto flex flex-row items-end select-none flex-row-reverse">
+                <span className="w-auto flex flex-row items-center select-none">
                   {editingRisk ? (
                     <select
-                      className="font-bold ml-2 px-2 py-0.5 rounded border border-slate-300 bg-white text-slate-700 text-sm"
+                      className="ml-2 px-2 py-1 rounded border border-slate-300 bg-white text-slate-700 text-sm"
                       value={selectedNode?.data?.risk?.toLowerCase() || 'notset'}
                       onChange={handleRiskChange}
                       autoFocus
@@ -393,19 +394,18 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                     </select>
                   ) : (
                     <>
-                      <span className={`font-bold ml-2 px-2 py-0.5 rounded ${getRiskLabelAndColor(selectedNode?.data?.risk).color} text-sm cursor-pointer transition`}
-                        onClick={startEditingRisk}
-                      >
-                        {getRiskLabelAndColor(selectedNode?.data?.risk).label}
-                      </span>
-                      <span className="flex-1" />
                       <span
-                        className="ml-auto px-2 py-0.5 text-xs rounded bg-slate-200 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity select-none cursor-pointer"
+                        className="ml-2 px-2 py-0.5 text-xs rounded bg-slate-200 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity select-none cursor-pointer"
                         onClick={startEditingRisk}
-                        style={{ display: editingRisk ? 'none' : undefined }}
                       >
                         edit
                       </span>
+                      <RiskChip 
+                        risk={selectedNode?.data?.risk} 
+                        size="sm" 
+                        onClick={startEditingRisk}
+                        className="ml-2"
+                      />
                     </>
                   )}
                 </span>
@@ -451,11 +451,17 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                       <div className="flex flex-col items-start">
                         <div className="flex flex-row items-center gap-2 justify-between w-full">
                           <img src="/avatars/Avatar5.png" alt="Avatar" className="w-16 h-16 rounded-full mb-2 border" />
-                          <span className="ml-2 px-2 py-0.5 bg-green-50 text-green-500 text-md rounded-full align-middle">Online</span>
+                          <span className={`ml-2 px-2 py-0.5 text-md rounded-full align-middle ${
+                            selectedNode?.data?.creatorUser?.availability === 'online' 
+                              ? 'bg-green-50 text-green-500' 
+                              : 'bg-slate-50 text-slate-500'
+                          }`}>
+                            {selectedNode?.data?.creatorUser?.availability === 'online' ? 'Online' : 'Offline'}
+                          </span>
                         </div>
                         <div className="text-lg">{selectedNode?.data?.createdby}</div>
-                        <div className="text-sm text-slate-500">Data Steward</div>
-                        <div className="text-sm text-slate-400 font-normal">{selectedNode?.data?.createdby.split(' ')[0].toLowerCase()}@mindfuel.ai</div>
+                        <div className="text-sm text-slate-500">{selectedNode?.data?.creatorUser?.role || 'Data Steward'}</div>
+                        <div className="text-sm text-slate-400 font-normal">{selectedNode?.data?.creatorUser?.email || `${selectedNode?.data?.createdby?.split(' ')[0]?.toLowerCase()}@mindfuel.ai`}</div>
                         <div className="mt-2 text-sm flex flex-col items-start text-slate-600 font-normal">
                           <div className=' select-none'>Opportunities: 1</div>
                           <div className='select-none'>Products: 2</div>
@@ -507,11 +513,17 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                       <div className="flex flex-col items-start">
                       <div className="flex flex-row items-center gap-2 justify-between w-full">
                           <img src="/avatars/Avatar6.png" alt="Avatar" className="w-16 h-16 rounded-full mb-2 border" />
-                          <span className="ml-2 px-2 py-0.5 bg-slate-50 text-slate-500 text-md rounded-full align-middle">Out of office</span>
+                          <span className={`ml-2 px-2 py-0.5 text-md rounded-full align-middle ${
+                            selectedNode?.data?.updaterUser?.availability === 'online' 
+                              ? 'bg-green-50 text-green-500' 
+                              : 'bg-slate-50 text-slate-500'
+                          }`}>
+                            {selectedNode?.data?.updaterUser?.availability === 'online' ? 'Online' : 'Offline'}
+                          </span>
                         </div>
                         <div className="text-lg">{selectedNode?.data?.updatedby}</div>
-                        <div className="text-sm text-slate-500">Data Steward</div>
-                        <div className="text-sm text-slate-400 font-normal">{selectedNode?.data?.updatedby.split(' ')[0].toLowerCase()}@mindfuel.ai</div>
+                        <div className="text-sm text-slate-500">{selectedNode?.data?.updaterUser?.role || 'Data Steward'}</div>
+                        <div className="text-sm text-slate-400 font-normal">{selectedNode?.data?.updaterUser?.email || `${selectedNode?.data?.updatedby?.split(' ')[0]?.toLowerCase()}@mindfuel.ai`}</div>
                         <div className="mt-2 text-sm flex flex-col items-start text-slate-600 font-normal">
                           <div className='select-none'>Opportunities: 3</div>
                           <div className='select-none'>Products: 7</div>
