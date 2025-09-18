@@ -4,6 +4,7 @@ import Layout from './components/Layout/Layout'
 import Inbox from './components/Inbox'
 import PasswordGate from './components/PasswordGate'
 import { SpeedInsights } from '@vercel/speed-insights/react'
+import { Analytics } from '@vercel/analytics/react'
 
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
           </Layout>
         )}
         <SpeedInsights />
+        <Analytics />
       </div>
     </PasswordGate>
   )
