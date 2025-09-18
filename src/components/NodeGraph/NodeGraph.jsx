@@ -649,6 +649,8 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
           onConnect={onConnect}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
+          minZoom={0.4}
+          maxZoom={1.3}
           fitView
           fitViewOptions={{
             padding: 2,
