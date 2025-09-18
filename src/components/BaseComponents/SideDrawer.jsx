@@ -4,6 +4,7 @@ import './SideDrawer.css';
 import { IconCheck, IconX, IconArrowsDownUp } from '@tabler/icons-react';
 import Chip from './Chip';
 import RiskChip from './RiskChip';
+import { getGenderAvatar } from '../../utils/avatarUtils';
 
 const CloseButton = ({ onClick }) => (
   <button 
@@ -428,7 +429,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                     style={{ cursor: 'pointer' }}
                   >
                     <img 
-                      src="/avatars/Avatar5.png" 
+                      src={getGenderAvatar(selectedNode?.data?.creatorUser)} 
                       alt="Avatar" 
                       className="w-7 h-7 rounded-full object-cover mr-1 border border-slate-200 grayscale" 
                       style={{ display: 'inline-block' }}
@@ -450,7 +451,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                     >
                       <div className="flex flex-col items-start">
                         <div className="flex flex-row items-center gap-2 justify-between w-full">
-                          <img src="/avatars/Avatar5.png" alt="Avatar" className="w-16 h-16 rounded-full mb-2 border" />
+                          <img src={getGenderAvatar(selectedNode?.data?.creatorUser)} alt="Avatar" className="w-16 h-16 rounded-full mb-2 border" />
                           <span className={`ml-2 px-2 py-0.5 text-md rounded-full align-middle ${
                             selectedNode?.data?.creatorUser?.availability === 'online' 
                               ? 'bg-green-50 text-green-500' 
@@ -490,7 +491,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                     style={{ cursor: 'pointer' }}
                   >
                     <img 
-                      src="/avatars/Avatar6.png" 
+                      src={getGenderAvatar(selectedNode?.data?.updaterUser)} 
                       alt="Avatar" 
                       className="w-7 h-7 rounded-full object-cover mr-1 border border-slate-200 grayscale" 
                       style={{ display: 'inline-block' }}
@@ -512,7 +513,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                     >
                       <div className="flex flex-col items-start">
                       <div className="flex flex-row items-center gap-2 justify-between w-full">
-                          <img src="/avatars/Avatar6.png" alt="Avatar" className="w-16 h-16 rounded-full mb-2 border" />
+                          <img src={getGenderAvatar(selectedNode?.data?.updaterUser)} alt="Avatar" className="w-16 h-16 rounded-full mb-2 border" />
                           <span className={`ml-2 px-2 py-0.5 text-md rounded-full align-middle ${
                             selectedNode?.data?.updaterUser?.availability === 'online' 
                               ? 'bg-green-50 text-green-500' 

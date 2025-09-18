@@ -24,7 +24,9 @@ export const nodeService = {
           last_name,
           email,
           role,
-          availability
+          availability,
+          gender,
+          avatar_url
         ),
         updater:updated_by(
           id,
@@ -32,7 +34,9 @@ export const nodeService = {
           last_name,
           email,
           role,
-          availability
+          availability,
+          gender,
+          avatar_url
         )
       `)
       .order('created_at', { ascending: false })
