@@ -2,6 +2,13 @@
 
 ![Screenshot of the Prototype](./screenshot.png)
 
+## 🚀 Live Demo
+
+**Try the live prototype:** [https://mindfuel-prototype.petermarkellis.com/](https://mindfuel-prototype.petermarkellis.com/)  
+**Password:** `mindfuel2024`
+
+---
+
 This repository contains a **mock prototype** built to explore the integration of [React Flow](https://reactflow.dev/) into a Data Product Management platform. The prototype was developed during my time as a Frontend Engineer at [Mindfuel.ai](https://mindfuel.ai).
 
 ## Project Purpose
