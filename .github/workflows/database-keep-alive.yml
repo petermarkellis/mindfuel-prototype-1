@@ -17,16 +17,10 @@ jobs:
           echo "🔄 Database keep-alive ping at $(date)"
           echo "🌐 Pinging Supabase REST API..."
           
-          # Replace 'your-project-id' with your actual Supabase project ID
-          # This will be a 401 error, but it keeps the database active
+          # Your Supabase project ID
           PROJECT_ID="mgdkkpbrnrhzeiwblzay"
           
-          if [ "$PROJECT_ID" = "your-project-id" ]; then
-            echo "⚠️ Please update PROJECT_ID in this workflow file"
-            echo "🔗 Get your project ID from: https://supabase.com/dashboard"
-            echo "📝 It's the part before '.supabase.co' in your URL"
-            exit 1
-          fi
+          echo "🔗 Using project ID: $PROJECT_ID"
           
           # Simple REST API ping (will return 401 but keeps DB active)
           curl -s -o /dev/null -w "Status: %{http_code}, Time: %{time_total}s\n" \
