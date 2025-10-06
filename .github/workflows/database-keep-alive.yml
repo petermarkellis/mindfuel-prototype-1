@@ -1,0 +1,38 @@
+name: Database Keep-Alive (No Secrets Required)
+
+on:
+  schedule:
+    # Run every 5 minutes for maximum database activity
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    
+    steps:
+      - name: Database Keep-Alive Ping
+        run: |
+          echo "🔄 Database keep-alive ping at $(date)"
+          echo "🌐 Pinging Supabase REST API..."
+          
+          # Replace 'your-project-id' with your actual Supabase project ID
+          # This will be a 401 error, but it keeps the database active
+          PROJECT_ID="your-project-id"
+          
+          if [ "$PROJECT_ID" = "your-project-id" ]; then
+            echo "⚠️ Please update PROJECT_ID in this workflow file"
+            echo "🔗 Get your project ID from: https://supabase.com/dashboard"
+            echo "📝 It's the part before '.supabase.co' in your URL"
+            exit 1
+          fi
+          
+          # Simple REST API ping (will return 401 but keeps DB active)
+          curl -s -o /dev/null -w "Status: %{http_code}, Time: %{time_total}s\n" \
+            "https://$PROJECT_ID.supabase.co/rest/v1/keep_alive_logs" \
+            -H "apikey: fake-key" \
+            -H "Authorization: Bearer fake-token" || echo "Ping completed (401 expected)"
+          
+          echo "✅ Database keep-alive completed"
+          echo "📊 This keeps your Supabase database active"

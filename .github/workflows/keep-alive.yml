@@ -59,18 +59,26 @@ jobs:
           
           const supabase = createClient(supabaseUrl, supabaseKey);
           
-          // Simple query to keep database active
+          const startTime = Date.now();
+          
+          // Insert a log entry to keep database active
           supabase
-            .from('nodes')
-            .select('id')
-            .limit(1)
+            .from('keep_alive_logs')
+            .insert({
+              status: 'active',
+              source: 'github_actions',
+              response_time_ms: 0
+            })
             .then(({ data, error }) => {
+              const responseTime = Date.now() - startTime;
+              
               if (error) {
-                console.error('❌ Database ping failed:', error.message);
+                console.error('❌ Keep-alive log insert failed:', error.message);
                 process.exit(1);
               } else {
-                console.log('✅ Database ping successful');
+                console.log('✅ Keep-alive log inserted successfully');
                 console.log('📊 Database is active and responsive');
+                console.log('⏱️ Response time:', responseTime + 'ms');
                 process.exit(0);
               }
             })
