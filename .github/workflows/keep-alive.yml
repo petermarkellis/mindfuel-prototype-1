@@ -1,0 +1,71 @@
+name: Keep Supabase Database Alive
+
+on:
+  schedule:
+    # Run every 30 minutes to keep database active
+    - cron: '*/30 * * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Ping Supabase Database
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          node -e "
+          const { createClient } = require('@supabase/supabase-js');
+          
+          const supabaseUrl = process.env.VITE_SUPABASE_URL;
+          const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+          
+          if (!supabaseUrl || !supabaseKey) {
+            console.error('❌ Missing Supabase environment variables');
+            process.exit(1);
+          }
+          
+          const supabase = createClient(supabaseUrl, supabaseKey);
+          
+          console.log('🔄 Pinging Supabase database...');
+          
+          // Simple query to keep database active
+          supabase
+            .from('nodes')
+            .select('id')
+            .limit(1)
+            .then(({ data, error }) => {
+              if (error) {
+                console.error('❌ Database ping failed:', error.message);
+                process.exit(1);
+              } else {
+                console.log('✅ Database ping successful');
+                console.log('📊 Database is active and responsive');
+                process.exit(0);
+              }
+            })
+            .catch((err) => {
+              console.error('❌ Unexpected error:', err.message);
+              process.exit(1);
+            });
+          "
+
+      - name: Log success
+        run: |
+          echo "✅ Keep-alive job completed successfully"
+          echo "🕐 Timestamp: $(date)"
+          echo "🔗 Database should remain active"
