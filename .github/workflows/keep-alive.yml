@@ -15,6 +15,18 @@ jobs:
     timeout-minutes: 3
     
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Log workflow start
         run: |
           echo "🚀 Keep-alive workflow started at $(date)"
@@ -37,10 +49,10 @@ jobs:
         if: steps.check_secrets.outputs.db_ping == 'false'
         run: |
           echo "🌐 Pinging Supabase via HTTP..."
-          # Extract project ID from your Supabase URL (you'll need to replace this)
-          # This is a simple HTTP ping that doesn't require authentication
+          # Simple HTTP ping to keep database active
           curl -s -o /dev/null -w "HTTP Status: %{http_code}\nResponse Time: %{time_total}s\n" \
-            "https://your-project-id.supabase.co/rest/v1/" || echo "⚠️ HTTP ping completed (expected for auth endpoints)"
+            "https://mgdkkpbrnrhzeiwblzay.supabase.co/rest/v1/keep_alive_logs" \
+            -H "apikey: fake-key" || echo "⚠️ HTTP ping completed (401 expected)"
 
       - name: Database Ping (With secrets)
         if: steps.check_secrets.outputs.db_ping == 'true'
