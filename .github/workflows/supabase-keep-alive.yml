@@ -1,4 +1,4 @@
-name: Database Keep-Alive (No Secrets Required)
+name: Supabase Keep-Alive (No Secrets Required)
 
 on:
   schedule:
