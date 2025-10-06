@@ -21,7 +21,7 @@ jobs:
           # This will be a 401 error, but it keeps the database active
           PROJECT_ID="mgdkkpbrnrhzeiwblzay"
           
-          if [ "$PROJECT_ID" = "mgdkkpbrnrhzeiwblzay" ]; then
+          if [ "$PROJECT_ID" = "your-project-id" ]; then
             echo "⚠️ Please update PROJECT_ID in this workflow file"
             echo "🔗 Get your project ID from: https://supabase.com/dashboard"
             echo "📝 It's the part before '.supabase.co' in your URL"
