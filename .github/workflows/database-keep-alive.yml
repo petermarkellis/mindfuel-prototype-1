@@ -19,9 +19,9 @@ jobs:
           
           # Replace 'your-project-id' with your actual Supabase project ID
           # This will be a 401 error, but it keeps the database active
-          PROJECT_ID="your-project-id"
+          PROJECT_ID="mgdkkpbrnrhzeiwblzay"
           
-          if [ "$PROJECT_ID" = "your-project-id" ]; then
+          if [ "$PROJECT_ID" = "mgdkkpbrnrhzeiwblzay" ]; then
             echo "⚠️ Please update PROJECT_ID in this workflow file"
             echo "🔗 Get your project ID from: https://supabase.com/dashboard"
             echo "📝 It's the part before '.supabase.co' in your URL"
