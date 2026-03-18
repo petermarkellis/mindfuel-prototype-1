@@ -2,6 +2,8 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import ReactFlow, {
   Background,
   BackgroundVariant,
+  useNodesState,
+  useEdgesState,
   MiniMap,
   Controls,
   useReactFlow
@@ -126,16 +128,33 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     setEdges
   } = supabaseHook;
 
-  // Use database nodes/edges directly - NO local state duplication
-  // This eliminates all sync issues between local and database state
-  const localNodes = nodes || [];
-  const localEdges = edges || [];
+  // React Flow state - initialized from database
+  const [localNodes, setLocalNodes, onNodesChange] = useNodesState(nodes || []);
+  const [localEdges, setLocalEdges, onEdgesChange] = useEdgesState(edges || []);
   
-  // React Flow callbacks (don't modify state, just trigger database updates)
-  const onNodesChange = useCallback((changes) => {
+  // Sync with database when nodes/edges change (only count changes)
+  useEffect(() => {
+    if (nodes && nodes.length !== localNodes.length) {
+      setLocalNodes(nodes);
+    }
+  }, [nodes?.length, setLocalNodes]);
+
+  useEffect(() => {
+    if (edges && edges.length !== localEdges.length) {
+      setLocalEdges(edges);
+    }
+  }, [edges?.length, setLocalEdges, localEdges.length]);
+  
+  // Handle position changes with debounce
+  const positionSaveTimeouts = useRef({});
+  
+  const handleNodesChange = useCallback((changes) => {
+    // Apply changes to local state (React Flow requirement)
+    onNodesChange(changes);
+    
+    // Save position changes to database
     changes.forEach((change) => {
       if (change.type === 'position' && change.position) {
-        // Debounced position save
         if (positionSaveTimeouts.current[change.id]) {
           clearTimeout(positionSaveTimeouts.current[change.id]);
         }
@@ -148,49 +167,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
         }, 500);
       }
     });
-  }, [updateNode]);
-  
-  const onEdgesChange = useCallback((changes) => {
-    // Just apply changes visually - database state is source of truth
-  }, []);
-
-  // Debounced position save to prevent flickering during drag
-  const positionSaveTimeouts = useRef({});
-  
-  // Enhanced onNodesChange that saves position updates to database (debounced)
-  const handleNodesChange = useCallback((changes) => {
-    // Apply changes to local state first (immediate)
-    onNodesChange(changes);
-    
-    // Handle position changes with debouncing
-    changes.forEach((change) => {
-      if (change.type === 'position' && change.position) {
-        // Clear existing timeout for this node
-        if (positionSaveTimeouts.current[change.id]) {
-          clearTimeout(positionSaveTimeouts.current[change.id]);
-        }
-        
-        // Set new timeout to save position after user stops dragging
-        positionSaveTimeouts.current[change.id] = setTimeout(async () => {
-          try {
-            await updateNode(change.id, { position: change.position });
-            delete positionSaveTimeouts.current[change.id];
-          } catch (error) {
-            console.error('Failed to save node position:', error);
-          }
-        }, 500); // Save 500ms after user stops moving the node
-      }
-    });
   }, [onNodesChange, updateNode]);
-
-  // Sync database data with local React Flow state
-  useEffect(() => {
-    setLocalNodes(nodes);
-  }, [nodes, setLocalNodes]);
-
-  useEffect(() => {
-    setLocalEdges(edges);
-  }, [edges, setLocalEdges]);
 
   // Cleanup timeouts on unmount
   useEffect(() => {
