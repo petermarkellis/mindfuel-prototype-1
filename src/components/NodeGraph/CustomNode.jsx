@@ -96,7 +96,7 @@ const CustomNode = ({ data, nodes = [] }) => {
     <div className="rounded-3xl p-2 bg-white text-slate-500 border-4 border-slate-200 rounded-2xl max-w-[800px] group" onClick={nodeInteractionHandler}>
       <div className="px-8 py-4  flex flex-col gap-6 items-start">
         <div className="w-full flex flex-row justify-between items-center gap-2">
-          <span className={`inline-flex items-center font-medium rounded-md text-2xl font-bold px-6 py-3 border border-slate-200 ${bgColor} ${textColor}`}>
+          <span className={`inline-flex items-center font-medium rounded-md text-[28px] font-bold px-7 py-3.5 border border-slate-200 ${bgColor} ${textColor}`}>
             {data.type}
           </span>
           <div>
