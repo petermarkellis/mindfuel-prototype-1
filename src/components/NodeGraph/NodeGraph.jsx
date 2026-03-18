@@ -133,6 +133,15 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
   const [localNodes, setLocalNodes, onNodesChange] = useNodesState(nodes);
   const [localEdges, setLocalEdges, onEdgesChange] = useEdgesState(edges);
 
+  // Sync local state with database state when nodes/edges change
+  useEffect(() => {
+    setLocalNodes(nodes);
+  }, [nodes, setLocalNodes]);
+
+  useEffect(() => {
+    setLocalEdges(edges);
+  }, [edges, setLocalEdges]);
+
   // Debounced position save to prevent flickering during drag
   const positionSaveTimeouts = useRef({});
   
@@ -697,7 +706,9 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
           onPaneClick={() => {
             setContextMenu((cm) => ({ ...cm, visible: false }));
             setSideDrawerOpen(false);
+            // Clear highlight from both database and local state
             setNodes(nds => nds.map(n => ({ ...n, className: '' })));
+            setLocalNodes(nds => nds.map(n => ({ ...n, className: '' })));
           }}
           onMove={() => setContextMenu((cm) => ({ ...cm, visible: false }))}
           onNodeDragStart={() => setContextMenu((cm) => ({ ...cm, visible: false }))}
