@@ -246,9 +246,9 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
 
   const handleNodeClick = useCallback((event, node) => {
     if (event.button === 0) {
-      // Just set the selected node and open drawer - don't modify node state
-      // Modifying state here causes race conditions with rapid clicks
-      setSelectedNode(node);
+      // Deep clone the node to preserve its data independently
+      const nodeCopy = JSON.parse(JSON.stringify(node));
+      setSelectedNode(nodeCopy);
       setSideDrawerOpen(true);
     }
   }, []);
