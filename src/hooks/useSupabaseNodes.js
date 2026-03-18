@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
-import { nodeService, edgeService } from '../lib/supabase.js'
+import { nodeService, edgeService } from '../lib/neon.js'
 import { transformNodeFromDatabase, transformEdgeFromDatabase } from '../utils/dataMigration.js'
 
 /**
- * Custom hook for managing nodes and edges with Supabase
+ * Custom hook for managing nodes and edges with Neon database
  */
 export function useSupabaseNodes() {
   const [nodes, setNodes] = useState([])
@@ -11,25 +11,30 @@ export function useSupabaseNodes() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // Load initial data from Supabase
+  // Load initial data from Neon database
   const loadData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
-      
+
       const [dbNodes, dbEdges] = await Promise.all([
         nodeService.getNodes(),
         edgeService.getEdges()
       ])
-      
+
       // Transform database format to ReactFlow format
       const transformedNodes = dbNodes.map(transformNodeFromDatabase)
       const transformedEdges = dbEdges.map(transformEdgeFromDatabase)
-      
+
       setNodes(transformedNodes)
       setEdges(transformedEdges)
+      
+      // Log if using fallback data
+      if (transformedNodes.length === 0 && transformedEdges.length === 0) {
+        console.log('ℹ️ Using local data. For production data, deploy to Vercel.')
+      }
     } catch (err) {
-      console.error('Error loading data from Supabase:', err)
+      console.error('Error loading data from Neon database:', err)
       setError(err.message)
     } finally {
       setLoading(false)

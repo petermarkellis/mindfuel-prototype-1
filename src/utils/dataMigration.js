@@ -1,4 +1,4 @@
-import { nodeService, edgeService } from '../lib/supabase.js'
+import { nodeService, edgeService } from '../lib/neon.js'
 import { initNodes, initEdges } from '../data/initialData.js'
 
 /**

@@ -12,7 +12,7 @@ import { useSupabaseNodes } from '../../hooks/useSupabaseNodes';
 export default function Layout({ children, onNavigateToInbox, onNavigateToMain }) {
   const [filters, setFilters] = useState([]);
   
-  // Get nodes from Supabase - this will be shared with NodeGraph
+  // Get nodes from database - this will be shared with NodeGraph
   const supabaseHook = useSupabaseNodes();
   const { nodes, edges } = supabaseHook;
   const [nodeIdToCenter, setNodeIdToCenter] = useState(null);

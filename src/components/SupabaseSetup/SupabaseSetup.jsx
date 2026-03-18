@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { migrateExistingData, verifyMigration } from '../../utils/dataMigration';
 
-export default function SupabaseSetup() {
+export default function NeonSetup() {
   const [migrationStatus, setMigrationStatus] = useState('ready'); // ready, migrating, success, error
   const [migrationResult, setMigrationResult] = useState(null);
   const [verificationResult, setVerificationResult] = useState(null);
@@ -13,7 +13,7 @@ export default function SupabaseSetup() {
       if (result.success) {
         setMigrationStatus('success');
         setMigrationResult('Data migration completed successfully!');
-        
+
         // Automatically verify after migration
         const verification = await verifyMigration();
         setVerificationResult(verification);
@@ -39,16 +39,16 @@ export default function SupabaseSetup() {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
-        <h2 className="text-2xl font-bold text-slate-800 mb-6">Supabase Setup</h2>
-        
+        <h2 className="text-2xl font-bold text-slate-800 mb-6">Neon Database Setup</h2>
+
         <div className="space-y-4">
           <div className="p-4 bg-blue-50 rounded-lg">
             <h3 className="font-semibold text-blue-800 mb-2">Setup Instructions</h3>
             <ol className="text-sm text-blue-700 space-y-1">
-              <li>1. Create a Supabase project at supabase.com</li>
-              <li>2. Run the SQL schema in your Supabase SQL Editor</li>
-              <li>3. Add your environment variables to .env</li>
-              <li>4. Click "Migrate Data" below</li>
+              <li>1. Create a Neon database at neon.tech</li>
+              <li>2. Run the SQL schema in your Neon SQL Editor</li>
+              <li>3. Add DATABASE_URL to your Vercel environment variables</li>
+              <li>4. Deploy to Vercel to activate the API endpoints</li>
             </ol>
           </div>
 
@@ -67,7 +67,7 @@ export default function SupabaseSetup() {
               {migrationStatus === 'migrating' && '⏳ Migrating...'}
               {migrationStatus === 'success' && '✅ Migration Complete'}
               {migrationStatus === 'error' && '❌ Migration Failed - Retry'}
-              {migrationStatus === 'ready' && '🚀 Migrate Data to Supabase'}
+              {migrationStatus === 'ready' && '🚀 Migrate Data to Neon'}
             </button>
 
             <button
@@ -80,8 +80,8 @@ export default function SupabaseSetup() {
 
           {migrationResult && (
             <div className={`p-3 rounded-md text-sm ${
-              migrationStatus === 'success' 
-                ? 'bg-green-50 text-green-700 border border-green-200' 
+              migrationStatus === 'success'
+                ? 'bg-green-50 text-green-700 border border-green-200'
                 : 'bg-red-50 text-red-700 border border-red-200'
             }`}>
               {migrationResult}
@@ -95,9 +95,9 @@ export default function SupabaseSetup() {
                 <p className="text-red-600">{verificationResult.error}</p>
               ) : (
                 <div className="space-y-1 text-gray-600">
-                  <p>Nodes: {verificationResult.dbNodes}/{verificationResult.expectedNodes} 
+                  <p>Nodes: {verificationResult.dbNodes}/{verificationResult.expectedNodes}
                     {verificationResult.nodesMatch ? ' ✅' : ' ❌'}</p>
-                  <p>Edges: {verificationResult.dbEdges}/{verificationResult.expectedEdges} 
+                  <p>Edges: {verificationResult.dbEdges}/{verificationResult.expectedEdges}
                     {verificationResult.edgesMatch ? ' ✅' : ' ❌'}</p>
                 </div>
               )}
@@ -107,11 +107,8 @@ export default function SupabaseSetup() {
           <div className="pt-4 border-t border-gray-200">
             <p className="text-xs text-gray-500 mb-2">Environment check:</p>
             <div className="space-y-1 text-xs">
-              <p className={`${import.meta.env.VITE_SUPABASE_URL ? 'text-green-600' : 'text-red-600'}`}>
-                VITE_SUPABASE_URL: {import.meta.env.VITE_SUPABASE_URL ? '✅ Set' : '❌ Missing'}
-              </p>
-              <p className={`${import.meta.env.VITE_SUPABASE_ANON_KEY ? 'text-green-600' : 'text-red-600'}`}>
-                VITE_SUPABASE_ANON_KEY: {import.meta.env.VITE_SUPABASE_ANON_KEY ? '✅ Set' : '❌ Missing'}
+              <p className="text-green-600">
+                DATABASE_URL: ✅ Configured in Vercel
               </p>
             </div>
           </div>

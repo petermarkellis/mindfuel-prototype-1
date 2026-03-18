@@ -4,7 +4,7 @@
 
 ## 🚀 Live Demo
 
-**Try the live prototype:** [https://mindfuel-prototype.petermarkellis.com/](https://mindfuel-prototype.petermarkellis.com/)  
+**Try the live prototype:** [https://mindfuel-prototype.petermarkellis.com/](https://mindfuel-prototype.petermarkellis.com/)
 **Password:** `mindfuel2024`
 
 ---
@@ -23,19 +23,20 @@ The goal of this prototype was to:
 
 ### Frontend
 - **React + Vite** – Modern React development with fast HMR
-- **React Flow** – Interactive node-based graph visualization  
+- **React Flow** – Interactive node-based graph visualization
 - **Tailwind CSS** – Utility-first CSS framework for rapid UI development
 - **GSAP** – Animation library for smooth UI transitions
 - **Tabler Icons** – Modern icon set for UI controls
 
 ### Backend & Database
-- **Supabase** – PostgreSQL database with real-time features
-- **Supabase JS Client** – Type-safe database operations
+- **Neon** – Serverless PostgreSQL with autoscaling
+- **@neondatabase/serverless** – Optimized Neon driver for Vercel serverless functions
 - **PostgreSQL** – Robust relational database for data persistence
+- **Vercel Serverless API** – Backend API endpoints for database operations
 
 ### Deployment
-- **Vercel** – Frontend hosting and CI/CD platform
-- **Supabase Cloud** – Managed database hosting
+- **Vercel** – Full-stack hosting and CI/CD platform
+- **Neon Cloud** – Managed serverless database hosting
 
 ## Features
 
@@ -55,7 +56,7 @@ The goal of this prototype was to:
 
 ### Prerequisites
 - Node.js 18+ and npm/yarn
-- A Supabase account (for database functionality)
+- A Neon account (for database functionality)
 
 ### Setup Instructions
 
@@ -72,19 +73,20 @@ The goal of this prototype was to:
    yarn install
    ```
 
-3. **Set up Supabase Database:**
-   - Create a new project at [supabase.com](https://supabase.com)
-   - Go to your project's SQL Editor
-   - Run the SQL commands from `supabase/migrations/001_initial_schema.sql` to create tables and insert sample data
-   - Get your project URL and anon key from Settings > API
-   - See `supabase/README.md` for detailed setup instructions
+3. **Set up Neon Database:**
+   - Create a new project at [neon.tech](https://neon.tech)
+   - Create a database and copy the connection string (DATABASE_URL)
+   - Go to SQL Editor and run the schema from `supabase/migrations/001_initial_schema.sql`
+   - See `docs/NEON_SETUP.md` for detailed setup instructions
 
 4. **Configure Environment Variables:**
-   Create a `.env` file in the root directory:
+   
+   **Local Development:** Create a `.env` file in the root directory:
    ```env
-   VITE_SUPABASE_URL=your_supabase_project_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   DATABASE_URL=postgres://user:password@host.neon.tech/dbname?sslmode=require
    ```
+   
+   **Vercel Deployment:** Add `DATABASE_URL` to your Vercel project environment variables
 
 5. **Run the development server:**
    ```bash
@@ -95,21 +97,13 @@ The goal of this prototype was to:
 
 6. **Open [http://localhost:5173](http://localhost:5173) in your browser.**
 
-### Quick Setup Helper
-For a guided setup experience, run:
-```bash
-./supabase/setup.sh
-```
+### Database Schema
 
-This script will:
-- Check your environment variables
-- Display the SQL migration content for easy copying
-- Provide step-by-step setup instructions
-
-### Database Migration (Optional)
-If you want to migrate from the hardcoded data to Supabase:
-- The app includes a migration tool that will appear if no environment variables are detected
-- Follow the on-screen instructions to migrate existing node data to your Supabase database
+The database schema is located in `supabase/migrations/001_initial_schema.sql` and includes:
+- `nodes` table - Stores all graph nodes with metadata
+- `edges` table - Stores relationships between nodes
+- `risks` table - Risk level definitions
+- `users` table - User information for creators/updaters
 
 ## Usage
 
@@ -137,5 +131,5 @@ This prototype was used to gather feedback from our user testing group in Slack.
 
 ## Design Engineer
 
-**Peter Ellis**  
+**Peter Ellis**
 [petermarkellis@gmail.com](mailto:petermarkellis@gmail.com)

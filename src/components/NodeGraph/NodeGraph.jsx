@@ -31,7 +31,7 @@ export const Risk = {
 };
 
 // Note: Initial node and edge data has been moved to src/data/initialData.js
-// This component now uses live data from Supabase via the supabaseHook prop
+// This component now uses live data from the database via the supabaseHook prop
 
 const styles = {
   background: 'linear-gradient(180deg, #f7f7fa 0%, #e6eaf2 100%)',
@@ -106,7 +106,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
   // Available node types for the submenu
   const availableNodeTypes = ['Opportunity', 'Product', 'Data Asset', 'Data Source'];
 
-  // Use shared Supabase hook from Layout
+  // Use shared database hook from Layout
   const { 
     nodes, 
     edges, 
@@ -153,7 +153,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     });
   }, [onNodesChange, updateNode]);
 
-  // Sync Supabase data with local React Flow state
+  // Sync database data with local React Flow state
   useEffect(() => {
     setLocalNodes(nodes);
   }, [nodes, setLocalNodes]);
@@ -607,7 +607,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
       <div className="w-screen h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-600">Loading data from Supabase...</p>
+          <p className="text-slate-600">Loading data from database...</p>
         </div>
       </div>
     );
@@ -622,7 +622,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
           <h3 className="text-lg font-semibold text-slate-800 mb-2">Database Connection Error</h3>
           <p className="text-slate-600 mb-4">{error}</p>
           <p className="text-sm text-slate-500">
-            Make sure your Supabase environment variables are configured correctly.
+            For local development, use <code className="bg-slate-100 px-2 py-1 rounded">vercel dev</code> or deploy to Vercel.
           </p>
         </div>
       </div>

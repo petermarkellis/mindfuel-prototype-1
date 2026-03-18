@@ -1,12 +1,12 @@
 {
   "name": "mindfuel-reactflow-prototype",
-  "description": "Interactive node-based graph visualization prototype for Mindfuel.ai - Built with React Flow, Supabase, and Tailwind CSS",
+  "description": "Interactive node-based graph visualization prototype for Mindfuel.ai - Built with React Flow, Neon Database, and Tailwind CSS",
   "version": "1.0.0",
   "author": "Peter Ellis",
   "keywords": [
     "react",
     "reactflow",
-    "supabase",
+    "neon",
     "tailwind",
     "node-graph",
     "visualization",
@@ -29,7 +29,7 @@
   "dependencies": {
     "@gsap/react": "^2.1.0",
     "@heroicons/react": "^2.2.0",
-    "@supabase/supabase-js": "^2.57.4",
+    "@neondatabase/serverless": "^1.0.2",
     "@tabler/icons-react": "^3.34.0",
     "@tailwindcss/cli": "^4.1.10",
     "@tailwindcss/postcss": "^4.1.10",
@@ -40,7 +40,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "reactflow": "^11.11.1",
-    "styled-components": "^6.1.8"
+    "styled-components": "^6.1.8",
+    "ws": "^8.19.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
@@ -52,6 +53,5 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
     "vite": "^5.2.0"
-  },
-  "packageManager": "pnpm@9.11.0+sha512.0a203ffaed5a3f63242cd064c8fb5892366c103e328079318f78062f24ea8c9d50bc6a47aa3567cabefd824d170e78fa2745ed1f16b132e16436146b7688f19b"
+  }
 }

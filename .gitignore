@@ -32,3 +32,4 @@ dist-ssr
 dev-tests/*.log
 dev-tests/output/
 .vercel
+.env*.local
