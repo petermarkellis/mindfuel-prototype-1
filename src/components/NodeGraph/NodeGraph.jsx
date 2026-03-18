@@ -97,6 +97,11 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
   const submenuTimeout = useRef(null);
   const contextMenuRef = useRef(null);
   const [locked, setLocked] = useState(false);
+  
+  // Track if a node was just clicked to prevent race conditions
+  const nodeClickTimeoutRef = useRef(null);
+  const [isNodeBeingSelected, setIsNodeBeingSelected] = useState(false);
+  
   const [deleteConfirmation, setDeleteConfirmation] = useState({
     isOpen: false,
     node: null,
@@ -246,6 +251,9 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
 
   const handleNodeClick = useCallback((event, node) => {
     if (event.button === 0) {
+      // Set flag to prevent race condition with canvas click
+      setIsNodeBeingSelected(true);
+      
       setSelectedNode(node);
       setSideDrawerOpen(true);
       setLocalNodes((nds) =>
@@ -255,6 +263,14 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
             : { ...n, className: '' }
         )
       );
+      
+      // Clear the flag after a short delay
+      if (nodeClickTimeoutRef.current) {
+        clearTimeout(nodeClickTimeoutRef.current);
+      }
+      nodeClickTimeoutRef.current = setTimeout(() => {
+        setIsNodeBeingSelected(false);
+      }, 300);
     }
   }, [setLocalNodes]);
 
@@ -716,6 +732,11 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
           connectionLineStyle={{ stroke: '#6366f1', strokeWidth: 4 }}
           className=""
           onPaneClick={() => {
+            // Ignore canvas click if a node was just clicked (prevent race condition)
+            if (isNodeBeingSelected) {
+              console.log('⏳ Ignoring canvas click - node selection in progress');
+              return;
+            }
             setContextMenu((cm) => ({ ...cm, visible: false }));
             setSideDrawerOpen(false);
             setSelectedNode(null); // Explicitly clear selected node when clicking canvas
