@@ -1,47 +1,11 @@
 import React, { memo } from 'react';
 import { Handle, Position } from 'reactflow';
-import { CodeBracketSquareIcon, 
+import { CodeBracketSquareIcon,
   ArrowsRightLeftIcon,
   EllipsisHorizontalIcon
 } from '@heroicons/react/24/outline'
 import { IconDatabase, IconRecharging, IconBox, IconLayersSelected } from '@tabler/icons-react';
-
-// Function to get direct color values (temporary fix)
-const getTypeColor = (type) => {
-  switch (type) {
-    case "Opportunity":
-      return "#f59e42"; // opportunity-500
-    case "Product":
-    case "Data Product":
-      return "#7c3aed"; // product-600
-    case "Asset":
-    case "Data Asset":
-      return "#2563eb"; // data-asset-600
-    case "Data Source":
-    case "Source":
-      return "#059669"; // data-source-600
-    default:
-      return "#64748b"; // slate-500
-  }
-};
-
-const getTypeBgColor = (type) => {
-  switch (type) {
-    case "Opportunity":
-      return "#fef3e2"; // opportunity-50
-    case "Product":
-    case "Data Product":
-      return "#ede9fe"; // product-50
-    case "Asset":
-    case "Data Asset":
-      return "#dbeafe"; // data-asset-50
-    case "Data Source":
-    case "Source":
-      return "#d1fae5"; // data-source-50
-    default:
-      return "#f1f5f9"; // slate-100
-  }
-};
+import Chip from '../BaseComponents/Chip';
 
 const getHandleColorForType = (type) => {
   switch (type) {
@@ -67,8 +31,8 @@ const CustomNode = ({ data, nodes = [] }) => {
   return (
     <div className="rounded-3xl p-2 bg-white text-slate-500 border-4 border-slate-200 rounded-2xl max-w-[800px] group" onClick={nodeInteractionHandler}>
       <div className="px-8 py-4  flex flex-col gap-6 items-start">
-        <div className="text-ms font-medium truncate text-3xl capitalize w-full flex flex-row justify-between gap-1" style={{ color: getTypeColor(data.type) }}>
-          <span>{data.type}</span>
+        <div className="w-full flex flex-row justify-between items-center gap-2">
+          <Chip type={data.type} size="sm" variant="default" />
           <div>
             {data.type === 'Data Source' && (
               <IconDatabase 
