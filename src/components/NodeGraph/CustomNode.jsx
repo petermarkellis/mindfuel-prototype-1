@@ -7,6 +7,43 @@ import { CodeBracketSquareIcon,
 import { IconDatabase, IconRecharging, IconBox, IconLayersSelected } from '@tabler/icons-react';
 import Chip from '../BaseComponents/Chip';
 
+// Function to get color values for icons
+const getTypeColor = (type) => {
+  switch (type) {
+    case "Opportunity":
+      return "#f59e42";
+    case "Product":
+    case "Data Product":
+      return "#7c3aed";
+    case "Asset":
+    case "Data Asset":
+      return "#2563eb";
+    case "Data Source":
+    case "Source":
+      return "#059669";
+    default:
+      return "#64748b";
+  }
+};
+
+const getTypeBgColor = (type) => {
+  switch (type) {
+    case "Opportunity":
+      return "#fef3e2";
+    case "Product":
+    case "Data Product":
+      return "#ede9fe";
+    case "Asset":
+    case "Data Asset":
+      return "#dbeafe";
+    case "Data Source":
+    case "Source":
+      return "#d1fae5";
+    default:
+      return "#f1f5f9";
+  }
+};
+
 const getHandleColorForType = (type) => {
   switch (type) {
     case 'Opportunity':
