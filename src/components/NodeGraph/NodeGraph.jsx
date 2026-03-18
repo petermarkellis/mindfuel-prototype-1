@@ -1,11 +1,8 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import ReactFlow, { 
-  Background, 
-  BackgroundVariant, 
-  useNodesState, 
-  useEdgesState, 
+import ReactFlow, {
+  Background,
+  BackgroundVariant,
   MiniMap,
-  addEdge, 
   Controls,
   useReactFlow
 } from 'reactflow';
@@ -129,30 +126,33 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     setEdges
   } = supabaseHook;
 
-  // Initialize local state ONCE from database - use empty array as initial value
-  // DO NOT pass nodes/edges to useNodesState as it will reinitialize on every change
-  const [localNodes, setLocalNodes, onNodesChange] = useNodesState([]);
-  const [localEdges, setLocalEdges, onEdgesChange] = useEdgesState([]);
-
-  // Track if we've initialized
-  const initializedRef = useRef(false);
-
-  // Only sync on very first load - then keep local state completely independent
-  useEffect(() => {
-    if (!initializedRef.current && nodes && nodes.length > 0) {
-      setLocalNodes(nodes);
-      initializedRef.current = true;
-      console.log('✅ Initialized localNodes with', nodes.length, 'nodes');
-    }
-  }, [nodes, setLocalNodes]);
-
-  useEffect(() => {
-    if (!initializedRef.current && edges && edges.length > 0) {
-      setLocalEdges(edges);
-      initializedRef.current = true;
-      console.log('✅ Initialized localEdges with', edges.length, 'edges');
-    }
-  }, [edges, setLocalEdges]);
+  // Use database nodes/edges directly - NO local state duplication
+  // This eliminates all sync issues between local and database state
+  const localNodes = nodes || [];
+  const localEdges = edges || [];
+  
+  // React Flow callbacks (don't modify state, just trigger database updates)
+  const onNodesChange = useCallback((changes) => {
+    changes.forEach((change) => {
+      if (change.type === 'position' && change.position) {
+        // Debounced position save
+        if (positionSaveTimeouts.current[change.id]) {
+          clearTimeout(positionSaveTimeouts.current[change.id]);
+        }
+        positionSaveTimeouts.current[change.id] = setTimeout(async () => {
+          try {
+            await updateNode(change.id, { position: change.position });
+          } catch (error) {
+            console.error('Failed to save node position:', error);
+          }
+        }, 500);
+      }
+    });
+  }, [updateNode]);
+  
+  const onEdgesChange = useCallback((changes) => {
+    // Just apply changes visually - database state is source of truth
+  }, []);
 
   // Debounced position save to prevent flickering during drag
   const positionSaveTimeouts = useRef({});
