@@ -3,14 +3,16 @@
  *
  * This module provides functions to interact with the Neon PostgreSQL database
  * through the Vercel serverless API endpoints.
- * 
+ *
  * For local development without `vercel dev`, it falls back to mock data.
  */
+
+import { initNodes, initEdges } from '../data/initialData.js';
 
 const API_BASE = '/api/db';
 
 // Check if we're in a local development environment without API access
-const isLocalDev = typeof window !== 'undefined' && 
+const isLocalDev = typeof window !== 'undefined' &&
   (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
 /**
@@ -18,8 +20,8 @@ const isLocalDev = typeof window !== 'undefined' &&
  * Used when API endpoints are not available (local dev without vercel dev)
  */
 const FALLBACK_DATA = {
-  nodes: [],
-  edges: [],
+  nodes: initNodes, // Use initial node data
+  edges: initEdges, // Use initial edge data
   risks: [
     { id: 1, level: 'notset', label: 'Not Set', description: 'Risk level has not been assessed yet', color: '#94a3b8', sort_order: 1 },
     { id: 2, level: 'low', label: 'Low', description: 'Minimal risk with low probability of negative impact', color: '#22c55e', sort_order: 2 },
