@@ -12,11 +12,12 @@ import ReactFlow, {
 import html2canvas from 'html2canvas';
 import { IconZoomIn, IconZoomOut, IconMaximize, IconArrowBackUp, IconLock, IconLockOpen, IconLayoutSidebarLeftExpand, IconLayoutSidebarRightExpand, IconRecharging, IconBox, IconLayersSelected, IconDatabase, IconCheck } from '@tabler/icons-react';
 
-import CustomNode from './CustomNode.jsx'; 
+import CustomNode from './CustomNode.jsx';
 import SideDrawer from '../BaseComponents/SideDrawer';
 import CustomEdge from './CustomEdge.jsx';
 import GraphControlPanel from '../GraphControlPanel/GraphControlPanel';
 import FixedFooter from '../BaseComponents/FixedFooter';
+import UndoNotification from '../BaseComponents/UndoNotification';
 import { ConfirmationModal } from '../BaseComponents';
 import { useSupabaseNodes } from '../../hooks/useSupabaseNodes';
 
@@ -89,35 +90,43 @@ function CustomControls({ locked, onToggleLock, isPanelCollapsed, onTogglePanel 
 
 export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, panelWidth = 320, isCollapsed = false, sidebarWidth = 64, onTogglePanel, supabaseHook, onOpenNewItemModal }) {
   const [selectedNode, setSelectedNode] = useState(null);
-  const [sideDrawerOpen, setSideDrawerOpen] = useState(false); 
+  const [sideDrawerOpen, setSideDrawerOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState({ nodeId: null, pos: { x: 0, y: 0 } });
   const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, node: null });
   const [submenuVisible, setSubmenuVisible] = useState(false);
   const submenuTimeout = useRef(null);
   const contextMenuRef = useRef(null);
   const [locked, setLocked] = useState(false);
-  const [deleteConfirmation, setDeleteConfirmation] = useState({ 
-    isOpen: false, 
-    node: null, 
-    message: '', 
+  const [deleteConfirmation, setDeleteConfirmation] = useState({
+    isOpen: false,
+    node: null,
+    message: '',
     title: ''
+  });
+  
+  // Undo notification state
+  const [undoNotification, setUndoNotification] = useState({
+    visible: false,
+    message: '',
+    lastEdgeId: null
   });
 
   // Available node types for the submenu
   const availableNodeTypes = ['Opportunity', 'Product', 'Data Asset', 'Data Source'];
 
   // Use shared database hook from Layout
-  const { 
-    nodes, 
-    edges, 
-    loading, 
-    error, 
-    createEdge, 
+  const {
+    nodes,
+    edges,
+    loading,
+    error,
+    createEdge,
+    deleteEdge,
     updateNode,
     updateNodePosition,
     deleteNode,
     setNodes,
-    setEdges 
+    setEdges
   } = supabaseHook;
 
   // React Flow hooks for local state management
@@ -174,17 +183,45 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
 
   const onConnect = useCallback(async (params) => {
     try {
-      const newEdge = { ...params, type: 'custom' };
+      const edgeId = `edge_${Date.now()}`;
+      const newEdge = { ...params, id: edgeId, type: 'custom' };
+      
       // Optimistically update local state
       setLocalEdges((eds) => addEdge(newEdge, eds));
+      
       // Save to database
       await createEdge(newEdge);
+      
+      // Show undo notification
+      setUndoNotification({
+        visible: true,
+        message: 'Connection created',
+        lastEdgeId: edgeId
+      });
     } catch (error) {
       console.error('Failed to create edge:', error);
       // Revert local state if database save fails
       setLocalEdges(edges);
     }
   }, [createEdge, setLocalEdges, edges]);
+
+  // Handle undo for connection
+  const handleUndoConnection = useCallback(async () => {
+    if (!undoNotification.lastEdgeId) return;
+    
+    try {
+      // Remove from database
+      await deleteEdge(undoNotification.lastEdgeId);
+      
+      // Remove from local state
+      setLocalEdges((eds) => eds.filter(edge => edge.id !== undoNotification.lastEdgeId));
+      
+      // Hide notification
+      setUndoNotification({ visible: false, message: '', lastEdgeId: null });
+    } catch (error) {
+      console.error('Failed to undo connection:', error);
+    }
+  }, [undoNotification.lastEdgeId, deleteEdge, setLocalEdges]);
 
   const handleNodeClick = useCallback((event, node) => {
     if (event.button === 0) {
@@ -803,7 +840,14 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
         cancelText="Cancel"
         variant="danger"
       />
-      
+
+      {/* Undo Notification Toast */}
+      <UndoNotification
+        message={undoNotification.message}
+        onUndo={handleUndoConnection}
+        onDismiss={() => setUndoNotification({ visible: false, message: '', lastEdgeId: null })}
+      />
+
     </div>
   );
 }
