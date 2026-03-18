@@ -11,9 +11,12 @@ import { initNodes, initEdges } from '../data/initialData.js';
 
 const API_BASE = '/api/db';
 
-// Check if we're in a local development environment without API access
+// Check if we're in a local development environment
 const isLocalDev = typeof window !== 'undefined' &&
   (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+// Use local API server in development if available
+const LOCAL_API_URL = 'http://localhost:3001/api/db';
 
 /**
  * Fallback Data for Local Development
@@ -35,6 +38,32 @@ const FALLBACK_DATA = {
  * Generic API request handler with fallback for local dev
  */
 async function apiRequest(action, options = {}) {
+  // In local dev, try local API server first, then fallback to Vercel API, then mock data
+  if (isLocalDev) {
+    try {
+      const url = new URL(LOCAL_API_URL);
+      url.searchParams.set('action', action);
+      
+      const response = await fetch(url.toString(), {
+        method: options.method || 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+        body: options.body ? JSON.stringify(options.body) : undefined,
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      }
+    } catch (error) {
+      // Local API server not running, will use fallback below
+      console.log('ℹ️ Local API server not available, using fallback data');
+    }
+  }
+  
+  // Try production API (works when deployed to Vercel)
   try {
     const url = new URL(API_BASE, window.location.origin);
     url.searchParams.set('action', action);
