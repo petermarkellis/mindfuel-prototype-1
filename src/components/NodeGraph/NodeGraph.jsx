@@ -129,33 +129,26 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     setEdges
   } = supabaseHook;
 
-  // Ref to maintain master node list
-  const masterNodesRef = useRef([]);
-  const masterEdgesRef = useRef([]);
-
-  // React Flow hooks for local state management
+  // Initialize local state ONCE from database
   const [localNodes, setLocalNodes, onNodesChange] = useNodesState(nodes || []);
   const [localEdges, setLocalEdges, onEdgesChange] = useEdgesState(edges || []);
+  
+  // Track if we've initialized
+  const initializedRef = useRef(false);
 
-  // Update master ref when database nodes change
+  // Only sync on very first load - then keep local state completely independent
   useEffect(() => {
-    if (nodes && nodes.length > 0) {
-      masterNodesRef.current = nodes;
-      // Only update local state if lengths differ (initial load or nodes added/removed)
-      if (localNodes.length !== nodes.length) {
-        setLocalNodes(nodes);
-      }
+    if (!initializedRef.current && nodes && nodes.length > 0) {
+      setLocalNodes(nodes);
+      initializedRef.current = true;
     }
-  }, [nodes?.length, setLocalNodes]);
+  }, [nodes, setLocalNodes]);
 
   useEffect(() => {
-    if (edges && edges.length > 0) {
-      masterEdgesRef.current = edges;
-      if (localEdges.length !== edges.length) {
-        setLocalEdges(edges);
-      }
+    if (!initializedRef.current && edges && edges.length > 0) {
+      setLocalEdges(edges);
     }
-  }, [edges?.length, setLocalEdges, localEdges.length]);
+  }, [edges, setLocalEdges]);
 
   // Debounced position save to prevent flickering during drag
   const positionSaveTimeouts = useRef({});
