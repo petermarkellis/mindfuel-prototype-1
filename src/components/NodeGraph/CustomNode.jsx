@@ -7,41 +7,29 @@ import { CodeBracketSquareIcon,
 import { IconDatabase, IconRecharging, IconBox, IconLayersSelected } from '@tabler/icons-react';
 import Chip from '../BaseComponents/Chip';
 
-// Function to get color values for icons
-const getTypeColor = (type) => {
-  switch (type) {
-    case "Opportunity":
-      return "#f59e42";
-    case "Product":
-    case "Data Product":
-      return "#7c3aed";
-    case "Asset":
-    case "Data Asset":
-      return "#2563eb";
-    case "Data Source":
-    case "Source":
-      return "#059669";
-    default:
-      return "#64748b";
-  }
-};
-
-const getTypeBgColor = (type) => {
-  switch (type) {
-    case "Opportunity":
-      return "#fef3e2";
-    case "Product":
-    case "Data Product":
-      return "#ede9fe";
-    case "Asset":
-    case "Data Asset":
-      return "#dbeafe";
-    case "Data Source":
-    case "Source":
-      return "#d1fae5";
-    default:
-      return "#f1f5f9";
-  }
+// Get color classes matching Chip component
+const getChipColorClasses = (type) => {
+  const textColor = {
+    'Opportunity': 'text-orange-700',
+    'Product': 'text-purple-700',
+    'Data Product': 'text-purple-700',
+    'Data Asset': 'text-blue-700',
+    'Asset': 'text-blue-700',
+    'Data Source': 'text-green-700',
+    'Source': 'text-green-700'
+  }[type] || 'text-slate-700';
+  
+  const bgColor = {
+    'Opportunity': 'bg-orange-50',
+    'Product': 'bg-purple-50',
+    'Data Product': 'bg-purple-50',
+    'Data Asset': 'bg-blue-50',
+    'Asset': 'bg-blue-50',
+    'Data Source': 'bg-green-50',
+    'Source': 'bg-green-50'
+  }[type] || 'bg-slate-50';
+  
+  return { textColor, bgColor };
 };
 
 const getHandleColorForType = (type) => {
@@ -65,16 +53,15 @@ const getHandleColorForType = (type) => {
 const CustomNode = ({ data, nodes = [] }) => {
   
 
+  const { textColor, bgColor } = getChipColorClasses(data.type);
+  
   return (
     <div className="rounded-3xl p-2 bg-white text-slate-500 border-4 border-slate-200 rounded-2xl max-w-[800px] group" onClick={nodeInteractionHandler}>
       <div className="px-8 py-4  flex flex-col gap-6 items-start">
         <div className="w-full flex flex-row justify-between items-center gap-2">
-          <div className="text-2xl font-bold px-6 py-3 rounded-lg border border-slate-200 bg-slate-50" style={{
-            color: getTypeColor(data.type),
-            backgroundColor: getTypeBgColor(data.type)
-          }}>
+          <span className={`inline-flex items-center font-medium rounded-md text-2xl font-bold px-6 py-3 border border-slate-200 ${bgColor} ${textColor}`}>
             {data.type}
-          </div>
+          </span>
           <div>
             {data.type === 'Data Source' && (
               <IconDatabase 
