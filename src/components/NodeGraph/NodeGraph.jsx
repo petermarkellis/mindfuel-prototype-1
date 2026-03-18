@@ -718,8 +718,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
           onPaneClick={() => {
             setContextMenu((cm) => ({ ...cm, visible: false }));
             setSideDrawerOpen(false);
-            // Don't modify nodes state on pane click - this causes re-renders that lose data
-            // Just clear the selection without touching node state
+            setSelectedNode(null); // Explicitly clear selected node when clicking canvas
           }}
           onMove={() => setContextMenu((cm) => ({ ...cm, visible: false }))}
           onNodeDragStart={() => setContextMenu((cm) => ({ ...cm, visible: false }))}
