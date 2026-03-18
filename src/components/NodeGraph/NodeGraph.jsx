@@ -129,10 +129,11 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     setEdges
   } = supabaseHook;
 
-  // Initialize local state ONCE from database
-  const [localNodes, setLocalNodes, onNodesChange] = useNodesState(nodes || []);
-  const [localEdges, setLocalEdges, onEdgesChange] = useEdgesState(edges || []);
-  
+  // Initialize local state ONCE from database - use empty array as initial value
+  // DO NOT pass nodes/edges to useNodesState as it will reinitialize on every change
+  const [localNodes, setLocalNodes, onNodesChange] = useNodesState([]);
+  const [localEdges, setLocalEdges, onEdgesChange] = useEdgesState([]);
+
   // Track if we've initialized
   const initializedRef = useRef(false);
 
@@ -141,12 +142,15 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     if (!initializedRef.current && nodes && nodes.length > 0) {
       setLocalNodes(nodes);
       initializedRef.current = true;
+      console.log('✅ Initialized localNodes with', nodes.length, 'nodes');
     }
   }, [nodes, setLocalNodes]);
 
   useEffect(() => {
     if (!initializedRef.current && edges && edges.length > 0) {
       setLocalEdges(edges);
+      initializedRef.current = true;
+      console.log('✅ Initialized localEdges with', edges.length, 'edges');
     }
   }, [edges, setLocalEdges]);
 
