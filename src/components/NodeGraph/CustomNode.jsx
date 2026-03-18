@@ -69,7 +69,12 @@ const CustomNode = ({ data, nodes = [] }) => {
     <div className="rounded-3xl p-2 bg-white text-slate-500 border-4 border-slate-200 rounded-2xl max-w-[800px] group" onClick={nodeInteractionHandler}>
       <div className="px-8 py-4  flex flex-col gap-6 items-start">
         <div className="w-full flex flex-row justify-between items-center gap-2">
-          <Chip type={data.type} size="xl" variant="default" />
+          <div className="text-2xl font-bold px-6 py-3 rounded-lg border border-slate-200 bg-slate-50" style={{
+            color: getTypeColor(data.type),
+            backgroundColor: getTypeBgColor(data.type)
+          }}>
+            {data.type}
+          </div>
           <div>
             {data.type === 'Data Source' && (
               <IconDatabase 
