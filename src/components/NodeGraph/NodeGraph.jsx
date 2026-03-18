@@ -714,9 +714,8 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
           onPaneClick={() => {
             setContextMenu((cm) => ({ ...cm, visible: false }));
             setSideDrawerOpen(false);
-            // Clear highlight from both database and local state
-            setNodes(nds => nds.map(n => ({ ...n, className: '' })));
-            setLocalNodes(nds => nds.map(n => ({ ...n, className: '' })));
+            // Don't modify nodes state on pane click - this causes re-renders that lose data
+            // Just clear the selection without touching node state
           }}
           onMove={() => setContextMenu((cm) => ({ ...cm, visible: false }))}
           onNodeDragStart={() => setContextMenu((cm) => ({ ...cm, visible: false }))}
