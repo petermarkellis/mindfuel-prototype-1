@@ -93,14 +93,13 @@ const CustomNode = ({ data, nodes = [] }) => {
   const { textColor, bgColor } = getChipColorClasses(data.type);
   
   return (
-    <>
-      {/* Category label positioned at top-left of card */}
-      <div className={`absolute -top-3 -left-2 z-10 inline-flex items-center font-medium rounded-md text-[28px] font-bold px-7 py-3.5 border border-slate-200 shadow-lg ${bgColor} ${textColor}`}>
+    <div className="rounded-3xl p-2 bg-white text-slate-500 border-4 border-slate-200 rounded-2xl max-w-[800px] group relative" onClick={nodeInteractionHandler}>
+      {/* Category label positioned at top-left corner, overlapping the border */}
+      <div className={`absolute -top-4 left-0 z-10 inline-flex items-center font-medium rounded-b-md text-[28px] font-bold px-7 py-3.5 border border-t-0 border-slate-200 shadow-lg ${bgColor} ${textColor}`}>
         {data.type}
       </div>
       
-      <div className="rounded-3xl p-2 bg-white text-slate-500 border-4 border-slate-200 rounded-2xl max-w-[800px] group" onClick={nodeInteractionHandler}>
-      <div className="px-8 py-4  flex flex-col gap-6 items-start">
+      <div className="px-8 py-4 mt-4 flex flex-col gap-6 items-start">
         <div className="w-full flex flex-row justify-between items-center gap-2">
           {/* Spacer to maintain layout */}
           <div className="h-[62px]"></div>
@@ -199,8 +198,7 @@ const CustomNode = ({ data, nodes = [] }) => {
           right: -8,
         }}
       />
-      </div>
-    </>
+    </div>
   );
 }
 
