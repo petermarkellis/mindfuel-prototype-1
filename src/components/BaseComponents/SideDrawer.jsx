@@ -380,13 +380,14 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                   const IconComponent = getIconForType(node?.data?.type);
                   const iconColor = getIconColorForType(node?.data?.type);
                   return (
-                    <li key={node.id} className="text-sm text-slate-600 select-all flex items-center gap-2 group">
+                    <li key={node.id} className="text-sm text-slate-600 select-all flex items-center gap-2 group w-full">
                       <IconComponent className="w-5 h-5 flex-shrink-0" style={{ color: iconColor }} />
-                      <span className="font-bold">{node?.data?.name}</span> <span className="text-sm text-slate-400">({node?.data?.type})</span>
+                      <span className="font-bold flex-1">{node?.data?.name}</span>
+                      <span className="text-sm text-slate-400 whitespace-nowrap">({node?.data?.type})</span>
                       {onRemoveConnection && (
                         <button
                           onClick={() => onRemoveConnection(node.id)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full p-0.5"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full p-0.5 flex-shrink-0"
                           title="Remove connection"
                         >
                           <IconCircleMinus className="w-5 h-5" />
@@ -417,13 +418,14 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                   const IconComponent = getIconForType(node?.data?.type);
                   const iconColor = getIconColorForType(node?.data?.type);
                   return (
-                    <li key={node.id} className="text-sm text-slate-600 select-all flex items-center gap-2 group">
+                    <li key={node.id} className="text-sm text-slate-600 select-all flex items-center gap-2 group w-full">
                       <IconComponent className="w-5 h-5 flex-shrink-0" style={{ color: iconColor }} />
-                      <span className="font-bold">{node?.data?.name}</span> <span className="text-sm text-slate-400">({node?.data?.type})</span>
+                      <span className="font-bold flex-1">{node?.data?.name}</span>
+                      <span className="text-sm text-slate-400 whitespace-nowrap">({node?.data?.type})</span>
                       {onRemoveConnection && (
                         <button
                           onClick={() => onRemoveConnection(node.id)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full p-0.5"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full p-0.5 flex-shrink-0"
                           title="Remove connection"
                         >
                           <IconCircleMinus className="w-5 h-5" />
