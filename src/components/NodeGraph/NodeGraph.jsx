@@ -6,7 +6,8 @@ import ReactFlow, {
   useEdgesState,
   MiniMap,
   Controls,
-  useReactFlow
+  useReactFlow,
+  addEdge
 } from 'reactflow';
 import html2canvas from 'html2canvas';
 import { IconZoomIn, IconZoomOut, IconMaximize, IconArrowBackUp, IconLock, IconLockOpen, IconLayoutSidebarLeftExpand, IconLayoutSidebarRightExpand, IconRecharging, IconBox, IconLayersSelected, IconDatabase, IconCheck } from '@tabler/icons-react';
