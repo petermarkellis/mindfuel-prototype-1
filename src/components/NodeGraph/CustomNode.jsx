@@ -95,7 +95,7 @@ const CustomNode = ({ data, nodes = [] }) => {
   return (
     <div className="rounded-3xl p-2 bg-white text-slate-500 border-4 border-slate-200 rounded-2xl max-w-[800px] group relative" onClick={nodeInteractionHandler}>
       {/* Category label positioned at top-left corner, overlapping the border */}
-      <div className={`absolute -top-4 left-0 z-10 inline-flex items-center font-medium rounded-b-md text-[28px] font-bold px-7 py-3.5 border border-t-0 border-slate-200 shadow-lg ${bgColor} ${textColor}`}>
+      <div className={`absolute -top-10 left-0 z-10 inline-flex items-center font-medium rounded-b-md text-[28px] font-bold px-7 py-3.5 border border-t-0 border-slate-200 shadow-lg ${bgColor} ${textColor}`}>
         {data.type}
       </div>
       
