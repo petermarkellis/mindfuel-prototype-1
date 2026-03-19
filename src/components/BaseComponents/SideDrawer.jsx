@@ -384,7 +384,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                       <IconComponent className="w-5 h-5 flex-shrink-0" style={{ color: iconColor }} />
                       <span className="font-bold flex-1 flex items-center text-left">
                         {node?.data?.name}
-                        <span className="text-sm text-slate-400 font-normal ml-1 whitespace-nowrap">({node?.data?.type})</span>
+                        <span className="text-sm text-slate-400 font-normal ml-[4px] [display:contents]">({node?.data?.type})</span>
                       </span>
                       {onRemoveConnection && (
                         <button
@@ -424,7 +424,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                       <IconComponent className="w-5 h-5 flex-shrink-0" style={{ color: iconColor }} />
                       <span className="font-bold flex-1 flex items-center text-left">
                         {node?.data?.name}
-                        <span className="text-sm text-slate-400 font-normal ml-1 whitespace-nowrap">({node?.data?.type})</span>
+                        <span className="text-sm text-slate-400 font-normal ml-[4px] [display:contents]">({node?.data?.type})</span>
                       </span>
                       {onRemoveConnection && (
                         <button
