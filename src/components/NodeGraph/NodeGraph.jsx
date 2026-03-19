@@ -245,16 +245,16 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
       nodesByType.get(type).push(node);
     });
     
-    // Calculate layout parameters
-    const canvasWidth = 1200;
-    const canvasHeight = 800;
+    // Calculate layout parameters with generous spacing
+    const canvasWidth = 1400;
     const nodeWidth = 300;
     const nodeHeight = 150;
-    const verticalSpacing = 180;
+    const horizontalSpacing = 80;  // Gap between nodes horizontally
+    const verticalSpacing = 250;   // Gap between type levels
     
     // Calculate positions for each type level
     const typePositions = new Map();
-    let currentY = 80; // Start from top with padding
+    let currentY = 100; // Start from top with padding
     
     // Sort types by priority
     const sortedTypes = Object.keys(typePriority).sort((a, b) => typePriority[a] - typePriority[b]);
@@ -263,16 +263,18 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
       const nodes = nodesByType.get(type) || [];
       if (nodes.length === 0) return;
       
-      // Calculate row width needed
-      const rowWidth = nodes.length * (nodeWidth + 40) - 40;
+      // Calculate row width needed (node width + spacing for each node)
+      const totalNodeWidth = nodes.length * nodeWidth;
+      const totalSpacing = (nodes.length - 1) * horizontalSpacing;
+      const rowWidth = totalNodeWidth + totalSpacing;
       const startX = (canvasWidth - rowWidth) / 2; // Center the row
       
       nodes.forEach((node, index) => {
-        const x = startX + index * (nodeWidth + 40);
+        const x = startX + index * (nodeWidth + horizontalSpacing);
         typePositions.set(node.id, { x, y: currentY });
       });
       
-      currentY += verticalSpacing;
+      currentY += nodeHeight + verticalSpacing;
     });
     
     // Handle any nodes with unknown types
@@ -280,7 +282,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     if (remainingNodes.length > 0) {
       remainingNodes.forEach((node, index) => {
         const x = (canvasWidth - nodeWidth) / 2;
-        const y = currentY + index * verticalSpacing;
+        const y = currentY + index * (nodeHeight + verticalSpacing);
         typePositions.set(node.id, { x, y });
       });
     }
