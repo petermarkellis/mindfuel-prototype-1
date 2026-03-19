@@ -373,9 +373,9 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
           {/* Parent Nodes List */}
           {parentNodes.length > 0 && (
             <div className="mt-4 w-full pt-4 flex flex-col gap-2 items-start relative">
-              <div className='flex flex-col gap-2 items-start px-6'>
-              <h4 className="text-slate-500 mb-2 font-medium select-none">Contributes to:</h4>
-              <ul className="flex flex-col gap-2 items-start">
+              <div className='flex flex-col gap-2 items-start px-6 w-full'>
+              <h4 className="text-slate-500 mb-2 font-medium select-none text-left w-full">Contributes to:</h4>
+              <ul className="flex flex-col gap-2 items-start w-full">
                 {parentNodes.map(node => {
                   const IconComponent = getIconForType(node?.data?.type);
                   const iconColor = getIconColorForType(node?.data?.type);
@@ -410,9 +410,9 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
           {/* Child Nodes List */}
           {childNodes.length > 0 && (
             <div className="mt-2 w-full  pt-4 flex flex-col gap-2 items-start">
-              <div className='flex flex-col gap-2 items-start px-6'>
-              <h4 className="text-slate-500 mb-2 font-medium select-none">Gets Data From:</h4>
-              <ul className="flex flex-col gap-2 items-start">
+              <div className='flex flex-col gap-2 items-start px-6 w-full'>
+              <h4 className="text-slate-500 mb-2 font-medium select-none text-left w-full">Gets Data From:</h4>
+              <ul className="flex flex-col gap-2 items-start w-full">
                 {childNodes.map(node => {
                   const IconComponent = getIconForType(node?.data?.type);
                   const iconColor = getIconColorForType(node?.data?.type);
