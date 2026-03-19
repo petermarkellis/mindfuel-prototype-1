@@ -93,12 +93,17 @@ const CustomNode = ({ data, nodes = [] }) => {
   const { textColor, bgColor } = getChipColorClasses(data.type);
   
   return (
-    <div className="rounded-3xl p-2 bg-white text-slate-500 border-4 border-slate-200 rounded-2xl max-w-[800px] group" onClick={nodeInteractionHandler}>
+    <>
+      {/* Category label positioned at top-left of card */}
+      <div className={`absolute -top-3 -left-2 z-10 inline-flex items-center font-medium rounded-md text-[28px] font-bold px-7 py-3.5 border border-slate-200 shadow-lg ${bgColor} ${textColor}`}>
+        {data.type}
+      </div>
+      
+      <div className="rounded-3xl p-2 bg-white text-slate-500 border-4 border-slate-200 rounded-2xl max-w-[800px] group" onClick={nodeInteractionHandler}>
       <div className="px-8 py-4  flex flex-col gap-6 items-start">
         <div className="w-full flex flex-row justify-between items-center gap-2">
-          <span className={`inline-flex items-center font-medium rounded-md text-[28px] font-bold px-7 py-3.5 border border-slate-200 ${bgColor} ${textColor}`}>
-            {data.type}
-          </span>
+          {/* Spacer to maintain layout */}
+          <div className="h-[62px]"></div>
           <div>
             {data.type === 'Data Source' && (
               <IconDatabase 
@@ -194,7 +199,8 @@ const CustomNode = ({ data, nodes = [] }) => {
           right: -8,
         }}
       />
-    </div>
+      </div>
+    </>
   );
 }
 
