@@ -19,7 +19,7 @@ import GraphControlPanel from '../GraphControlPanel/GraphControlPanel';
 import FixedFooter from '../BaseComponents/FixedFooter';
 import UndoNotification from '../BaseComponents/UndoNotification';
 import { ConfirmationModal } from '../BaseComponents';
-import { useSupabaseNodes } from '../../hooks/useSupabaseNodes';
+import { useNeonNodes } from '../../hooks/useNeonNodes';
 
 import 'reactflow/dist/style.css';
 import './NodeGraph.css';

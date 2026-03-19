@@ -6,14 +6,14 @@ import NodeGraph from '../NodeGraph/NodeGraph'
 import { NewItemModal } from '../NewItemModal'
 import './Layout.css'
 import FixedFooter from '../BaseComponents/FixedFooter';
-import { useSupabaseNodes } from '../../hooks/useSupabaseNodes';
+import { useNeonNodes } from '../../hooks/useNeonNodes';
 
 
 export default function Layout({ children, onNavigateToInbox, onNavigateToMain }) {
   const [filters, setFilters] = useState([]);
   
   // Get nodes from database - this will be shared with NodeGraph
-  const supabaseHook = useSupabaseNodes();
+  const supabaseHook = useNeonNodes();
   const { nodes, edges } = supabaseHook;
   const [nodeIdToCenter, setNodeIdToCenter] = useState(null);
   const [nodeIdToSelect, setNodeIdToSelect] = useState(null);

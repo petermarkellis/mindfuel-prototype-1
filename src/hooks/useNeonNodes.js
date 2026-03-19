@@ -3,9 +3,9 @@ import { nodeService, edgeService } from '../lib/neon.js'
 import { transformNodeFromDatabase, transformEdgeFromDatabase } from '../utils/dataMigration.js'
 
 /**
- * Custom hook for managing nodes and edges with Neon database
+ * Custom hook for managing nodes and edges with Neon database (renamed from useSupabaseNodes)
  */
-export function useSupabaseNodes() {
+export function useNeonNodes() {
   const [nodes, setNodes] = useState([])
   const [edges, setEdges] = useState([])
   const [loading, setLoading] = useState(true)
