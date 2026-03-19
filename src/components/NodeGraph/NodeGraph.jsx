@@ -207,16 +207,17 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
   // Handle undo for connection
   const handleUndoConnection = useCallback(async () => {
     if (!undoNotification.lastEdgeId) return;
-    
+
     try {
       // Remove from database
       await deleteEdge(undoNotification.lastEdgeId);
-      
+
       // Remove from local state
       setLocalEdges((eds) => eds.filter(edge => edge.id !== undoNotification.lastEdgeId));
-      
-      // Hide notification
-      setUndoNotification({ visible: false, message: '', lastEdgeId: null });
+
+      // Clear the lastEdgeId so undo can't be called again
+      // Don't clear message/visible here - let the toast fade out smoothly
+      setUndoNotification(prev => ({ ...prev, lastEdgeId: null }));
     } catch (error) {
       console.error('Failed to undo connection:', error);
     }

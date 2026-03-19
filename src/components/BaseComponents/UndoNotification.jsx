@@ -36,16 +36,20 @@ export default function UndoNotification({ message, onUndo, onDismiss, duration 
   };
 
   const handleUndo = () => {
-    // Hide the toast immediately
+    // Start fade out animation
     setIsLeaving(true);
+    
+    // Call the undo callback immediately
+    onUndo?.();
+    
+    // Hide after animation completes - don't call onDismiss here
+    // as it will clear the message and cause re-render
     setTimeout(() => {
       setIsVisible(false);
-      onDismiss?.();
     }, 300);
-    // Call the undo callback
-    onUndo?.();
   };
 
+  // Don't render anything if not visible and no message
   if (!isVisible && !message) return null;
 
   return (
