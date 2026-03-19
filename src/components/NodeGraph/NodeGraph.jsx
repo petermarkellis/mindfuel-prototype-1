@@ -91,7 +91,7 @@ function CustomControls({ locked, onToggleLock, isPanelCollapsed, onTogglePanel,
   );
 }
 
-export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, panelWidth = 320, isCollapsed = false, sidebarWidth = 64, onTogglePanel, supabaseHook, onOpenNewItemModal }) {
+export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, panelWidth = 320, isCollapsed = false, sidebarWidth = 64, onTogglePanel, supabaseHook, onOpenNewItemModal, setNodes, setEdges }) {
   const [selectedNode, setSelectedNode] = useState(null);
   const [sideDrawerOpen, setSideDrawerOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState({ nodeId: null, pos: { x: 0, y: 0 } });
@@ -128,9 +128,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     deleteEdge,
     updateNode,
     updateNodePosition,
-    deleteNode,
-    setNodes,
-    setEdges
+    deleteNode
   } = supabaseHook;
 
   // React Flow state - initialized from database
@@ -307,6 +305,11 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     // Update local state immediately
     setLocalNodes(updatedNodes);
     
+    // Update parent state to keep GraphControlPanel in sync
+    if (setNodes) {
+      setNodes(updatedNodes);
+    }
+    
     // Save to database (debounced)
     setTimeout(async () => {
       for (const node of updatedNodes) {
@@ -320,7 +323,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
         }
       }
     }, 100);
-  }, [localNodes, setLocalNodes, updateNode]);
+  }, [localNodes, setLocalNodes, setNodes, updateNode]);
 
   // Handle removing a connection
   const handleRemoveConnection = useCallback(async (targetNodeId) => {

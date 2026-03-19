@@ -14,7 +14,7 @@ export default function Layout({ children, onNavigateToInbox, onNavigateToMain }
   
   // Get nodes from database - this will be shared with NodeGraph
   const supabaseHook = useNeonNodes();
-  const { nodes, edges } = supabaseHook;
+  const { nodes, edges, setNodes, setEdges } = supabaseHook;
   const [nodeIdToCenter, setNodeIdToCenter] = useState(null);
   const [nodeIdToSelect, setNodeIdToSelect] = useState(null);
   const [panelWidth, setPanelWidth] = useState(340); // default width
@@ -263,15 +263,17 @@ export default function Layout({ children, onNavigateToInbox, onNavigateToMain }
         />
         
         <div className="absolute z-0">
-          <NodeGraph 
-            filters={filters} 
-            nodeIdToCenter={nodeIdToCenter} 
+          <NodeGraph
+            filters={filters}
+            nodeIdToCenter={nodeIdToCenter}
             nodeIdToSelect={nodeIdToSelect}
             panelWidth={panelWidth}
             isCollapsed={isCollapsed}
             onTogglePanel={handleTogglePanel}
             supabaseHook={supabaseHook}
             onOpenNewItemModal={handleOpenNewItemModal}
+            setNodes={setNodes}
+            setEdges={setEdges}
           />
         </div>
         <div className='z-40'>
