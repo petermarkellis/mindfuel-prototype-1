@@ -92,10 +92,24 @@ const CustomNode = ({ data, nodes = [] }) => {
 
   const { textColor, bgColor } = getChipColorClasses(data.type);
   
+  // Get lighter border color based on type
+  const getLightBorderColor = (type) => {
+    const borderColors = {
+      'Opportunity': 'border-orange-200',
+      'Product': 'border-purple-200',
+      'Data Product': 'border-purple-200',
+      'Data Asset': 'border-blue-200',
+      'Asset': 'border-blue-200',
+      'Data Source': 'border-green-200',
+      'Source': 'border-green-200'
+    };
+    return borderColors[type] || 'border-slate-200';
+  };
+  
   return (
     <div className="rounded-3xl p-2 bg-white text-slate-500 border-4 border-slate-200 rounded-2xl max-w-[800px] group relative" onClick={nodeInteractionHandler}>
       {/* Category label positioned at top-left corner, completely above card */}
-      <div className={`absolute -top-14 left-0 z-10 inline-flex items-center font-medium rounded-md text-[28px] font-bold px-7 py-3.5 border border-slate-200 ${bgColor} ${textColor}`}>
+      <div className={`absolute -top-[56px] left-0 z-10 inline-flex items-center font-medium rounded-md text-[28px] font-bold px-7 py-3.5 border-2 ${getLightBorderColor(data.type)} ${bgColor} ${textColor}`}>
         {data.type}
       </div>
       
