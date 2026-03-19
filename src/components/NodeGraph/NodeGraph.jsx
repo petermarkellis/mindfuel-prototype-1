@@ -123,6 +123,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     edges,
     loading,
     error,
+    loadData,
     createEdge,
     deleteEdge,
     updateNode,
@@ -306,7 +307,10 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     // Update local state immediately
     setLocalNodes(updatedNodes);
     
-    // Save to database and refresh
+    // Update parent state to keep GraphControlPanel in sync
+    setNodes(updatedNodes);
+    
+    // Save to database (debounced)
     setTimeout(async () => {
       for (const node of updatedNodes) {
         try {
@@ -318,12 +322,8 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
           console.error('Failed to save node position:', error);
         }
       }
-      // Reload data from database to ensure all components have latest data
-      setTimeout(() => {
-        loadData();
-      }, 200);
     }, 100);
-  }, [localNodes, setLocalNodes, updateNode, loadData]);
+  }, [localNodes, setLocalNodes, setNodes, updateNode]);
 
   // Handle removing a connection
   const handleRemoveConnection = useCallback(async (targetNodeId) => {
