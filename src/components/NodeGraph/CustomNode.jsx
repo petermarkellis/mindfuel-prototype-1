@@ -102,38 +102,38 @@ const CustomNode = ({ data, nodes = [] }) => {
           <div>
             {data.type === 'Data Source' && (
               <IconDatabase 
-                className="w-10 h-10 p-1 rounded-lg" 
-                style={{ 
+                className="w-14 h-14 p-1 rounded-lg" 
+                style={{
                   backgroundColor: getTypeBgColor(data.type),
                   color: getTypeColor(data.type)
-                }} 
+                }}
               />
             )}
             {data.type === 'Opportunity' && (
               <IconRecharging 
-                className="w-10 h-10 p-1 rounded-lg" 
-                style={{ 
+                className="w-14 h-14 p-1 rounded-lg" 
+                style={{
                   backgroundColor: getTypeBgColor(data.type),
                   color: getTypeColor(data.type)
-                }} 
+                }}
               />
             )}
             {data.type === 'Product' && (
               <IconBox 
-                className="w-10 h-10 p-1 rounded-lg" 
-                style={{ 
+                className="w-14 h-14 p-1 rounded-lg" 
+                style={{
                   backgroundColor: getTypeBgColor(data.type),
                   color: getTypeColor(data.type)
-                }} 
+                }}
               />
             )}
             {data.type === 'Data Asset' && (
               <IconLayersSelected 
-                className="w-10 h-10 p-1 rounded-lg" 
-                style={{ 
+                className="w-14 h-14 p-1 rounded-lg" 
+                style={{
                   backgroundColor: getTypeBgColor(data.type),
                   color: getTypeColor(data.type)
-                }} 
+                }}
               />
             )}
           </div>
