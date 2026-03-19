@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import './SideDrawer.css';
-import { IconCheck, IconX, IconArrowsDownUp } from '@tabler/icons-react';
+import { IconCheck, IconX, IconArrowsDownUp, IconCircleMinus } from '@tabler/icons-react';
 import Chip from './Chip';
 import RiskChip from './RiskChip';
 import { getGenderAvatar } from '../../utils/avatarUtils';
@@ -111,7 +111,7 @@ const RISK_OPTIONS = [
   { value: 'notset', label: 'Not set' },
 ];
 
-const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parentNodes = [], childNodes = [], onTitleChange, onRiskChange }) => {
+const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parentNodes = [], childNodes = [], onTitleChange, onRiskChange, onRemoveConnection }) => {
   const drawerRef = useRef(null);
   const contentRef = useRef([]);
   const [Potential, setPotential] = useState(0);
@@ -339,8 +339,17 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
               <h4 className="text-slate-500 mb-2 font-medium select-none">Contributes to:</h4>
               <ul className="flex flex-col gap-2 items-start">
                 {parentNodes.map(node => (
-                  <li key={node.id} className="text-sm text-slate-600 select-all">
+                  <li key={node.id} className="text-sm text-slate-600 select-all flex items-center gap-2 group">
                     <span className="font-bold">{node?.data?.name}</span> <span className="text-sm text-slate-400">({node?.data?.type})</span>
+                    {onRemoveConnection && (
+                      <button
+                        onClick={() => onRemoveConnection(node.id)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full p-0.5"
+                        title="Remove connection"
+                      >
+                        <IconCircleMinus className="w-5 h-5" />
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -362,8 +371,17 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
               <h4 className="text-slate-500 mb-2 font-medium select-none">Gets Data From:</h4>
               <ul className="flex flex-col gap-2 items-start">
                 {childNodes.map(node => (
-                  <li key={node.id} className="text-sm text-slate-600 select-all">
+                  <li key={node.id} className="text-sm text-slate-600 select-all flex items-center gap-2 group">
                     <span className="font-bold">{node?.data?.name}</span> <span className="text-sm text-slate-400">({node?.data?.type})</span>
+                    {onRemoveConnection && (
+                      <button
+                        onClick={() => onRemoveConnection(node.id)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full p-0.5"
+                        title="Remove connection"
+                      >
+                        <IconCircleMinus className="w-5 h-5" />
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>

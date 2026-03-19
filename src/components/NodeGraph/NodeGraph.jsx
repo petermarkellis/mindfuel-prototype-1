@@ -221,6 +221,26 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     }
   }, [undoNotification.lastEdgeId, deleteEdge, setLocalEdges]);
 
+  // Handle removing a connection
+  const handleRemoveConnection = useCallback(async (targetNodeId) => {
+    if (!selectedNode) return;
+    
+    // Find the edge connecting these nodes
+    const edge = localEdges.find(
+      e => (e.source === selectedNode.id && e.target === targetNodeId) ||
+           (e.source === targetNodeId && e.target === selectedNode.id)
+    );
+    
+    if (edge) {
+      try {
+        await deleteEdge(edge.id);
+        // Local state will sync automatically via useEffect
+      } catch (error) {
+        console.error('Failed to remove connection:', error);
+      }
+    }
+  }, [selectedNode, localEdges, deleteEdge]);
+
   const handleNodeClick = useCallback((event, node) => {
     if (event.button === 0) {
       // Deep clone the node to preserve its data independently
@@ -810,15 +830,16 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
         )}
       </div>
       <div className="absolute top-0 right-0">
-        <SideDrawer 
-          selectedNode={selectedNode} 
-          isOpen={sideDrawerOpen} 
-          onClose={handleCloseSideDrawer} 
-          connectedNodes={connectedNodes} 
-          parentNodes={parentNodes} 
-          childNodes={childNodes} 
+        <SideDrawer
+          selectedNode={selectedNode}
+          isOpen={sideDrawerOpen}
+          onClose={handleCloseSideDrawer}
+          connectedNodes={connectedNodes}
+          parentNodes={parentNodes}
+          childNodes={childNodes}
           onTitleChange={handleNodeTitleChange}
           onRiskChange={handleNodeRiskChange}
+          onRemoveConnection={handleRemoveConnection}
         />
       </div>
       
