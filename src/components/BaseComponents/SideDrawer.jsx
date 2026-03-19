@@ -382,8 +382,8 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                   return (
                     <li key={node.id} className="text-sm text-slate-600 select-all flex items-center gap-2 group w-full">
                       <IconComponent className="w-5 h-5 flex-shrink-0" style={{ color: iconColor }} />
-                      <span className="font-bold flex-1">{node?.data?.name}</span>
-                      <span className="text-sm text-slate-400 whitespace-nowrap">({node?.data?.type})</span>
+                      <span className="font-bold">{node?.data?.name}</span>
+                      <span className="text-sm text-slate-400">({node?.data?.type})</span>
                       {onRemoveConnection && (
                         <button
                           onClick={() => onRemoveConnection(node.id)}
@@ -420,8 +420,8 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                   return (
                     <li key={node.id} className="text-sm text-slate-600 select-all flex items-center gap-2 group w-full">
                       <IconComponent className="w-5 h-5 flex-shrink-0" style={{ color: iconColor }} />
-                      <span className="font-bold flex-1">{node?.data?.name}</span>
-                      <span className="text-sm text-slate-400 whitespace-nowrap">({node?.data?.type})</span>
+                      <span className="font-bold">{node?.data?.name}</span>
+                      <span className="text-sm text-slate-400">({node?.data?.type})</span>
                       {onRemoveConnection && (
                         <button
                           onClick={() => onRemoveConnection(node.id)}
