@@ -246,10 +246,10 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     });
     
     // Calculate layout parameters with generous spacing
-    const canvasWidth = 2000;
+    const canvasWidth = 2400;
     const nodeWidth = 300;
     const nodeHeight = 150;
-    const horizontalSpacing = 300;  // Very generous gap between nodes horizontally
+    const horizontalSpacing = 400;  // Maximum gap between nodes horizontally
     const verticalSpacing = 300;   // Large gap between type levels
     
     // Calculate positions for each type level
