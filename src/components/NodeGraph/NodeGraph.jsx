@@ -10,7 +10,7 @@ import ReactFlow, {
   addEdge
 } from 'reactflow';
 import html2canvas from 'html2canvas';
-import { IconZoomIn, IconZoomOut, IconMaximize, IconArrowBackUp, IconLock, IconLockOpen, IconLayoutSidebarLeftExpand, IconLayoutSidebarRightExpand, IconRecharging, IconBox, IconLayersSelected, IconDatabase, IconCheck } from '@tabler/icons-react';
+import { IconZoomIn, IconZoomOut, IconMaximize, IconArrowBackUp, IconLock, IconLockOpen, IconLayoutSidebarLeftExpand, IconLayoutSidebarRightExpand, IconRecharging, IconBox, IconLayersSelected, IconDatabase, IconCheck, IconSparkles } from '@tabler/icons-react';
 
 import CustomNode from './CustomNode.jsx';
 import SideDrawer from '../BaseComponents/SideDrawer';
@@ -47,7 +47,7 @@ export const edgeTypes = {
   custom: CustomEdge,
 };
 
-function CustomControls({ locked, onToggleLock, isPanelCollapsed, onTogglePanel }) {
+function CustomControls({ locked, onToggleLock, isPanelCollapsed, onTogglePanel, onAutoLayout }) {
   const { zoomIn, zoomOut, fitView, setViewport } = useReactFlow();
   return (
     <div className="flex flex-col gap-2">
@@ -65,11 +65,14 @@ function CustomControls({ locked, onToggleLock, isPanelCollapsed, onTogglePanel 
         <button onClick={() => setViewport({ x: 0, y: 0, zoom: 1 })} title="Reset" className="p-2 hover:bg-slate-100 rounded">
           <IconArrowBackUp className="w-5 h-5 text-slate-600" />
         </button>
+        <button onClick={onAutoLayout} title="Auto-Layout" className="p-2 hover:bg-slate-100 rounded">
+          <IconSparkles className="w-5 h-5 text-indigo-600" />
+        </button>
         <button onClick={onToggleLock} title={locked ? 'Unlock nodes' : 'Lock nodes'} className="p-2 hover:bg-slate-100 rounded">
           {locked ? <IconLock className="w-5 h-5 text-slate-600" /> : <IconLockOpen className="w-5 h-5 text-slate-600" />}
         </button>
       </div>
-      
+
       {/* Panel toggle button */}
       <div className="bg-white/80 rounded-2xl shadow border border-slate-200 p-1 py-1">
         <button
@@ -221,6 +224,117 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     // Hide notification after undo completes
     setUndoNotification({ visible: false, message: '', lastEdgeId: null });
   }, [undoNotification.lastEdgeId, deleteEdge, setLocalEdges]);
+
+  // Auto-layout: Organize nodes based on connection hierarchy
+  const handleAutoLayout = useCallback(async () => {
+    // Build adjacency information
+    const nodeMap = new Map();
+    const incomingEdges = new Map(); // Count of incoming edges per node
+    const outgoingEdges = new Map(); // Count of outgoing edges per node
+    
+    localNodes.forEach(node => {
+      nodeMap.set(node.id, node);
+      incomingEdges.set(node.id, 0);
+      outgoingEdges.set(node.id, 0);
+    });
+    
+    localEdges.forEach(edge => {
+      outgoingEdges.set(edge.source, (outgoingEdges.get(edge.source) || 0) + 1);
+      incomingEdges.set(edge.target, (incomingEdges.get(edge.target) || 0) + 1);
+    });
+    
+    // Find root nodes (no incoming edges)
+    const rootNodes = localNodes.filter(node => incomingEdges.get(node.id) === 0);
+    
+    // If no roots, use nodes with most outgoing edges
+    const startingNodes = rootNodes.length > 0 
+      ? rootNodes 
+      : [...localNodes].sort((a, b) => (outgoingEdges.get(b.id) || 0) - (outgoingEdges.get(a.id) || 0)).slice(0, 2);
+    
+    // Calculate layout using BFS
+    const levels = new Map();
+    const visited = new Set();
+    const queue = startingNodes.map(node => ({ node, level: 0 }));
+    
+    while (queue.length > 0) {
+      const { node, level } = queue.shift();
+      
+      if (visited.has(node.id)) continue;
+      visited.add(node.id);
+      levels.set(node.id, level);
+      
+      // Find children
+      const children = localEdges
+        .filter(edge => edge.source === node.id)
+        .map(edge => nodeMap.get(edge.target))
+        .filter(child => child && !visited.has(child.id));
+      
+      children.forEach(child => {
+        queue.push({ node: child, level: level + 1 });
+      });
+    }
+    
+    // Assign levels to unvisited nodes
+    localNodes.forEach(node => {
+      if (!levels.has(node.id)) {
+        levels.set(node.id, 0);
+      }
+    });
+    
+    // Calculate positions
+    const levelNodes = new Map();
+    levels.forEach((level, nodeId) => {
+      if (!levelNodes.has(level)) {
+        levelNodes.set(level, []);
+      }
+      levelNodes.get(level).push(nodeMap.get(nodeId));
+    });
+    
+    // Calculate layout parameters
+    const maxLevel = Math.max(...levels.values());
+    const nodeWidth = 300;
+    const nodeHeight = 150;
+    const horizontalSpacing = 50;
+    const verticalSpacing = 100;
+    
+    // Update node positions
+    const updatedNodes = localNodes.map(node => {
+      const level = levels.get(node.id);
+      const nodesInLevel = levelNodes.get(level);
+      const index = nodesInLevel.findIndex(n => n.id === node.id);
+      
+      // Calculate position
+      const x = level * (nodeWidth + horizontalSpacing);
+      const y = index * (nodeHeight + verticalSpacing);
+      
+      return {
+        ...node,
+        position: { x, y },
+        data: {
+          ...node.data,
+          position_x: x,
+          position_y: y
+        }
+      };
+    });
+    
+    // Update local state
+    setLocalNodes(updatedNodes);
+    
+    // Save to database (debounced)
+    setTimeout(async () => {
+      for (const node of updatedNodes) {
+        try {
+          await updateNode(node.id, {
+            position_x: node.position.x,
+            position_y: node.position.y
+          });
+        } catch (error) {
+          console.error('Failed to save node position:', error);
+        }
+      }
+    }, 100);
+  }, [localNodes, localEdges, setLocalNodes, updateNode]);
 
   // Handle removing a connection
   const handleRemoveConnection = useCallback(async (targetNodeId) => {
@@ -728,11 +842,12 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
                 transition: 'left 0.4s cubic-bezier(0.645, 0.045, 0.355, 1)',
               }}
           >
-            <CustomControls 
-              locked={locked} 
-              onToggleLock={toggleLock} 
+            <CustomControls
+              locked={locked}
+              onToggleLock={toggleLock}
               isPanelCollapsed={isCollapsed}
               onTogglePanel={onTogglePanel}
+              onAutoLayout={handleAutoLayout}
             />
           </div>
         </ReactFlow>
