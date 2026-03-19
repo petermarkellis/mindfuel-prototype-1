@@ -35,6 +35,17 @@ export default function UndoNotification({ message, onUndo, onDismiss, duration 
     }, 300);
   };
 
+  const handleUndo = () => {
+    // Hide the toast immediately
+    setIsLeaving(true);
+    setTimeout(() => {
+      setIsVisible(false);
+      onDismiss?.();
+    }, 300);
+    // Call the undo callback
+    onUndo?.();
+  };
+
   if (!isVisible && !message) return null;
 
   return (
@@ -45,17 +56,17 @@ export default function UndoNotification({ message, onUndo, onDismiss, duration 
     >
       <div className="bg-slate-800 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-4">
         <span className="text-sm font-medium">{message}</span>
-        
+
         {onUndo && (
           <button
-            onClick={onUndo}
+            onClick={handleUndo}
             className="flex items-center gap-1 px-3 py-1 bg-white text-slate-800 rounded-md text-sm font-medium hover:bg-slate-100 transition-colors"
           >
             <ArrowUturnLeftIcon className="w-4 h-4" />
             Undo
           </button>
         )}
-        
+
         <button
           onClick={handleDismiss}
           className="p-1 hover:bg-slate-700 rounded transition-colors"
