@@ -1,10 +1,48 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import './SideDrawer.css';
-import { IconCheck, IconX, IconArrowsDownUp, IconCircleMinus } from '@tabler/icons-react';
+import { IconCheck, IconX, IconArrowsDownUp, IconCircleMinus, IconBox, IconRecharging, IconLayersSelected, IconDatabase } from '@tabler/icons-react';
 import Chip from './Chip';
 import RiskChip from './RiskChip';
 import { getGenderAvatar } from '../../utils/avatarUtils';
+
+// Get icon component based on node type
+const getIconForType = (type) => {
+  switch (type) {
+    case 'Opportunity':
+      return IconRecharging;
+    case 'Product':
+    case 'Data Product':
+      return IconBox;
+    case 'Data Asset':
+    case 'Asset':
+      return IconLayersSelected;
+    case 'Data Source':
+    case 'Source':
+      return IconDatabase;
+    default:
+      return IconBox;
+  }
+};
+
+// Get color for icon based on node type
+const getIconColorForType = (type) => {
+  switch (type) {
+    case 'Opportunity':
+      return '#f59e42';
+    case 'Product':
+    case 'Data Product':
+      return '#7c3aed';
+    case 'Data Asset':
+    case 'Asset':
+      return '#2563eb';
+    case 'Data Source':
+    case 'Source':
+      return '#059669';
+    default:
+      return '#64748b';
+  }
+};
 
 const CloseButton = ({ onClick }) => (
   <button 
@@ -338,20 +376,25 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
               <div className='flex flex-col gap-2 items-start px-6'>
               <h4 className="text-slate-500 mb-2 font-medium select-none">Contributes to:</h4>
               <ul className="flex flex-col gap-2 items-start">
-                {parentNodes.map(node => (
-                  <li key={node.id} className="text-sm text-slate-600 select-all flex items-center gap-2 group">
-                    <span className="font-bold">{node?.data?.name}</span> <span className="text-sm text-slate-400">({node?.data?.type})</span>
-                    {onRemoveConnection && (
-                      <button
-                        onClick={() => onRemoveConnection(node.id)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full p-0.5"
-                        title="Remove connection"
-                      >
-                        <IconCircleMinus className="w-5 h-5" />
-                      </button>
-                    )}
-                  </li>
-                ))}
+                {parentNodes.map(node => {
+                  const IconComponent = getIconForType(node?.data?.type);
+                  const iconColor = getIconColorForType(node?.data?.type);
+                  return (
+                    <li key={node.id} className="text-sm text-slate-600 select-all flex items-center gap-2 group">
+                      <IconComponent className="w-5 h-5 flex-shrink-0" style={{ color: iconColor }} />
+                      <span className="font-bold">{node?.data?.name}</span> <span className="text-sm text-slate-400">({node?.data?.type})</span>
+                      {onRemoveConnection && (
+                        <button
+                          onClick={() => onRemoveConnection(node.id)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full p-0.5"
+                          title="Remove connection"
+                        >
+                          <IconCircleMinus className="w-5 h-5" />
+                        </button>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
               </div>
             </div>
@@ -370,20 +413,25 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
               <div className='flex flex-col gap-2 items-start px-6'>
               <h4 className="text-slate-500 mb-2 font-medium select-none">Gets Data From:</h4>
               <ul className="flex flex-col gap-2 items-start">
-                {childNodes.map(node => (
-                  <li key={node.id} className="text-sm text-slate-600 select-all flex items-center gap-2 group">
-                    <span className="font-bold">{node?.data?.name}</span> <span className="text-sm text-slate-400">({node?.data?.type})</span>
-                    {onRemoveConnection && (
-                      <button
-                        onClick={() => onRemoveConnection(node.id)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full p-0.5"
-                        title="Remove connection"
-                      >
-                        <IconCircleMinus className="w-5 h-5" />
-                      </button>
-                    )}
-                  </li>
-                ))}
+                {childNodes.map(node => {
+                  const IconComponent = getIconForType(node?.data?.type);
+                  const iconColor = getIconColorForType(node?.data?.type);
+                  return (
+                    <li key={node.id} className="text-sm text-slate-600 select-all flex items-center gap-2 group">
+                      <IconComponent className="w-5 h-5 flex-shrink-0" style={{ color: iconColor }} />
+                      <span className="font-bold">{node?.data?.name}</span> <span className="text-sm text-slate-400">({node?.data?.type})</span>
+                      {onRemoveConnection && (
+                        <button
+                          onClick={() => onRemoveConnection(node.id)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full p-0.5"
+                          title="Remove connection"
+                        >
+                          <IconCircleMinus className="w-5 h-5" />
+                        </button>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
               </div>
             </div>
