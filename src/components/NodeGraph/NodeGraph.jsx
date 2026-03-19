@@ -214,13 +214,12 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
 
       // Remove from local state
       setLocalEdges((eds) => eds.filter(edge => edge.id !== undoNotification.lastEdgeId));
-
-      // Clear the lastEdgeId so undo can't be called again
-      // Don't clear message/visible here - let the toast fade out smoothly
-      setUndoNotification(prev => ({ ...prev, lastEdgeId: null }));
     } catch (error) {
       console.error('Failed to undo connection:', error);
     }
+    
+    // Hide notification after undo completes
+    setUndoNotification({ visible: false, message: '', lastEdgeId: null });
   }, [undoNotification.lastEdgeId, deleteEdge, setLocalEdges]);
 
   // Handle removing a connection
@@ -858,11 +857,13 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
       />
 
       {/* Undo Notification Toast */}
-      <UndoNotification
-        message={undoNotification.message}
-        onUndo={handleUndoConnection}
-        onDismiss={() => setUndoNotification({ visible: false, message: '', lastEdgeId: null })}
-      />
+      {undoNotification.visible && (
+        <UndoNotification
+          message={undoNotification.message}
+          onUndo={handleUndoConnection}
+          onDismiss={() => setUndoNotification({ visible: false, message: '', lastEdgeId: null })}
+        />
+      )}
 
     </div>
   );
