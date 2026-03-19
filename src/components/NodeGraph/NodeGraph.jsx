@@ -307,9 +307,6 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     // Update local state immediately
     setLocalNodes(updatedNodes);
     
-    // Update parent state to keep GraphControlPanel in sync
-    setNodes(updatedNodes);
-    
     // Save to database (debounced)
     setTimeout(async () => {
       for (const node of updatedNodes) {
@@ -323,7 +320,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
         }
       }
     }, 100);
-  }, [localNodes, setLocalNodes, setNodes, updateNode]);
+  }, [localNodes, setLocalNodes, updateNode]);
 
   // Handle removing a connection
   const handleRemoveConnection = useCallback(async (targetNodeId) => {

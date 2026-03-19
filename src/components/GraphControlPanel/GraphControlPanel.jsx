@@ -15,10 +15,14 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
   // Group node names by type
   const nodesByType = useMemo(() => {
     const map = {};
+    if (!nodes || !Array.isArray(nodes)) return map;
+    
     nodes.forEach(node => {
-      const type = node.data.type;
+      const type = node?.data?.type;
+      const name = node?.data?.name;
+      if (!type || !name) return;
       if (!map[type]) map[type] = [];
-      map[type].push(node.data.name);
+      map[type].push(name);
     });
     return map;
   }, [nodes]);
@@ -140,7 +144,11 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
       <div className="flex-1 min-h-0 overflow-y-auto w-full panel-content">
         
         <ul ref={listitems} className="node_index_list flex flex-col items-start gap-4 p-4">
-          {filteredNodeTypes.length === 0 ? (
+          {!nodes || nodes.length === 0 ? (
+            <li className="flex flex-row items-start w-full px-4 py-2">
+              <span className="text-slate-500 font-medium select-none text-left">No nodes yet</span>
+            </li>
+          ) : filteredNodeTypes.length === 0 ? (
             <li className="flex flex-row items-start w-full px-4 py-2">
               <span className="text-slate-500 font-medium select-none text-left">No results found</span>
               <button
