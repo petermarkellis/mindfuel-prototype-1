@@ -109,52 +109,47 @@ const CustomNode = ({ data, nodes = [] }) => {
   return (
     <div className="rounded-3xl p-2 bg-white text-slate-500 border-4 border-slate-200 rounded-2xl max-w-[800px] group relative" onClick={nodeInteractionHandler}>
       {/* Category label positioned at top-left corner, completely above card */}
-      <div className={`absolute -top-[68px] left-0 z-10 inline-flex items-center font-medium rounded-md text-[28px] font-bold px-7 py-3.5 border-2 ${getLightBorderColor(data.type)} ${bgColor} ${textColor}`}>
+      <div className={`absolute -top-[68px] left-0 z-10 inline-flex items-center gap-3 font-medium rounded-md text-[28px] font-bold px-7 py-3.5 border-2 ${getLightBorderColor(data.type)} ${bgColor} ${textColor}`}>
+        {/* Icon to the left of label text */}
+        {data.type === 'Data Source' && (
+          <IconDatabase 
+            className="w-14 h-14" 
+            style={{
+              color: getTypeColor(data.type)
+            }}
+          />
+        )}
+        {data.type === 'Opportunity' && (
+          <IconRecharging 
+            className="w-14 h-14" 
+            style={{
+              color: getTypeColor(data.type)
+            }}
+          />
+        )}
+        {data.type === 'Product' && (
+          <IconBox 
+            className="w-14 h-14" 
+            style={{
+              color: getTypeColor(data.type)
+            }}
+          />
+        )}
+        {data.type === 'Data Asset' && (
+          <IconLayersSelected 
+            className="w-14 h-14" 
+            style={{
+              color: getTypeColor(data.type)
+            }}
+          />
+        )}
         {data.type}
       </div>
       
       <div className="px-8 py-4 mt-4 flex flex-col gap-6 items-start">
         <div className="w-full flex flex-row justify-between items-center gap-2">
-          {/* Spacer to maintain layout */}
-          <div className="h-[62px]"></div>
-          <div>
-            {data.type === 'Data Source' && (
-              <IconDatabase 
-                className="w-14 h-14 p-1 rounded-lg" 
-                style={{
-                  backgroundColor: getTypeBgColor(data.type),
-                  color: getTypeColor(data.type)
-                }}
-              />
-            )}
-            {data.type === 'Opportunity' && (
-              <IconRecharging 
-                className="w-14 h-14 p-1 rounded-lg" 
-                style={{
-                  backgroundColor: getTypeBgColor(data.type),
-                  color: getTypeColor(data.type)
-                }}
-              />
-            )}
-            {data.type === 'Product' && (
-              <IconBox 
-                className="w-14 h-14 p-1 rounded-lg" 
-                style={{
-                  backgroundColor: getTypeBgColor(data.type),
-                  color: getTypeColor(data.type)
-                }}
-              />
-            )}
-            {data.type === 'Data Asset' && (
-              <IconLayersSelected 
-                className="w-14 h-14 p-1 rounded-lg" 
-                style={{
-                  backgroundColor: getTypeBgColor(data.type),
-                  color: getTypeColor(data.type)
-                }}
-              />
-            )}
-          </div>
+          {/* Icon removed - now in label above */}
+          <div className="flex-1"></div>
         </div>
         <div className={`text-md font-medium truncate text-left text-4xl capitalize w-full hover:text-slate-900 transition-colors duration-300`}>
           {data.name}
