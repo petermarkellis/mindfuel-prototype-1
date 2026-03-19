@@ -225,95 +225,78 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     setUndoNotification({ visible: false, message: '', lastEdgeId: null });
   }, [undoNotification.lastEdgeId, deleteEdge, setLocalEdges]);
 
-  // Auto-layout: Organize nodes based on connection hierarchy
+  // Auto-layout: Organize nodes in pyramid hierarchy by type
   const handleAutoLayout = useCallback(async () => {
-    // Build adjacency information
-    const nodeMap = new Map();
-    const incomingEdges = new Map(); // Count of incoming edges per node
-    const outgoingEdges = new Map(); // Count of outgoing edges per node
+    // Define hierarchy order (top to bottom)
+    const typePriority = {
+      'Opportunity': 0,      // Top of pyramid
+      'Product': 1,          // Second level
+      'Data Asset': 2,       // Third level
+      'Data Source': 3       // Bottom of pyramid
+    };
     
+    // Group nodes by type
+    const nodesByType = new Map();
     localNodes.forEach(node => {
-      nodeMap.set(node.id, node);
-      incomingEdges.set(node.id, 0);
-      outgoingEdges.set(node.id, 0);
-    });
-    
-    localEdges.forEach(edge => {
-      outgoingEdges.set(edge.source, (outgoingEdges.get(edge.source) || 0) + 1);
-      incomingEdges.set(edge.target, (incomingEdges.get(edge.target) || 0) + 1);
-    });
-    
-    // Find root nodes (no incoming edges)
-    const rootNodes = localNodes.filter(node => incomingEdges.get(node.id) === 0);
-    
-    // If no roots, use nodes with most outgoing edges
-    const startingNodes = rootNodes.length > 0 
-      ? rootNodes 
-      : [...localNodes].sort((a, b) => (outgoingEdges.get(b.id) || 0) - (outgoingEdges.get(a.id) || 0)).slice(0, 2);
-    
-    // Calculate layout using BFS
-    const levels = new Map();
-    const visited = new Set();
-    const queue = startingNodes.map(node => ({ node, level: 0 }));
-    
-    while (queue.length > 0) {
-      const { node, level } = queue.shift();
-      
-      if (visited.has(node.id)) continue;
-      visited.add(node.id);
-      levels.set(node.id, level);
-      
-      // Find children
-      const children = localEdges
-        .filter(edge => edge.source === node.id)
-        .map(edge => nodeMap.get(edge.target))
-        .filter(child => child && !visited.has(child.id));
-      
-      children.forEach(child => {
-        queue.push({ node: child, level: level + 1 });
-      });
-    }
-    
-    // Assign levels to unvisited nodes
-    localNodes.forEach(node => {
-      if (!levels.has(node.id)) {
-        levels.set(node.id, 0);
+      const type = node.data?.type || 'Data Source';
+      if (!nodesByType.has(type)) {
+        nodesByType.set(type, []);
       }
-    });
-    
-    // Calculate positions
-    const levelNodes = new Map();
-    levels.forEach((level, nodeId) => {
-      if (!levelNodes.has(level)) {
-        levelNodes.set(level, []);
-      }
-      levelNodes.get(level).push(nodeMap.get(nodeId));
+      nodesByType.get(type).push(node);
     });
     
     // Calculate layout parameters
-    const maxLevel = Math.max(...levels.values());
+    const canvasWidth = 1200;
+    const canvasHeight = 800;
     const nodeWidth = 300;
     const nodeHeight = 150;
-    const horizontalSpacing = 50;
-    const verticalSpacing = 100;
+    const verticalSpacing = 180;
+    
+    // Calculate positions for each type level
+    const typePositions = new Map();
+    let currentY = 80; // Start from top with padding
+    
+    // Sort types by priority
+    const sortedTypes = Object.keys(typePriority).sort((a, b) => typePriority[a] - typePriority[b]);
+    
+    sortedTypes.forEach(type => {
+      const nodes = nodesByType.get(type) || [];
+      if (nodes.length === 0) return;
+      
+      // Calculate row width needed
+      const rowWidth = nodes.length * (nodeWidth + 40) - 40;
+      const startX = (canvasWidth - rowWidth) / 2; // Center the row
+      
+      nodes.forEach((node, index) => {
+        const x = startX + index * (nodeWidth + 40);
+        typePositions.set(node.id, { x, y: currentY });
+      });
+      
+      currentY += verticalSpacing;
+    });
+    
+    // Handle any nodes with unknown types
+    const remainingNodes = localNodes.filter(node => !typePositions.has(node.id));
+    if (remainingNodes.length > 0) {
+      remainingNodes.forEach((node, index) => {
+        const x = (canvasWidth - nodeWidth) / 2;
+        const y = currentY + index * verticalSpacing;
+        typePositions.set(node.id, { x, y });
+      });
+    }
     
     // Update node positions
     const updatedNodes = localNodes.map(node => {
-      const level = levels.get(node.id);
-      const nodesInLevel = levelNodes.get(level);
-      const index = nodesInLevel.findIndex(n => n.id === node.id);
-      
-      // Calculate position
-      const x = level * (nodeWidth + horizontalSpacing);
-      const y = index * (nodeHeight + verticalSpacing);
+      const pos = typePositions.get(node.id);
+      if (!pos) return node;
       
       return {
         ...node,
-        position: { x, y },
+        position: pos,
         data: {
           ...node.data,
-          position_x: x,
-          position_y: y
+          position_x: pos.x,
+          position_y: pos.y
         }
       };
     });
@@ -334,7 +317,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
         }
       }
     }, 100);
-  }, [localNodes, localEdges, setLocalNodes, updateNode]);
+  }, [localNodes, setLocalNodes, updateNode]);
 
   // Handle removing a connection
   const handleRemoveConnection = useCallback(async (targetNodeId) => {
