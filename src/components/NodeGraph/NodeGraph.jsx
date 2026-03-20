@@ -148,6 +148,13 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     }
   }, [edges?.length, setLocalEdges, localEdges.length]);
   
+  // Sync localNodes back to parent state whenever they change
+  useEffect(() => {
+    if (setNodes && localNodes.length > 0) {
+      setNodes(localNodes);
+    }
+  }, [localNodes, setNodes]);
+  
   // Handle position changes with debounce
   const positionSaveTimeouts = useRef({});
   
@@ -155,26 +162,9 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     // Apply changes to local state (React Flow requirement)
     onNodesChange(changes);
 
-    // Also update parent state to keep GraphControlPanel in sync
+    // Save position changes to database (debounced)
     changes.forEach((change) => {
       if (change.type === 'position' && change.position) {
-        // Update parent state immediately (for GraphControlPanel)
-        if (setNodes) {
-          setNodes(prevNodes => 
-            prevNodes.map(node => {
-              if (node.id !== change.id) return node;
-              
-              // Preserve ALL properties including data
-              return {
-                ...node,
-                position: change.position,
-                data: { ...node.data }  // Explicitly preserve data
-              };
-            })
-          );
-        }
-        
-        // Debounced save to database
         if (positionSaveTimeouts.current[change.id]) {
           clearTimeout(positionSaveTimeouts.current[change.id]);
         }
@@ -187,7 +177,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
         }, 500);
       }
     });
-  }, [onNodesChange, setNodes, updateNode]);
+  }, [onNodesChange, updateNode]);
 
   // Cleanup timeouts on unmount
   useEffect(() => {
