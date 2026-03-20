@@ -249,19 +249,6 @@ export default function Layout({ children, onNavigateToInbox, onNavigateToMain }
         currentView="main"
       />
       <div className='flex flex-row relative ml-16 w-full'>
-        <GraphControlPanel
-          onFilterChange={handleFilterChange}
-          nodes={nodes}
-          onNodeListSelect={handleNodeListSelect}
-          panelWidth={panelWidth}
-          setPanelWidth={setPanelWidth}
-          setIsCollapsed={setIsCollapsed}
-          setLastPanelWidth={setLastPanelWidth}
-          minWidth={minWidth}
-          maxWidth={maxWidth}
-          isCollapsed={isCollapsed}
-        />
-        
         <div className="absolute z-0">
           <NodeGraph
             filters={filters}
@@ -272,8 +259,8 @@ export default function Layout({ children, onNavigateToInbox, onNavigateToMain }
             onTogglePanel={handleTogglePanel}
             supabaseHook={supabaseHook}
             onOpenNewItemModal={handleOpenNewItemModal}
-            setNodes={setNodes}
-            setEdges={setEdges}
+            onNodeListSelect={handleNodeListSelect}
+            onFilterChange={handleFilterChange}
           />
         </div>
         <div className='z-40'>

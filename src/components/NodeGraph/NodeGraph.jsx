@@ -91,7 +91,7 @@ function CustomControls({ locked, onToggleLock, isPanelCollapsed, onTogglePanel,
   );
 }
 
-export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, panelWidth = 320, isCollapsed = false, sidebarWidth = 64, onTogglePanel, supabaseHook, onOpenNewItemModal, setNodes, setEdges }) {
+export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, panelWidth = 320, isCollapsed = false, sidebarWidth = 64, onTogglePanel, supabaseHook, onOpenNewItemModal, onNodeListSelect, onFilterChange }) {
   const [selectedNode, setSelectedNode] = useState(null);
   const [sideDrawerOpen, setSideDrawerOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState({ nodeId: null, pos: { x: 0, y: 0 } });
@@ -131,29 +131,9 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     deleteNode
   } = supabaseHook;
 
-  // React Flow state - initialized from database
+  // React Flow state - initialized from database ONCE
   const [localNodes, setLocalNodes, onNodesChange] = useNodesState(nodes || []);
   const [localEdges, setLocalEdges, onEdgesChange] = useEdgesState(edges || []);
-  
-  // Sync with database when nodes/edges change (only count changes)
-  useEffect(() => {
-    if (nodes && nodes.length !== localNodes.length) {
-      setLocalNodes(nodes);
-    }
-  }, [nodes?.length, setLocalNodes]);
-
-  useEffect(() => {
-    if (edges && edges.length !== localEdges.length) {
-      setLocalEdges(edges);
-    }
-  }, [edges?.length, setLocalEdges, localEdges.length]);
-  
-  // Sync localNodes back to parent state whenever they change
-  useEffect(() => {
-    if (setNodes && localNodes.length > 0) {
-      setNodes(localNodes);
-    }
-  }, [localNodes, setNodes]);
   
   // Handle position changes with debounce
   const positionSaveTimeouts = useRef({});
@@ -792,8 +772,23 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
 
   return (
     <div>
-       {/* Header */}
-       <div className="bg-white border-b border-slate-300 px-4 py-2 flex items-center gap-4 flex-shrink-0">
+      {/* Graph Control Panel - now inside NodeGraph with direct access to localNodes */}
+      <div className='fixed left-16 top-0 h-screen z-40' style={{ width: panelWidth }}>
+        <GraphControlPanel
+          onFilterChange={onFilterChange}
+          nodes={localNodes}
+          onNodeListSelect={onNodeListSelect}
+          panelWidth={panelWidth}
+          setPanelWidth={setPanelWidth}
+          setIsCollapsed={setIsCollapsed}
+          setLastPanelWidth={setLastPanelWidth}
+          minWidth={minWidth}
+          maxWidth={maxWidth}
+          isCollapsed={isCollapsed}
+        />
+      </div>
+    
+      <div className="bg-white border-b border-slate-300 px-4 py-2 flex items-center gap-4 flex-shrink-0 ml-16">
           <h3 className="text-md font-semibold text-slate-800 select-none">Portfolio Overview</h3>
       </div>
 
