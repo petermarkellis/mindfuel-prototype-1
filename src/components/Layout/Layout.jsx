@@ -250,7 +250,7 @@ export default function Layout({ children, onNavigateToInbox, onNavigateToMain }
       />
       <div className='flex flex-row relative ml-16 w-full'>
         <GraphControlPanel
-          key={nodes?.length || 0}
+          key={nodes?.map(n => n.id).join(',') || 'empty'}
           onFilterChange={handleFilterChange}
           nodes={nodes}
           onNodeListSelect={handleNodeListSelect}
