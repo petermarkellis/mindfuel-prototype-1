@@ -15,12 +15,19 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
   // Group node names by type
   const nodesByType = useMemo(() => {
     const map = {};
-    if (!nodes || !Array.isArray(nodes)) return map;
-    
+    if (!nodes || !Array.isArray(nodes)) {
+      console.log('GraphControlPanel: No nodes or not array', nodes);
+      return map;
+    }
+
+    console.log('GraphControlPanel: Processing', nodes.length, 'nodes');
     nodes.forEach(node => {
       const type = node?.data?.type;
       const name = node?.data?.name;
-      if (!type || !name) return;
+      if (!type || !name) {
+        console.log('GraphControlPanel: Skipping node without type/name', node);
+        return;
+      }
       if (!map[type]) map[type] = [];
       map[type].push(name);
     });

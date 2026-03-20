@@ -154,10 +154,22 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
   const handleNodesChange = useCallback((changes) => {
     // Apply changes to local state (React Flow requirement)
     onNodesChange(changes);
-    
-    // Save position changes to database
+
+    // Also update parent state to keep GraphControlPanel in sync
     changes.forEach((change) => {
       if (change.type === 'position' && change.position) {
+        // Update parent state immediately (for GraphControlPanel)
+        if (setNodes) {
+          setNodes(prevNodes => 
+            prevNodes.map(node => 
+              node.id === change.id
+                ? { ...node, position: change.position }
+                : node
+            )
+          );
+        }
+        
+        // Debounced save to database
         if (positionSaveTimeouts.current[change.id]) {
           clearTimeout(positionSaveTimeouts.current[change.id]);
         }
@@ -170,7 +182,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
         }, 500);
       }
     });
-  }, [onNodesChange, updateNode]);
+  }, [onNodesChange, setNodes, updateNode]);
 
   // Cleanup timeouts on unmount
   useEffect(() => {
