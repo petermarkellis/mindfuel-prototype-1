@@ -161,11 +161,16 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
         // Update parent state immediately (for GraphControlPanel)
         if (setNodes) {
           setNodes(prevNodes => 
-            prevNodes.map(node => 
-              node.id === change.id
-                ? { ...node, position: change.position }
-                : node
-            )
+            prevNodes.map(node => {
+              if (node.id !== change.id) return node;
+              
+              // Preserve ALL properties including data
+              return {
+                ...node,
+                position: change.position,
+                data: { ...node.data }  // Explicitly preserve data
+              };
+            })
           );
         }
         
