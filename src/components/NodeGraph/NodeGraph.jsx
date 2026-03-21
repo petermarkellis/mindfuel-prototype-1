@@ -91,7 +91,19 @@ function CustomControls({ locked, onToggleLock, isPanelCollapsed, onTogglePanel,
   );
 }
 
-export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, panelWidth = 320, isCollapsed = false, sidebarWidth = 64, onTogglePanel, supabaseHook, onOpenNewItemModal, onNodeListSelect, onFilterChange }) {
+export default function NodeGraph({ 
+  filters, 
+  nodeIdToCenter, 
+  nodeIdToSelect, 
+  panelWidth = 320, 
+  isCollapsed = false, 
+  sidebarWidth = 64, 
+  onTogglePanel, 
+  supabaseHook, 
+  onOpenNewItemModal,
+  onNodeListSelect,
+  onFilterChange
+}) {
   const [selectedNode, setSelectedNode] = useState(null);
   const [sideDrawerOpen, setSideDrawerOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState({ nodeId: null, pos: { x: 0, y: 0 } });
@@ -106,7 +118,7 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
     message: '',
     title: ''
   });
-  
+
   // Undo notification state
   const [undoNotification, setUndoNotification] = useState({
     visible: false,
@@ -116,6 +128,27 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
 
   // Available node types for the submenu
   const availableNodeTypes = ['Opportunity', 'Product', 'Data Asset', 'Data Source'];
+  
+  // Local filter state
+  const [localFilters, setLocalFilters] = useState([]);
+  
+  // Local handlers for GraphControlPanel
+  const handleLocalFilterChange = useCallback((type, isChecked) => {
+    // Update local filters
+    setLocalFilters(prevFilters => 
+      isChecked ? prevFilters.filter(t => t !== type) : [...prevFilters, type]
+    );
+    // Also call parent handler if provided
+    if (onFilterChange) {
+      onFilterChange(type, isChecked);
+    }
+  }, [onFilterChange]);
+  
+  const handleLocalNodeListSelect = useCallback((id) => {
+    if (onNodeListSelect) {
+      onNodeListSelect(id);
+    }
+  }, [onNodeListSelect]);
 
   // Use shared database hook from Layout
   const {
@@ -775,9 +808,9 @@ export default function NodeGraph({ filters, nodeIdToCenter, nodeIdToSelect, pan
       {/* Graph Control Panel - now inside NodeGraph with direct access to localNodes */}
       <div className='fixed left-16 top-0 h-screen z-40' style={{ width: panelWidth }}>
         <GraphControlPanel
-          onFilterChange={onFilterChange}
+          onFilterChange={handleLocalFilterChange}
           nodes={localNodes}
-          onNodeListSelect={onNodeListSelect}
+          onNodeListSelect={handleLocalNodeListSelect}
           panelWidth={panelWidth}
           setPanelWidth={setPanelWidth}
           setIsCollapsed={setIsCollapsed}
