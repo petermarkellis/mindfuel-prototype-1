@@ -15,8 +15,8 @@ export default function GraphControlPanelFilterAction(props) {
     
     return (
 
-        <label className="w-full flex flex-row justify-between items-center gap-2">
-            <span className="whitespace-nowrap flex-1 min-w-0 select-none">{props.label}</span>
+        <label className="gcp-filters__row flex flex-row justify-between items-center gap-2">
+            <span className="gcp-filters__type whitespace-nowrap flex-1 min-w-0 select-none">{props.label}</span>
             <div className="flex-1 min-w-0 flex justify-end">
                 <Checkbox
                     checked={checked}

@@ -1,7 +1,7 @@
 {
   "name": "mindfuel-reactflow-prototype",
   "description": "Interactive node-based graph visualization prototype for Mindfuel.ai - Built with React Flow, Neon Database, and Tailwind CSS",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "author": "Peter Ellis",
   "keywords": [
     "react",
@@ -29,6 +29,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@dagrejs/dagre": "^3.0.0",
     "@gsap/react": "^2.1.0",
     "@heroicons/react": "^2.2.0",
     "@neondatabase/serverless": "^1.0.2",

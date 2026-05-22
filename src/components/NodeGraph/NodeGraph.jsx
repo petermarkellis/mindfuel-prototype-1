@@ -11,7 +11,8 @@ import ReactFlow, {
   ReactFlowProvider,
 } from 'reactflow';
 import html2canvas from 'html2canvas';
-import { IconZoomIn, IconZoomOut, IconMaximize, IconArrowBackUp, IconLock, IconLockOpen, IconLayoutSidebarLeftExpand, IconLayoutSidebarRightExpand, IconRecharging, IconBox, IconLayersSelected, IconDatabase, IconCheck } from '@tabler/icons-react';
+import { IconZoomIn, IconZoomOut, IconMaximize, IconArrowBackUp, IconLock, IconLockOpen, IconLayoutSidebarLeftExpand, IconLayoutSidebarRightExpand, IconRecharging, IconBox, IconLayersSelected, IconDatabase, IconCheck, IconBinaryTree } from '@tabler/icons-react';
+import { getLayoutedElements } from '../../utils/dagreLayout';
 
 import CustomNode from './CustomNode.jsx';
 import SideDrawer from '../BaseComponents/SideDrawer';
@@ -59,7 +60,16 @@ export const edgeTypes = {
 const frostedControlBg =
   'bg-[var(--app-panel-bg)]/60 backdrop-blur-md border border-[var(--app-border)] shadow';
 
-function CustomControls({ locked, onToggleLock, isPanelCollapsed, onTogglePanel, onResetView, resetting }) {
+function CustomControls({
+  locked,
+  onToggleLock,
+  isPanelCollapsed,
+  onTogglePanel,
+  onResetView,
+  resetting,
+  onAutoLayout,
+  layouting,
+}) {
   const { zoomIn, zoomOut, fitView } = useReactFlow();
   return (
     <div className="flex flex-col gap-2">
@@ -73,6 +83,15 @@ function CustomControls({ locked, onToggleLock, isPanelCollapsed, onTogglePanel,
         </button>
         <button onClick={fitView} title="Fit View" className="p-2 hover:bg-[var(--app-surface-muted)] rounded">
           <IconMaximize className="w-5 h-5 text-[var(--app-text-muted)]" />
+        </button>
+        <button
+          onClick={onAutoLayout}
+          disabled={locked || layouting}
+          title={locked ? 'Unlock nodes to auto-layout' : 'Auto-layout graph'}
+          aria-label="Auto-layout graph"
+          className="p-2 hover:bg-[var(--app-surface-muted)] rounded disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <IconBinaryTree className={`w-5 h-5 text-[var(--app-text-muted)] ${layouting ? 'animate-pulse' : ''}`} />
         </button>
         <button
           onClick={onResetView}
@@ -171,6 +190,7 @@ export default function NodeGraph({
     }
   }, []);
   const [locked, setLocked] = useState(false);
+  const [layouting, setLayouting] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState({
     isOpen: false,
     node: null,
@@ -350,7 +370,6 @@ export default function NodeGraph({
     setUndoNotification({ visible: false, message: '', lastEdgeId: null });
   }, [undoNotification.lastEdgeId, deleteEdge, setLocalEdges, localEdges, localNodes]);
 
-  // Auto-layout: Organize nodes in pyramid hierarchy by type
   // Handle removing a connection
   const handleRemoveConnection = useCallback(async (targetNodeId) => {
     if (!selectedNode) return;
@@ -373,6 +392,35 @@ export default function NodeGraph({
       }
     }
   }, [selectedNode, localEdges, localNodes, deleteEdge, setLocalEdges]);
+
+  const handleAutoLayout = useCallback(async () => {
+    if (locked || layouting || localNodes.length === 0) return;
+
+    setLayouting(true);
+    try {
+      Object.values(positionSaveTimeouts.current).forEach(clearTimeout);
+      positionSaveTimeouts.current = {};
+
+      const { nodes: layoutedNodes } = getLayoutedElements(localNodes, localEdges);
+      setLocalNodes(layoutedNodes);
+
+      await Promise.all(
+        layoutedNodes.map((node) =>
+          updateNode(node.id, { position: node.position }).catch((err) => {
+            console.error(`Failed to save position for node ${node.id}:`, err);
+          })
+        )
+      );
+
+      requestAnimationFrame(() => {
+        reactFlowRef.current?.fitView({ padding: 0.2, duration: 500 });
+      });
+    } catch (error) {
+      console.error('Auto-layout failed:', error);
+    } finally {
+      setLayouting(false);
+    }
+  }, [locked, layouting, localNodes, localEdges, setLocalNodes, updateNode]);
 
   const handleNodeClick = useCallback((event, node) => {
     if (event.button === 0) {
@@ -926,6 +974,8 @@ export default function NodeGraph({
                 onTogglePanel={onTogglePanel}
                 onResetView={openResetConfirm}
                 resetting={resetting}
+                onAutoLayout={handleAutoLayout}
+                layouting={layouting}
               />
             </div>
           </div>
