@@ -23,6 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 
+# Hallmark design skill session log (local only)
+.hallmark/
+
 # Environment variables
 .env
 .env.local
