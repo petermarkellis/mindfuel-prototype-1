@@ -56,6 +56,7 @@ export async function resetGraphToBaseline(client) {
   await client.query('BEGIN');
 
   try {
+    await client.query('DELETE FROM node_activity');
     await client.query('DELETE FROM edges');
     await client.query('DELETE FROM nodes');
 

@@ -1,14 +1,42 @@
 import React from 'react';
 import { IconRecharging, IconBox, IconLayersSelected, IconDatabase } from '@tabler/icons-react';
 
-const CHIP_STYLES = {
-  Opportunity: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950 dark:text-orange-300 dark:border-orange-700',
-  Product: 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-700',
-  'Data Product': 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-700',
-  'Data Asset': 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-700',
-  Asset: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-700',
-  'Data Source': 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-700',
-  Source: 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-700',
+const CHIP_TOKENS = {
+  Opportunity: {
+    fg: 'var(--entity-opportunity-fg)',
+    bg: 'var(--entity-opportunity-bg)',
+    border: 'var(--entity-opportunity-border)',
+  },
+  Product: {
+    fg: 'var(--entity-product-fg)',
+    bg: 'var(--entity-product-bg)',
+    border: 'var(--entity-product-border)',
+  },
+  'Data Product': {
+    fg: 'var(--entity-product-fg)',
+    bg: 'var(--entity-product-bg)',
+    border: 'var(--entity-product-border)',
+  },
+  'Data Asset': {
+    fg: 'var(--entity-data-asset-fg)',
+    bg: 'var(--entity-data-asset-bg)',
+    border: 'var(--entity-data-asset-border)',
+  },
+  Asset: {
+    fg: 'var(--entity-data-asset-fg)',
+    bg: 'var(--entity-data-asset-bg)',
+    border: 'var(--entity-data-asset-border)',
+  },
+  'Data Source': {
+    fg: 'var(--entity-data-source-fg)',
+    bg: 'var(--entity-data-source-bg)',
+    border: 'var(--entity-data-source-border)',
+  },
+  Source: {
+    fg: 'var(--entity-data-source-fg)',
+    bg: 'var(--entity-data-source-bg)',
+    border: 'var(--entity-data-source-border)',
+  },
 };
 
 const CHIP_ICONS = {
@@ -21,20 +49,23 @@ const CHIP_ICONS = {
   Source: IconDatabase,
 };
 
-const CHIP_ICON_COLORS = {
-  Opportunity: 'text-orange-500 dark:text-orange-400',
-  Product: 'text-purple-600 dark:text-purple-400',
-  'Data Product': 'text-purple-600 dark:text-purple-400',
-  'Data Asset': 'text-blue-600 dark:text-blue-400',
-  Asset: 'text-blue-600 dark:text-blue-400',
-  'Data Source': 'text-green-600 dark:text-green-400',
-  Source: 'text-green-600 dark:text-green-400',
-};
-
-const Chip = ({ type, size = 'sm', variant = 'default', showIcon = true, className = '' }) => {
-  const typeStyles = CHIP_STYLES[type] ?? 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:border-slate-600';
+const Chip = ({
+  type,
+  name,
+  size = 'sm',
+  variant = 'default',
+  showIcon = true,
+  className = '',
+  truncateLabel = true,
+}) => {
+  const hasTitle = Boolean(name?.trim());
+  const labelClass = truncateLabel ? 'truncate' : 'whitespace-nowrap';
+  const tokens = CHIP_TOKENS[type] ?? {
+    fg: 'var(--app-text-muted)',
+    bg: 'var(--app-surface-muted)',
+    border: 'var(--app-border)',
+  };
   const IconComponent = CHIP_ICONS[type];
-  const iconColor = CHIP_ICON_COLORS[type] ?? 'text-slate-500 dark:text-slate-400';
 
   const sizeClasses = {
     xs: 'text-xs px-2 py-0.5 gap-1',
@@ -59,20 +90,40 @@ const Chip = ({ type, size = 'sm', variant = 'default', showIcon = true, classNa
     ghost: 'border-0 bg-transparent',
   };
 
+  const chipStyle =
+    variant === 'ghost'
+      ? { color: tokens.fg }
+      : {
+          color: tokens.fg,
+          backgroundColor: tokens.bg,
+          borderColor: tokens.border,
+        };
+
   return (
     <span
       className={`
         inline-flex items-center font-medium rounded-md
         ${sizeClasses[size]}
         ${variantClasses[variant]}
-        ${typeStyles}
         ${className}
       `}
+      style={chipStyle}
     >
-      {showIcon && IconComponent && (
-        <IconComponent className={`flex-shrink-0 ${iconSizeClasses[size]} ${iconColor}`} strokeWidth={2} />
+      {showIcon && IconComponent ? (
+        <IconComponent
+          className={`flex-shrink-0 ${iconSizeClasses[size]}`}
+          style={{ color: tokens.fg }}
+          strokeWidth={2}
+        />
+      ) : null}
+      {hasTitle ? (
+        <span className={`inline-flex items-baseline gap-1 min-w-0 ${labelClass}`}>
+          <span className="shrink-0">{type}:</span>
+          <span className={labelClass}>{name.trim()}</span>
+        </span>
+      ) : (
+        <span className={labelClass}>{type}</span>
       )}
-      <span className="truncate">{type}</span>
     </span>
   );
 };

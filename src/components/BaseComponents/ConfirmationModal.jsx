@@ -17,10 +17,9 @@ const VARIANT_STYLES = {
       'bg-amber-600 hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-500 focus:ring-amber-500',
   },
   info: {
-    icon: 'text-blue-600 dark:text-blue-400',
-    iconBg: 'bg-blue-100 dark:bg-blue-950/50',
-    confirmBtn:
-      'bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 focus:ring-blue-500',
+    icon: 'text-[var(--app-accent)]',
+    iconBg: 'bg-[var(--app-accent-subtle)]',
+    confirmBtn: 'app-btn-solid focus:ring-[var(--app-focus-ring)]',
   },
 };
 
@@ -196,7 +195,7 @@ const ConfirmationModal = ({
             <button
               type="button"
               onClick={handleConfirm}
-              className={`px-4 py-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--app-surface)] transition-colors ${variantClasses.confirmBtn}`}
+              className={`px-4 py-2 text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--app-surface)] transition-colors ${variant === 'info' ? variantClasses.confirmBtn : `text-white ${variantClasses.confirmBtn}`}`}
             >
               {confirmText}
             </button>

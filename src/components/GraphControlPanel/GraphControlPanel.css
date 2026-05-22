@@ -1,102 +1,156 @@
-.graph_control_panel{
-    box-sizing: border-box;
-    /** background: linear-gradient(180deg, #f7f7fa 0%, #e6eaf2 97.18%);*/
-    transition: width 0.2s cubic-bezier(0.4,0,0.2,1);
-    position: relative;
+/* Hallmark · portfolio panel · workbench rail · inherits Layout stamp */
+
+.graph_control_panel {
+  box-sizing: border-box;
+  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  text-align: left;
+}
+
+.gcp-search-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 0.75rem 1rem 0.5rem;
+  background: color-mix(in srgb, var(--app-panel-bg) 72%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--app-border-subtle);
+}
+
+.gcp-search {
+  width: 100%;
+  min-width: 0;
+  padding: 0.5rem 2rem 0.5rem 0;
+  font-size: 0.875rem;
+  color: var(--app-text);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--app-border);
+  outline: none;
+}
+
+.gcp-search::placeholder {
+  color: var(--app-text-muted);
+}
+
+.gcp-search:focus-visible {
+  border-bottom-color: var(--app-focus-ring);
+}
+
+.gcp-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-top: 0.75rem;
+}
+
+.gcp-filters__label {
+  width: 100%;
+  margin: 0 0 0.25rem;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--app-text-muted);
+}
+
+.gcp-list {
+  list-style: none;
+  width: 100%;
+  padding: 0.5rem 0 1rem;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.gcp-list__section {
+  width: 100%;
+  min-width: 0;
+  padding: 0 1rem;
+}
+
+.gcp-list__head {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 1rem 0 0.35rem;
+  padding: 0;
+  font-size: 0.6875rem;
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--app-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gcp-list__head-icon {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+}
+
+.gcp-list__head-icon--opportunity {
+  color: var(--entity-opportunity-fg);
+}
+
+.gcp-list__head-icon--product {
+  color: var(--entity-product-fg);
+}
+
+.gcp-list__head-icon--data-asset {
+  color: var(--entity-data-asset-fg);
+}
+
+.gcp-list__head-icon--data-source {
+  color: var(--entity-data-source-fg);
+}
+
+.gcp-list__item-wrap {
+  width: 100%;
+  min-width: 0;
+  padding-left: 0.75rem;
+}
+
+.gcp-list__empty {
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  color: var(--app-text-muted);
+}
+
+.gcp-list__btn {
+  color: var(--app-text);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.gcp-list__btn:hover {
+  background: var(--app-surface-muted);
+}
+
+.gcp-list__btn:focus-visible {
+  outline: 2px solid var(--app-focus-ring);
+  outline-offset: 1px;
+}
+
+.gcp-list__btn--selected {
+  background: var(--app-accent-subtle);
+  border-color: var(--app-accent-border);
+  box-shadow: inset 3px 0 0 var(--app-accent);
+  color: var(--app-text);
+}
+
+.gcp-footer-meta {
+  font-family: "JetBrains Mono", monospace;
 }
 
 .node_index_list {
-    list-style-type: none;
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.node_index_list li {
-    width: 100%;
-    min-width: 0;
-    display: flex;
-
-    align-items: flex-start;
-    word-break: break-word;
-}
-
-.node_index_list h3 {
-    width: 100%;
-    min-width: 0;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 1rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.node_index_list span {
-    width: 100%;
-    min-width: 0;
-    display: block;
-}
-
-.node_index_list button {
-    width: auto;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    box-sizing: border-box;
-}
-
-/* Responsive filter list */
-.graph_control_panel ul {
-    width: 100%;
-    min-width: 0;
-}
-
-.graph_control_panel li {
-    min-width: 0;
-    word-break: break-word;
-}
-
-/* Responsive filter action label and checkbox */
-.graph_control_panel label {
-    width: 100%;
-    min-width: 0;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem 0;
-}
-
-@media (max-width: 340px) {
-  .graph_control_panel label {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
-  }
-  .graph_control_panel label > span,
-  .graph_control_panel label > div {
-    width: 100%;
-    min-width: 0;
-    margin-bottom: 2px;
-  }
-}
-
-
-/* Hide scrollbar in the main content area */
-.graph_control_panel .panel-content {
-    /* Chrome, Safari and Opera */
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
-}
-
-.graph_control_panel .panel-content::-webkit-scrollbar {
-    display: none; /* Chrome, Safari and Opera */
+  list-style-type: none;
+  width: 100%;
+  padding: 0;
+  margin: 0;
 }

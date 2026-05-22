@@ -1,6 +1,12 @@
 import { Pool } from '@neondatabase/serverless';
 import ws from 'ws';
 import { resetGraphToBaseline } from './graphReset.js';
+import {
+  getActivitiesForNode,
+  insertActivities,
+  updateActivityComment,
+  deleteActivityComment,
+} from './nodeActivityDb.js';
 
 // Configure WebSocket for local development
 if (typeof global.WebSocket === 'undefined') {
@@ -58,6 +64,15 @@ export default async function handler(req, res) {
       console.log('Fetching risks...');
       const result = await client.query('SELECT * FROM risks ORDER BY sort_order');
       console.log('Risks fetched:', result.rows.length);
+      return res.status(200).json(result.rows);
+    }
+
+    if (action === 'getUsers') {
+      const result = await client.query(
+        `SELECT id, first_name, last_name, email, role, availability
+         FROM users
+         ORDER BY first_name, last_name`
+      );
       return res.status(200).json(result.rows);
     }
 
@@ -162,6 +177,51 @@ export default async function handler(req, res) {
       const result = await resetGraphToBaseline(client);
       console.log('Graph reset complete:', result);
       return res.status(200).json(result);
+    }
+
+    // --------------------------------------------------------
+    // NODE ACTIVITY
+    // --------------------------------------------------------
+    if (action === 'getNodeActivity') {
+      const nodeId = req.query.nodeId;
+      if (!nodeId) {
+        return res.status(400).json({ error: 'nodeId is required' });
+      }
+      const activities = await getActivitiesForNode(client, nodeId);
+      return res.status(200).json(activities);
+    }
+
+    if (action === 'createNodeActivities' && method === 'POST') {
+      const { entries } = req.body ?? {};
+      if (!Array.isArray(entries) || entries.length === 0) {
+        return res.status(400).json({ error: 'entries array is required' });
+      }
+      const created = await insertActivities(client, entries);
+      return res.status(201).json(created);
+    }
+
+    if (action === 'updateNodeActivity' && method === 'POST') {
+      const { nodeId, id, text } = req.body ?? {};
+      if (!nodeId || !id || text == null) {
+        return res.status(400).json({ error: 'nodeId, id, and text are required' });
+      }
+      const updated = await updateActivityComment(client, nodeId, id, text.trim());
+      if (!updated) {
+        return res.status(404).json({ error: 'Comment not found' });
+      }
+      return res.status(200).json(updated);
+    }
+
+    if (action === 'deleteNodeActivity' && method === 'POST') {
+      const { nodeId, id } = req.body ?? {};
+      if (!nodeId || !id) {
+        return res.status(400).json({ error: 'nodeId and id are required' });
+      }
+      const deleted = await deleteActivityComment(client, nodeId, id);
+      if (!deleted) {
+        return res.status(404).json({ error: 'Comment not found' });
+      }
+      return res.status(200).json({ success: true });
     }
 
     return res.status(400).json({ error: 'Invalid action or method' });

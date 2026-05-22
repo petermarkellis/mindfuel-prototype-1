@@ -26,7 +26,6 @@ const CustomEdge = ({
 
   return (
     <g className="react-flow__edge">
-      {/* Define a linear gradient for the dashed line */}
       <defs>
         <linearGradient
           id={`gradient-${id}`}
@@ -40,7 +39,6 @@ const CustomEdge = ({
           <stop offset="100%" stopColor="#8DCEF9" />
         </linearGradient>
       </defs>
-      {/* Wide transparent stroke for easier click / right-click targeting */}
       <path
         d={edgePath}
         fill="none"
@@ -52,13 +50,13 @@ const CustomEdge = ({
         id={id}
         d={edgePath}
         style={{
-          stroke: `url(#gradient-${id})`, // Apply the gradient
-          strokeWidth: 4,                // Thickness
-          strokeDasharray: '10,15',      // Dash pattern
-          strokeLinecap: 'round',        // Rounded ends
-          fill: 'none',                  // Ensure no fill
+          stroke: `url(#gradient-${id})`,
+          strokeWidth: 5,
+          strokeDasharray: '10,15',
+          strokeLinecap: 'round',
+          fill: 'none',
           pointerEvents: 'none',
-          ...style,                      // Additional styles if needed
+          ...style,
         }}
         className="react-flow__edge-path animated-dashed-line"
         markerEnd={markerEnd}

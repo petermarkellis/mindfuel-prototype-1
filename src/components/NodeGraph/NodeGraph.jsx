@@ -22,6 +22,15 @@ import FixedFooter from '../BaseComponents/FixedFooter';
 import UndoNotification from '../BaseComponents/UndoNotification';
 import { ConfirmationModal } from '../BaseComponents';
 import { useResetPortfolioView } from '../../hooks/useResetPortfolioView';
+import {
+  logTitleChange,
+  logRiskChange,
+  logTypeChange,
+  logConnectionAddedBetween,
+  logConnectionRemovedBetween,
+  logNodeDeletedOnNeighbors,
+  migrateLocalStorageActivities,
+} from '../../utils/nodeActivity';
 import 'reactflow/dist/style.css';
 import './NodeGraph.css';
 
@@ -219,6 +228,12 @@ export default function NodeGraph({
   const [localNodes, setLocalNodes, onNodesChange] = useNodesState(nodes || []);
   const [localEdges, setLocalEdges, onEdgesChange] = useEdgesState(edges || []);
   const positionSaveTimeouts = useRef({});
+
+  useEffect(() => {
+    if (!loading && nodes?.length) {
+      migrateLocalStorageActivities();
+    }
+  }, [loading, nodes?.length]);
   const reactFlowRef = useRef(null);
 
   // Keep React Flow in sync whenever the database graph changes (including reset)
@@ -283,12 +298,18 @@ export default function NodeGraph({
     try {
       const edgeId = `edge_${Date.now()}`;
       const newEdge = { ...params, id: edgeId, type: 'custom' };
+      const sourceNode = localNodes.find((n) => n.id === params.source);
+      const targetNode = localNodes.find((n) => n.id === params.target);
       
       // Optimistically update local state
       setLocalEdges((eds) => addEdge(newEdge, eds));
       
       // Save to database
       await createEdge(newEdge);
+
+      if (sourceNode && targetNode) {
+        logConnectionAddedBetween(sourceNode, targetNode);
+      }
       
       // Show undo notification
       setUndoNotification({
@@ -301,11 +322,15 @@ export default function NodeGraph({
       // Revert local state if database save fails
       setLocalEdges(edges);
     }
-  }, [createEdge, setLocalEdges, edges]);
+  }, [createEdge, setLocalEdges, edges, localNodes]);
 
   // Handle undo for connection
   const handleUndoConnection = useCallback(async () => {
     if (!undoNotification.lastEdgeId) return;
+
+    const edge = localEdges.find((e) => e.id === undoNotification.lastEdgeId);
+    const sourceNode = edge ? localNodes.find((n) => n.id === edge.source) : null;
+    const targetNode = edge ? localNodes.find((n) => n.id === edge.target) : null;
 
     try {
       // Remove from database
@@ -313,13 +338,17 @@ export default function NodeGraph({
 
       // Remove from local state
       setLocalEdges((eds) => eds.filter(edge => edge.id !== undoNotification.lastEdgeId));
+
+      if (edge && sourceNode && targetNode) {
+        logConnectionRemovedBetween(sourceNode, targetNode, edge);
+      }
     } catch (error) {
       console.error('Failed to undo connection:', error);
     }
     
     // Hide notification after undo completes
     setUndoNotification({ visible: false, message: '', lastEdgeId: null });
-  }, [undoNotification.lastEdgeId, deleteEdge, setLocalEdges]);
+  }, [undoNotification.lastEdgeId, deleteEdge, setLocalEdges, localEdges, localNodes]);
 
   // Auto-layout: Organize nodes in pyramid hierarchy by type
   // Handle removing a connection
@@ -331,17 +360,19 @@ export default function NodeGraph({
       e => (e.source === selectedNode.id && e.target === targetNodeId) ||
            (e.source === targetNodeId && e.target === selectedNode.id)
     );
+    const otherNode = localNodes.find((n) => n.id === targetNodeId);
     
-    if (edge) {
+    if (edge && otherNode) {
       try {
         await deleteEdge(edge.id);
         setLocalEdges((eds) => eds.filter((e) => e.id !== edge.id));
+        logConnectionRemovedBetween(selectedNode, otherNode, edge);
       } catch (error) {
         console.error('Failed to remove connection:', error);
         alert('Failed to remove connection. Please try again.');
       }
     }
-  }, [selectedNode, localEdges, deleteEdge, setLocalEdges]);
+  }, [selectedNode, localEdges, localNodes, deleteEdge, setLocalEdges]);
 
   const handleNodeClick = useCallback((event, node) => {
     if (event.button === 0) {
@@ -449,15 +480,20 @@ export default function NodeGraph({
     if (!edge?.id) return;
 
     closeContextMenu();
+    const sourceNode = localNodes.find((n) => n.id === edge.source);
+    const targetNode = localNodes.find((n) => n.id === edge.target);
 
     try {
       await deleteEdge(edge.id);
       setLocalEdges((eds) => eds.filter((e) => e.id !== edge.id));
+      if (sourceNode && targetNode) {
+        logConnectionRemovedBetween(sourceNode, targetNode, edge);
+      }
     } catch (error) {
       console.error('Failed to remove connection:', error);
       alert('Failed to remove connection. Please try again.');
     }
-  }, [deleteEdge, setLocalEdges, closeContextMenu]);
+  }, [deleteEdge, setLocalEdges, closeContextMenu, localNodes]);
 
   const handleCloseSideDrawer = useCallback(() => {
     setSideDrawerOpen(false);
@@ -573,6 +609,9 @@ export default function NodeGraph({
 
   // Add this handler inside NodeGraph
   const handleNodeTitleChange = useCallback(async (id, newTitle) => {
+    const existing = localNodes.find((n) => n.id === id);
+    const oldTitle = existing?.data?.name;
+
     try {
       // Optimistically update local state
       setLocalNodes(nds => {
@@ -591,14 +630,18 @@ export default function NodeGraph({
       
       // Save to database
       await updateNode(id, { data: { name: newTitle } });
+      logTitleChange(id, oldTitle, newTitle);
     } catch (error) {
       console.error('Failed to update node title:', error);
       // Revert optimistic update if database save fails
       setLocalNodes(nodes);
     }
-  }, [updateNode, setLocalNodes, nodes, selectedNode]);
+  }, [updateNode, setLocalNodes, nodes, selectedNode, localNodes]);
 
   const handleNodeRiskChange = useCallback(async (id, newRisk) => {
+    const existing = localNodes.find((n) => n.id === id);
+    const oldRisk = existing?.data?.risk;
+
     try {
       // Optimistically update local state
       setLocalNodes(nds => {
@@ -617,14 +660,18 @@ export default function NodeGraph({
       
       // Save to database
       await updateNode(id, { data: { risk: newRisk } });
+      logRiskChange(id, oldRisk, newRisk);
     } catch (error) {
       console.error('Failed to update node risk:', error);
       // Revert optimistic update if database save fails
       setLocalNodes(nodes);
     }
-  }, [updateNode, setLocalNodes, nodes, selectedNode]);
+  }, [updateNode, setLocalNodes, nodes, selectedNode, localNodes]);
 
   const handleNodeTypeChange = useCallback(async (nodeId, newType) => {
+    const existing = localNodes.find((n) => n.id === nodeId);
+    const oldType = existing?.data?.type;
+
     try {
       // Optimistically update local state
       setLocalNodes(nds => {
@@ -643,6 +690,7 @@ export default function NodeGraph({
       
       // Save to database
       await updateNode(nodeId, { data: { type: newType } });
+      logTypeChange(nodeId, oldType, newType);
       
       // Close context menu and submenu
       setContextMenu({ visible: false, x: 0, y: 0, menuType: 'node', node: null, edge: null });
@@ -655,7 +703,7 @@ export default function NodeGraph({
       // Revert optimistic update if database save fails
       setLocalNodes(nodes);
     }
-  }, [updateNode, setLocalNodes, nodes, selectedNode]);
+  }, [updateNode, setLocalNodes, nodes, selectedNode, localNodes]);
 
   const handleDeleteNode = useCallback((node) => {
     // Find parent and child connections before deletion
@@ -726,6 +774,12 @@ export default function NodeGraph({
     // Find parent and child connections before deletion
     const parentEdges = localEdges.filter(edge => edge.target === node.id);
     const childEdges = localEdges.filter(edge => edge.source === node.id);
+    const parentNodesForActivity = parentEdges
+      .map((edge) => localNodes.find((n) => n.id === edge.source))
+      .filter(Boolean);
+    const childNodesForActivity = childEdges
+      .map((edge) => localNodes.find((n) => n.id === edge.target))
+      .filter(Boolean);
     
     // Check if this node is a bridge (has both parents and children)
     const hasParents = parentEdges.length > 0;
@@ -733,6 +787,7 @@ export default function NodeGraph({
     const isBridge = hasParents && hasChildren;
 
     try {
+      logNodeDeletedOnNeighbors(node, parentNodesForActivity, childNodesForActivity);
       // Close side drawer if this node is selected
       if (selectedNode?.id === node.id) {
         setSideDrawerOpen(false);
@@ -824,7 +879,7 @@ export default function NodeGraph({
           <button
             type="button"
             onClick={() => loadData()}
-            className="px-4 py-2 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700"
+            className="app-btn-solid px-4 py-2 text-sm font-medium"
           >
             Try again
           </button>
@@ -857,6 +912,7 @@ export default function NodeGraph({
                   onFilterChange={handleLocalFilterChange}
                   nodes={localNodes}
                   onNodeListSelect={handleLocalNodeListSelect}
+                  selectedNodeId={selectedNode?.id ?? null}
                 />
               ) : (
                 <SidePanelPlaceholder activeNav={activeNav} />
@@ -900,7 +956,7 @@ export default function NodeGraph({
           fitViewOptions={{
             padding: 2,
           }}
-          connectionLineStyle={{ stroke: '#6366f1', strokeWidth: 4 }}
+          connectionLineStyle={{ stroke: 'var(--app-accent)', strokeWidth: 2 }}
           className=""
           onPaneClick={() => {
             // Just close the drawer when clicking canvas
@@ -1035,6 +1091,7 @@ export default function NodeGraph({
           connectedNodes={connectedNodes}
           parentNodes={parentNodes}
           childNodes={childNodes}
+          graphNodes={localNodes}
           onTitleChange={handleNodeTitleChange}
           onRiskChange={handleNodeRiskChange}
           onRemoveConnection={handleRemoveConnection}

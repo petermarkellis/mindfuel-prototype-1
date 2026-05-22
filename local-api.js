@@ -8,6 +8,12 @@ import { Pool } from '@neondatabase/serverless';
 import ws from 'ws';
 import dotenv from 'dotenv';
 import { resetGraphToBaseline } from './api/graphReset.js';
+import {
+  getActivitiesForNode,
+  insertActivities,
+  updateActivityComment,
+  deleteActivityComment,
+} from './api/nodeActivityDb.js';
 
 // Setup WebSocket for Neon
 global.WebSocket = ws;
@@ -43,6 +49,15 @@ app.get('/api/db', async (req, res) => {
       const result = await pool.query('SELECT * FROM risks ORDER BY sort_order');
       return res.json(result.rows);
     }
+
+    if (action === 'getUsers') {
+      const result = await pool.query(
+        `SELECT id, first_name, last_name, email, role, availability
+         FROM users
+         ORDER BY first_name, last_name`
+      );
+      return res.json(result.rows);
+    }
     
     if (action === 'getNodes') {
       const result = await pool.query(`
@@ -67,6 +82,20 @@ app.get('/api/db', async (req, res) => {
     if (action === 'getEdges') {
       const result = await pool.query('SELECT * FROM edges ORDER BY created_at DESC');
       return res.json(result.rows);
+    }
+
+    if (action === 'getNodeActivity') {
+      const nodeId = req.query.nodeId;
+      if (!nodeId) {
+        return res.status(400).json({ error: 'nodeId is required' });
+      }
+      const client = await pool.connect();
+      try {
+        const activities = await getActivitiesForNode(client, nodeId);
+        return res.json(activities);
+      } finally {
+        client.release();
+      }
     }
     
     res.status(400).json({ error: 'Invalid action' });
@@ -130,6 +159,54 @@ app.post('/api/db', async (req, res) => {
         client.release();
       }
     }
+
+    if (action === 'createNodeActivities') {
+      const { entries } = body ?? {};
+      if (!Array.isArray(entries) || entries.length === 0) {
+        return res.status(400).json({ error: 'entries array is required' });
+      }
+      const client = await pool.connect();
+      try {
+        const created = await insertActivities(client, entries);
+        return res.status(201).json(created);
+      } finally {
+        client.release();
+      }
+    }
+
+    if (action === 'updateNodeActivity') {
+      const { nodeId, id, text } = body ?? {};
+      if (!nodeId || !id || text == null) {
+        return res.status(400).json({ error: 'nodeId, id, and text are required' });
+      }
+      const client = await pool.connect();
+      try {
+        const updated = await updateActivityComment(client, nodeId, id, text.trim());
+        if (!updated) {
+          return res.status(404).json({ error: 'Comment not found' });
+        }
+        return res.json(updated);
+      } finally {
+        client.release();
+      }
+    }
+
+    if (action === 'deleteNodeActivity') {
+      const { nodeId, id } = body ?? {};
+      if (!nodeId || !id) {
+        return res.status(400).json({ error: 'nodeId and id are required' });
+      }
+      const client = await pool.connect();
+      try {
+        const deleted = await deleteActivityComment(client, nodeId, id);
+        if (!deleted) {
+          return res.status(404).json({ error: 'Comment not found' });
+        }
+        return res.json({ success: true });
+      } finally {
+        client.release();
+      }
+    }
     
     res.status(400).json({ error: 'Invalid action' });
   } catch (error) {
@@ -143,6 +220,7 @@ app.listen(PORT, () => {
   console.log(`📊 Endpoint: http://localhost:${PORT}/api/db`);
   console.log(`🔗 Connected to: ${process.env.DATABASE_URL?.split('@')[1] || 'Neon DB'}`);
   console.log(`\n📝 Test: curl http://localhost:${PORT}/api/db?action=getRisks`);
-  console.log('   POST actions: createNode, updateNode, deleteNode, createEdge, deleteEdge, resetGraph');
+  console.log('   POST actions: createNode, updateNode, deleteNode, createEdge, deleteEdge, resetGraph, createNodeActivities, updateNodeActivity, deleteNodeActivity');
+  console.log('   GET actions: getRisks, getNodes, getEdges, getNodeActivity?nodeId=<id>');
   console.log('\n✅ Now run: npm run dev (Vite proxies /api → this server)\n');
 });

@@ -37,9 +37,12 @@
   position: absolute;
   left: 1.5rem;
   bottom: 1.5rem;
+  width: 50vw;
+  max-width: calc(100% - 3rem);
   margin: 0;
   font-family: 'PP Supply Mono', ui-monospace, monospace;
-  font-size: 70vh;
+  /* Scale type to ~50% viewport width (≈4 chars + % at mono width) */
+  font-size: 21vw;
   font-weight: 500;
   line-height: 0.85;
   font-variant-numeric: tabular-nums;

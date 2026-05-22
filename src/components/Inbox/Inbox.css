@@ -274,33 +274,21 @@
 
 .inbox-btn--primary,
 .inbox-btn--reply {
-  border-color: var(--app-accent);
-  background: var(--app-accent);
-  color: var(--app-accent-ink);
+  border-color: var(--app-btn-solid-bg);
+  background: var(--app-btn-solid-bg);
+  color: var(--app-btn-solid-fg);
 }
 
 .inbox-btn--primary:hover:not(:disabled),
 .inbox-btn--reply:hover:not(:disabled) {
-  background: var(--app-accent-hover);
-  border-color: var(--app-accent-hover);
-  color: var(--app-accent-ink);
+  background: var(--app-btn-solid-hover);
+  border-color: var(--app-btn-solid-hover);
+  color: var(--app-btn-solid-fg);
 }
 
-/* Match unread dot / selected-row accent (#34d399) */
-.inbox-btn--reply {
-  border-color: #34d399;
-  background: #34d399;
-  color: #022c22;
-}
-
-.inbox-btn--reply:hover:not(:disabled) {
-  background: #6ee7b7;
-  border-color: #6ee7b7;
-  color: #022c22;
-}
-
+.inbox-btn--primary:focus-visible,
 .inbox-btn--reply:focus-visible {
-  outline-color: #34d399;
+  outline-color: var(--app-btn-solid-bg);
 }
 
 .inbox-reading__body {

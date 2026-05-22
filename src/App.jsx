@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useState } from 'react'
 import './App.css'
 import Layout from './components/Layout/Layout'
 import Inbox from './components/Inbox'
@@ -13,6 +13,7 @@ function App() {
   const { currentView, activeNav, handleNavSelect, navigateToInbox, navigateToMain } = useAppRouter()
   const openNewItemModalRef = useRef(null)
   const resetGraphRef = useRef(null)
+  const [portfolioView, setPortfolioView] = useState('graph')
 
   const headerTitle = useMemo(() => {
     if (currentView === 'inbox') return 'Inbox'
@@ -31,9 +32,12 @@ function App() {
       <div className="relative min-h-screen">
         <AppHeader
           title={headerTitle}
-          showResetView={currentView === 'main'}
+          showResetView={currentView === 'main' && activeNav === 'portfolio'}
           onResetView={() => resetGraphRef.current?.()}
           resetDisabled={currentView !== 'main'}
+          showPortfolioViewToggle={currentView === 'main' && activeNav === 'portfolio'}
+          portfolioView={portfolioView}
+          onPortfolioViewChange={setPortfolioView}
         />
         <SideBar
           onOpenNewItemModal={() => openNewItemModalRef.current?.()}
@@ -46,6 +50,7 @@ function App() {
         <div className={currentView === 'main' ? 'contents' : 'hidden'} aria-hidden={currentView !== 'main'}>
           <Layout
             activeNav={activeNav}
+            portfolioView={portfolioView}
             registerOpenNewItemModal={(fn) => {
               openNewItemModalRef.current = fn
             }}

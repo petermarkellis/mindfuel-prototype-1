@@ -39,16 +39,35 @@
   --app-accent-subtle: #ecfdf5;
   --app-accent-border: #a7f3d0;
   --app-accent-ink: #ffffff;
+  --app-btn-solid-bg: #059669;
+  --app-btn-solid-hover: #047857;
+  --app-btn-solid-fg: #ffffff;
   --app-focus-ring: #059669;
   --app-outline-hover-bg: #ecfdf5;
   --app-outline-hover-border: #10b981;
   --app-outline-hover-text: #047857;
   --app-outline-active-bg: #d1fae5;
+  --app-danger-bg: #fef2f2;
+  --app-danger-border: #fecaca;
+  --app-danger-text: #b91c1c;
 
   /* Nodes */
   --color-node-bg: #ffffff;
   --color-node-border: #e5e7eb;
-  --color-node-selected-border: #8b92ae;
+  --color-node-selected-border: #059669;
+  --app-edge: rgba(30, 41, 59, 0.35);
+  --entity-opportunity-fg: #ea580c;
+  --entity-opportunity-bg: rgba(249, 115, 22, 0.12);
+  --entity-opportunity-border: rgba(234, 88, 12, 0.35);
+  --entity-product-fg: #7c3aed;
+  --entity-product-bg: rgba(124, 58, 237, 0.1);
+  --entity-product-border: rgba(124, 58, 237, 0.3);
+  --entity-data-asset-fg: #2563eb;
+  --entity-data-asset-bg: rgba(37, 99, 235, 0.1);
+  --entity-data-asset-border: rgba(37, 99, 235, 0.3);
+  --entity-data-source-fg: #059669;
+  --entity-data-source-bg: rgba(5, 150, 105, 0.12);
+  --entity-data-source-border: rgba(5, 150, 105, 0.35);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -80,15 +99,35 @@
   --app-accent-subtle: rgba(16, 185, 129, 0.14);
   --app-accent-border: rgba(52, 211, 153, 0.35);
   --app-accent-ink: #022c22;
+  /* Solid primary buttons (Reply, Access prototype, modal confirms, etc.) */
+  --app-btn-solid-bg: #34d399;
+  --app-btn-solid-hover: #6ee7b7;
+  --app-btn-solid-fg: #022c22;
   --app-focus-ring: #34d399;
   --app-outline-hover-bg: rgba(52, 211, 153, 0.22);
   --app-outline-hover-border: #6ee7b7;
   --app-outline-hover-text: #6ee7b7;
   --app-outline-active-bg: rgba(52, 211, 153, 0.32);
+  --app-danger-bg: rgba(127, 29, 29, 0.35);
+  --app-danger-border: rgba(248, 113, 113, 0.45);
+  --app-danger-text: #fca5a5;
 
   --color-node-bg: #1e293b;
   --color-node-border: #475569;
-  --color-node-selected-border: #94a3b8;
+  --color-node-selected-border: #34d399;
+  --app-edge: rgba(148, 163, 184, 0.55);
+  --entity-opportunity-fg: #fdba74;
+  --entity-opportunity-bg: rgba(251, 146, 60, 0.14);
+  --entity-opportunity-border: rgba(251, 146, 60, 0.4);
+  --entity-product-fg: #c4b5fd;
+  --entity-product-bg: rgba(167, 139, 250, 0.14);
+  --entity-product-border: rgba(167, 139, 250, 0.35);
+  --entity-data-asset-fg: #93c5fd;
+  --entity-data-asset-bg: rgba(59, 130, 246, 0.14);
+  --entity-data-asset-border: rgba(96, 165, 250, 0.35);
+  --entity-data-source-fg: #6ee7b7;
+  --entity-data-source-bg: rgba(52, 211, 153, 0.14);
+  --entity-data-source-border: rgba(52, 211, 153, 0.4);
 }
 
 .jetbrains{
@@ -100,11 +139,16 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--app-accent);
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: var(--app-accent-hover);
+}
+
+html,
+body {
+  overflow-x: clip;
 }
 
 body {
@@ -121,6 +165,53 @@ body {
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+}
+
+/* Shared solid primary button — uses bright #34d399 in dark mode */
+.app-btn-solid {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid var(--app-btn-solid-bg);
+  border-radius: 0.375rem;
+  background: var(--app-btn-solid-bg);
+  color: var(--app-btn-solid-fg);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.app-btn-solid:hover:not(:disabled) {
+  background: var(--app-btn-solid-hover);
+  border-color: var(--app-btn-solid-hover);
+  color: var(--app-btn-solid-fg);
+}
+
+.app-btn-solid:focus-visible {
+  outline: 2px solid var(--app-focus-ring);
+  outline-offset: 2px;
+}
+
+.app-btn-solid:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.app-btn-solid:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-btn-solid {
+    transition: none;
+  }
+
+  .app-btn-solid:active:not(:disabled) {
+    transform: none;
+  }
 }
 
 /* Training panel background image - only show on medium screens and larger */

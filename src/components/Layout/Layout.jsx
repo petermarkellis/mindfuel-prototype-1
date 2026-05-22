@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import GraphControlPanel from '../GraphControlPanel/GraphControlPanel'
 import PanelToggleBox from '../GraphControlPanel/PanelToggleBox'
 import NodeGraph from '../NodeGraph/NodeGraph'
+import PortfolioListView from '../PortfolioListView/PortfolioListView'
 import { NewItemModal } from '../NewItemModal'
-import './Layout.css'
+import './Layout.css';
 import FixedFooter from '../BaseComponents/FixedFooter';
 import { useNeonNodes } from '../../hooks/useNeonNodes';
 import PageLoader from '../PageLoader/PageLoader';
@@ -14,6 +15,7 @@ export default function Layout({
   onNavigateToInbox,
   onNavigateToMain,
   activeNav = 'portfolio',
+  portfolioView = 'graph',
   registerOpenNewItemModal,
   registerResetGraph,
 }) {
@@ -274,26 +276,39 @@ export default function Layout({
     <PageLoader isLoading={loading}>
     <div className="layout flex flex-row shrink relative">
       <div className="fixed top-10 left-16 right-0 bottom-0 z-0 overflow-hidden">
-        <NodeGraph
-          filters={filters}
-          nodeIdToCenter={nodeIdToCenter}
-          nodeIdToSelect={nodeIdToSelect}
-          panelWidth={panelWidth}
-          setPanelWidth={setPanelWidth}
-          isCollapsed={isCollapsed}
-          setIsCollapsed={setIsCollapsed}
-          setLastPanelWidth={setLastPanelWidth}
-          minWidth={minWidth}
-          maxWidth={maxWidth}
-          onTogglePanel={handleTogglePanel}
-          dataHook={dataHook}
-          onOpenNewItemModal={handleOpenNewItemModal}
-          onNodeListSelect={handleNodeListSelect}
-          onFilterChange={handleFilterChange}
-          activeNav={activeNav}
-          registerGraphResetComplete={bindGraphResetComplete}
-          onResetView={handleResetGraph}
-        />
+        {portfolioView === 'list' ? (
+          <PortfolioListView
+            filters={filters}
+            dataHook={dataHook}
+            panelWidth={panelWidth}
+            isCollapsed={isCollapsed}
+            onTogglePanel={handleTogglePanel}
+            onFilterChange={handleFilterChange}
+            onNodeListSelect={handleNodeListSelect}
+            activeNav={activeNav}
+          />
+        ) : (
+          <NodeGraph
+            filters={filters}
+            nodeIdToCenter={nodeIdToCenter}
+            nodeIdToSelect={nodeIdToSelect}
+            panelWidth={panelWidth}
+            setPanelWidth={setPanelWidth}
+            isCollapsed={isCollapsed}
+            setIsCollapsed={setIsCollapsed}
+            setLastPanelWidth={setLastPanelWidth}
+            minWidth={minWidth}
+            maxWidth={maxWidth}
+            onTogglePanel={handleTogglePanel}
+            dataHook={dataHook}
+            onOpenNewItemModal={handleOpenNewItemModal}
+            onNodeListSelect={handleNodeListSelect}
+            onFilterChange={handleFilterChange}
+            activeNav={activeNav}
+            registerGraphResetComplete={bindGraphResetComplete}
+            onResetView={handleResetGraph}
+          />
+        )}
       </div>
       {children && <div className="relative z-40">{children}</div>}
 

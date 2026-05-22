@@ -22,7 +22,20 @@ const LOCAL_API_URL = 'http://localhost:3001/api/db';
  * Fallback Data for Local Development
  * Used when API endpoints are not available (local dev without vercel dev)
  */
-const READ_ACTIONS = new Set(['getNodes', 'getEdges', 'getRisks']);
+const READ_ACTIONS = new Set(['getNodes', 'getEdges', 'getRisks', 'getUsers', 'getNodeActivity']);
+
+export const FALLBACK_USERS = [
+  { id: 1, first_name: 'Marius', last_name: 'Thompson', email: 'marius@mindfuel.ai', role: 'Product Manager', availability: 'online' },
+  { id: 2, first_name: 'Peter', last_name: 'Ellis', email: 'peter@mindfuel.ai', role: 'Data Scientist', availability: 'online' },
+  { id: 3, first_name: 'James', last_name: 'Rodriguez', email: 'james@mindfuel.ai', role: 'Software Engineer', availability: 'offline' },
+  { id: 4, first_name: 'Emily', last_name: 'Johnson', email: 'emily@mindfuel.ai', role: 'UX Designer', availability: 'online' },
+  { id: 5, first_name: 'Michael', last_name: 'Kim', email: 'michael@mindfuel.ai', role: 'DevOps Engineer', availability: 'offline' },
+  { id: 6, first_name: 'Jessica', last_name: 'Williams', email: 'jessica@mindfuel.ai', role: 'Data Analyst', availability: 'online' },
+  { id: 7, first_name: 'David', last_name: 'Brown', email: 'david@mindfuel.ai', role: 'Backend Engineer', availability: 'online' },
+  { id: 8, first_name: 'Lisa', last_name: 'Davis', email: 'lisa@mindfuel.ai', role: 'Frontend Engineer', availability: 'offline' },
+  { id: 9, first_name: 'Ryan', last_name: 'Wilson', email: 'ryan@mindfuel.ai', role: 'QA Engineer', availability: 'online' },
+  { id: 10, first_name: 'Amanda', last_name: 'Taylor', email: 'amanda@mindfuel.ai', role: 'Project Manager', availability: 'offline' },
+];
 
 const FALLBACK_DATA = {
   nodes: initNodes, // Use initial node data
@@ -40,6 +53,8 @@ function getReadFallback(action) {
   if (action === 'getNodes') return FALLBACK_DATA.nodes;
   if (action === 'getEdges') return FALLBACK_DATA.edges;
   if (action === 'getRisks') return FALLBACK_DATA.risks;
+  if (action === 'getUsers') return FALLBACK_USERS;
+  if (action === 'getNodeActivity') return [];
   return null;
 }
 
@@ -71,16 +86,21 @@ async function fetchApi(url, options = {}) {
   return data;
 }
 
-function buildApiUrl(base, action) {
+function buildApiUrl(base, action, queryParams = {}) {
   const url = new URL(base, base.startsWith('http') ? undefined : window.location.origin);
   url.searchParams.set('action', action);
+  for (const [key, value] of Object.entries(queryParams)) {
+    if (value != null && value !== '') {
+      url.searchParams.set(key, String(value));
+    }
+  }
   return url;
 }
 
 /**
  * Generic API request handler with fallback for local dev reads only
  */
-async function apiRequest(action, options = {}) {
+async function apiRequest(action, options = {}, queryParams = {}) {
   const allowReadFallback = READ_ACTIONS.has(action);
 
   const bases = isLocalDev
@@ -91,7 +111,7 @@ async function apiRequest(action, options = {}) {
 
   for (const base of bases) {
     try {
-      return await fetchApi(buildApiUrl(base, action), options);
+      return await fetchApi(buildApiUrl(base, action, queryParams), options);
     } catch (error) {
       lastError = error;
       if (isLocalDev && base === LOCAL_API_URL) {
@@ -250,5 +270,68 @@ export const riskService = {
   async getRiskInfo(riskLevel) {
     const risks = await this.getRisks();
     return risks.find(risk => risk.level === riskLevel);
+  },
+};
+
+// --------------------------------------------------------
+// User service
+// --------------------------------------------------------
+export const userService = {
+  async getUsers() {
+    return apiRequest('getUsers');
+  },
+};
+
+// --------------------------------------------------------
+// Node activity service
+// --------------------------------------------------------
+export const activityService = {
+  /**
+   * @param {string} nodeId
+   * @returns {Promise<Array>}
+   */
+  async getForNode(nodeId) {
+    return apiRequest('getNodeActivity', {}, { nodeId });
+  },
+
+  /**
+   * @param {Array<{ nodeId: string, kind: string, [key: string]: unknown }>} entries
+   */
+  async createBatch(entries) {
+    return apiRequest('createNodeActivities', {
+      method: 'POST',
+      body: { entries },
+    });
+  },
+
+  /**
+   * @param {string} nodeId
+   * @param {Object} entry
+   */
+  async create(nodeId, entry) {
+    return this.createBatch([{ nodeId, ...entry }]);
+  },
+
+  /**
+   * @param {string} nodeId
+   * @param {string} id
+   * @param {string} text
+   */
+  async updateComment(nodeId, id, text) {
+    return apiRequest('updateNodeActivity', {
+      method: 'POST',
+      body: { nodeId, id, text },
+    });
+  },
+
+  /**
+   * @param {string} nodeId
+   * @param {string} id
+   */
+  async deleteComment(nodeId, id) {
+    return apiRequest('deleteNodeActivity', {
+      method: 'POST',
+      body: { nodeId, id },
+    });
   },
 };

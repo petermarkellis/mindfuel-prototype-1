@@ -4,8 +4,25 @@ import './PageLoader.css'
 const MIN_LOADER_MS = 3000
 const PAUSE_AT_100_MS = 500
 const PROGRESS_TICK_MS = 48
+const LOADER_SEEN_KEY = 'mindfuel_initial_load_done'
 
-let initialPageLoadComplete = false
+function readLoaderSeen() {
+  try {
+    return sessionStorage.getItem(LOADER_SEEN_KEY) === 'true'
+  } catch {
+    return false
+  }
+}
+
+function markLoaderSeen() {
+  try {
+    sessionStorage.setItem(LOADER_SEEN_KEY, 'true')
+  } catch {
+    /* ignore */
+  }
+}
+
+let initialPageLoadComplete = readLoaderSeen()
 
 export default function PageLoader({ isLoading, children }) {
   const [phase, setPhase] = useState(() => {
@@ -52,6 +69,7 @@ export default function PageLoader({ isLoading, children }) {
   const handleRevealEnd = (e) => {
     if (e.propertyName !== 'transform' || phase !== 'exiting') return
     initialPageLoadComplete = true
+    markLoaderSeen()
     setPhase('done')
   }
 

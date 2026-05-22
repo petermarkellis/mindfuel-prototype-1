@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import './PasswordGate.css';
 
 const PasswordGate = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -11,19 +12,15 @@ const PasswordGate = ({ children }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  
-  // Get valid passwords from environment variables
+
   const validPasswords = [
-    import.meta.env.VITE_DEMO_PASSWORD,        // Main demo password
-    import.meta.env.VITE_CLIENT_PASSWORD,      // For client reviews
-    import.meta.env.VITE_INVESTOR_PASSWORD,    // For investor demos
-  ].filter(Boolean); // Remove any undefined/empty passwords
+    import.meta.env.VITE_DEMO_PASSWORD,
+    import.meta.env.VITE_CLIENT_PASSWORD,
+    import.meta.env.VITE_INVESTOR_PASSWORD,
+  ].filter(Boolean);
 
-
-  // If no passwords are configured, bypass the gate (fail-safe)
   const shouldShowGate = validPasswords.length > 0;
 
-  // Check if already authenticated (stored in sessionStorage)
   useEffect(() => {
     const stored = sessionStorage.getItem('mindfuel_auth');
     if (stored === 'authenticated') {
@@ -36,109 +33,113 @@ const PasswordGate = ({ children }) => {
     setIsLoading(true);
     setError('');
 
-    // Simulate a brief loading state for better UX
-    await new Promise(resolve => setTimeout(resolve, 800));
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
     if (validPasswords.includes(password.toLowerCase())) {
       setIsAuthenticated(true);
       sessionStorage.setItem('mindfuel_auth', 'authenticated');
     } else {
-      setError('Invalid password. Please check with the team for access.');
+      setError('Invalid password. Check with the team for access.');
     }
-    
+
     setIsLoading(false);
   };
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    sessionStorage.removeItem('mindfuel_auth');
-    setPassword('');
-  };
-
-  // If no passwords configured or already authenticated, show the app
   if (!shouldShowGate || isAuthenticated) {
-    return (
-      <div>
-        {children}
-      </div>
-    );
+    return <div>{children}</div>;
   }
 
   return (
-    <div className="min-h-screen bg-[var(--app-bg)] flex items-center justify-center p-4">
-      <div className="bg-[var(--app-surface)] border border-[var(--app-border)] rounded-2xl shadow-2xl p-8 w-full max-w-md">
-        {/* Logo/Branding */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-            <img 
-              src="/Mindfuel_Glass_Logo.png" 
-              alt="Mindfuel Logo" 
-              className="w-full h-full object-contain"
-            />
-          </div>
-          <h1 className="text-2xl font-bold text-[var(--app-text)] mb-2">
-            Mindfuel Prototype
-          </h1>
-          <p className="text-[var(--app-text-muted)] text-sm">
-            Enter password to access the demo
-          </p>
-        </div>
+    <div className="gate">
+      <div className="gate__panel">
+        <header className="gate__brand">
+          <img
+            src="/Mindfuel_Glass_Logo.png"
+            alt="Mindfuel"
+            className="gate__logo"
+            width={48}
+            height={48}
+          />
+          <h1 className="gate__title">Mindfuel Prototype</h1>
+          <p className="gate__meta">Demo access</p>
+        </header>
 
-        {/* Password Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              Access Password
+        <form className="gate__form" onSubmit={handleSubmit} noValidate>
+          <div className="gate__field">
+            <label htmlFor="password" className="gate__label">
+              Access password
             </label>
             <input
               type="password"
               id="password"
+              name="password"
+              autoComplete="current-password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-              placeholder="Enter password..."
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (error) setError('');
+              }}
+              className="gate__input"
+              placeholder="Enter password"
               required
               disabled={isLoading}
+              aria-invalid={error ? 'true' : undefined}
+              aria-describedby={error ? 'gate-error' : undefined}
             />
           </div>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-red-600 text-sm">{error}</p>
+          {error ? (
+            <div id="gate-error" className="gate__error" role="alert">
+              {error}
             </div>
-          )}
+          ) : null}
 
           <button
             type="submit"
+            className="gate__submit app-btn-solid"
             disabled={isLoading || !password.trim()}
-            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            data-state={isLoading ? 'loading' : undefined}
+            aria-busy={isLoading || undefined}
           >
             {isLoading ? (
-              <span className="flex items-center justify-center">
-                <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <>
+                <svg
+                  className="gate__spinner"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    opacity="0.25"
+                  />
+                  <path
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    opacity="0.75"
+                  />
                 </svg>
-                Authenticating...
-              </span>
+                Checking…
+              </>
             ) : (
-              'Access Prototype'
+              'Access prototype'
             )}
           </button>
         </form>
 
-        {/* Contact Info */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <p className="text-center text-xs text-gray-500">
-            Need access? Contact{' '}
-            <a 
-              href="mailto:petermarkellis@gmail.com" 
-              className="text-blue-600 hover:text-blue-800 underline"
-            >
+        <footer className="gate__footer">
+          <p className="gate__contact">
+            Need access?{' '}
+            <a href="mailto:petermarkellis@gmail.com" className="gate__link">
               petermarkellis@gmail.com
             </a>
           </p>
-        </div>
+        </footer>
       </div>
     </div>
   );

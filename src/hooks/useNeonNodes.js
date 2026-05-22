@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { nodeService, edgeService, graphService } from '../lib/neon.js'
+import { purgeActivityOnDemoReset } from '../utils/nodeActivity.js'
 import { transformNodeFromDatabase, transformEdgeFromDatabase } from '../utils/dataMigration.js'
 
 /**
@@ -189,6 +190,7 @@ export function useNeonNodes() {
       setLoading(true)
       setError(null)
       await graphService.resetToBaseline()
+      purgeActivityOnDemoReset()
       await loadData()
     } catch (err) {
       console.error('Error resetting graph:', err)

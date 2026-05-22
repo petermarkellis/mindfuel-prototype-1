@@ -3,6 +3,305 @@
   right: -400px; /* Initial hidden position for animation */
 }
 
+.drawer-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  width: 100%;
+  margin-bottom: 1.25rem;
+}
+
+.drawer-tab {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1;
+  border-radius: 0.375rem;
+  border: 1px solid var(--app-border);
+  background: transparent;
+  color: var(--app-text-muted);
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.drawer-tab:hover {
+  background: var(--app-surface-muted);
+  color: var(--app-text);
+}
+
+.drawer-tab:focus-visible {
+  outline: 2px solid var(--app-focus-ring);
+  outline-offset: 2px;
+}
+
+.drawer-tab--active {
+  background: var(--app-accent-subtle);
+  border-color: var(--app-accent-border);
+  color: var(--app-text);
+}
+
+.drawer-tab-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.drawer-placeholder {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--app-text-muted);
+  text-align: left;
+}
+
+.drawer-code-panel {
+  gap: 0;
+  align-items: stretch;
+}
+
+.drawer-code-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.drawer-code-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid var(--app-border);
+  border-radius: 0.375rem;
+  background: transparent;
+  color: var(--app-text-muted);
+  cursor: pointer;
+  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.drawer-code-copy-btn:hover {
+  background: var(--app-surface-muted);
+  color: var(--app-text);
+}
+
+.drawer-code-copy-btn:focus-visible {
+  outline: 2px solid var(--app-focus-ring);
+  outline-offset: 2px;
+}
+
+.drawer-code-block {
+  margin: 0;
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0.375rem;
+  background: var(--app-surface-muted);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.6875rem;
+  line-height: 1.55;
+  color: var(--app-text);
+  overflow: auto;
+  max-height: min(60vh, 32rem);
+  white-space: pre;
+  text-align: left;
+  tab-size: 2;
+}
+
+.drawer-code-block code {
+  font-family: inherit;
+}
+
+.drawer-activity-panel {
+  gap: 1.25rem;
+  overflow: visible;
+}
+
+.drawer-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.drawer-activity-item {
+  width: 100%;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--app-accent-border);
+}
+
+.drawer-activity-item--system {
+  border-left-color: var(--app-border);
+}
+
+.drawer-activity-item--system .drawer-activity-text {
+  color: var(--app-text-muted);
+  font-style: normal;
+}
+
+.drawer-activity-text {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--app-text);
+  text-align: left;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.drawer-activity-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.drawer-activity-time {
+  font-size: 0.75rem;
+  color: var(--app-text-muted);
+}
+
+.drawer-activity-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.drawer-activity-item:hover .drawer-activity-item-actions,
+.drawer-activity-item:focus-within .drawer-activity-item-actions {
+  opacity: 1;
+}
+
+.drawer-activity-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  border: none;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: var(--app-text-muted);
+  cursor: pointer;
+  transition: color 160ms ease, background-color 160ms ease;
+}
+
+.drawer-activity-icon-btn:hover {
+  color: var(--app-text);
+  background: var(--app-surface-muted);
+}
+
+.drawer-activity-icon-btn--danger:hover {
+  color: var(--app-danger-text);
+  background: var(--app-danger-bg);
+}
+
+.drawer-activity-icon-btn:focus-visible {
+  outline: 2px solid var(--app-focus-ring);
+  outline-offset: 2px;
+}
+
+.drawer-activity-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.drawer-activity-edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.drawer-activity-btn-ghost {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid var(--app-border);
+  border-radius: 0.375rem;
+  background: transparent;
+  color: var(--app-text-muted);
+  cursor: pointer;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.drawer-activity-btn-ghost:hover {
+  background: var(--app-surface-muted);
+  color: var(--app-text);
+}
+
+.drawer-activity-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--app-border);
+  overflow: visible;
+  position: relative;
+  z-index: 2;
+}
+
+.mention-token {
+  font-weight: 500;
+  color: var(--app-accent);
+}
+
+.drawer-activity-text .mention-node-chip {
+  vertical-align: middle;
+  margin: 0 0.125rem;
+  max-width: none;
+  white-space: nowrap;
+}
+
+.drawer-activity-form-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--app-text-muted);
+  text-align: left;
+}
+
+.drawer-activity-hint {
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+.drawer-activity-textarea {
+  width: 100%;
+  min-height: 4.5rem;
+  padding: 0.5rem 0.625rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--app-text);
+  background: var(--app-surface-muted);
+  border: 1px solid var(--app-border);
+  border-radius: 0.375rem;
+  resize: vertical;
+  text-align: left;
+}
+
+.drawer-activity-textarea::placeholder {
+  color: var(--app-text-muted);
+  opacity: 0.75;
+}
+
+.drawer-activity-textarea:focus {
+  outline: 2px solid var(--app-focus-ring);
+  outline-offset: 0;
+  border-color: var(--app-accent-border);
+}
+
 .metric-value {
   font-family: 'PP Supply Mono', ui-monospace, monospace;
   font-weight: 400;
