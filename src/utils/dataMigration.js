@@ -2,7 +2,7 @@ import { nodeService, edgeService } from '../lib/neon.js'
 import { initNodes, initEdges } from '../data/initialData.js'
 
 /**
- * Transform a ReactFlow node to Supabase database format
+ * Transform a ReactFlow node to database format
  */
 function transformNodeForDatabase(node) {
   return {
@@ -25,7 +25,7 @@ function transformNodeForDatabase(node) {
 }
 
 /**
- * Transform a ReactFlow edge to Supabase database format
+ * Transform a ReactFlow edge to database format
  */
 function transformEdgeForDatabase(edge) {
   return {
@@ -37,11 +37,11 @@ function transformEdgeForDatabase(edge) {
 }
 
 /**
- * Transform Supabase database node to ReactFlow format
+ * Transform database node to ReactFlow format
  */
 export function transformNodeFromDatabase(dbNode) {
   return {
-    id: dbNode.id,
+    id: String(dbNode.id),
     type: dbNode.type,
     data: {
       type: dbNode.node_type,
@@ -72,24 +72,24 @@ export function transformNodeFromDatabase(dbNode) {
 }
 
 /**
- * Transform Supabase database edge to ReactFlow format
+ * Transform database edge to ReactFlow format
  */
 export function transformEdgeFromDatabase(dbEdge) {
   return {
-    id: dbEdge.id,
-    source: dbEdge.source_node_id,
-    target: dbEdge.target_node_id,
+    id: String(dbEdge.id),
+    source: String(dbEdge.source_node_id),
+    target: String(dbEdge.target_node_id),
     type: dbEdge.type
   }
 }
 
 /**
- * Migrate existing hardcoded data to Supabase
+ * Migrate existing hardcoded data to Neon
  * This function should be run once after setting up the database
  */
 export async function migrateExistingData() {
   try {
-    console.log('Starting data migration to Supabase...')
+    console.log('Starting data migration to Neon...')
     
     // Clear existing data (optional - remove this in production)
     console.log('Clearing existing data...')

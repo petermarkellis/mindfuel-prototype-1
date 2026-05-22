@@ -22,6 +22,8 @@ const LOCAL_API_URL = 'http://localhost:3001/api/db';
  * Fallback Data for Local Development
  * Used when API endpoints are not available (local dev without vercel dev)
  */
+const READ_ACTIONS = new Set(['getNodes', 'getEdges', 'getRisks']);
+
 const FALLBACK_DATA = {
   nodes: initNodes, // Use initial node data
   edges: initEdges, // Use initial edge data
@@ -34,85 +36,86 @@ const FALLBACK_DATA = {
   ]
 };
 
+function getReadFallback(action) {
+  if (action === 'getNodes') return FALLBACK_DATA.nodes;
+  if (action === 'getEdges') return FALLBACK_DATA.edges;
+  if (action === 'getRisks') return FALLBACK_DATA.risks;
+  return null;
+}
+
+async function fetchApi(url, options = {}) {
+  const response = await fetch(url.toString(), {
+    method: options.method || 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  });
+
+  const contentType = response.headers.get('content-type');
+  if (!contentType || !contentType.includes('application/json')) {
+    const text = await response.text();
+    throw new Error(
+      contentType
+        ? `Server returned non-JSON response (${response.status})`
+        : `Invalid response from ${url.origin}`
+    );
+  }
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || `API request failed with status ${response.status}`);
+  }
+
+  return data;
+}
+
+function buildApiUrl(base, action) {
+  const url = new URL(base, base.startsWith('http') ? undefined : window.location.origin);
+  url.searchParams.set('action', action);
+  return url;
+}
+
 /**
- * Generic API request handler with fallback for local dev
+ * Generic API request handler with fallback for local dev reads only
  */
 async function apiRequest(action, options = {}) {
-  // In local dev, try local API server first, then fallback to Vercel API, then mock data
-  if (isLocalDev) {
+  const allowReadFallback = READ_ACTIONS.has(action);
+
+  const bases = isLocalDev
+    ? [LOCAL_API_URL, new URL(API_BASE, window.location.origin).href]
+    : [new URL(API_BASE, window.location.origin).href];
+
+  let lastError = null;
+
+  for (const base of bases) {
     try {
-      const url = new URL(LOCAL_API_URL);
-      url.searchParams.set('action', action);
-      
-      const response = await fetch(url.toString(), {
-        method: options.method || 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
-        body: options.body ? JSON.stringify(options.body) : undefined,
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        return data;
-      }
+      return await fetchApi(buildApiUrl(base, action), options);
     } catch (error) {
-      // Local API server not running, will use fallback below
-      console.log('ℹ️ Local API server not available, using fallback data');
-    }
-  }
-  
-  // Try production API (works when deployed to Vercel)
-  try {
-    const url = new URL(API_BASE, window.location.origin);
-    url.searchParams.set('action', action);
-
-    const response = await fetch(url.toString(), {
-      method: options.method || 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-      body: options.body ? JSON.stringify(options.body) : undefined,
-    });
-
-    // Check if response is JSON
-    const contentType = response.headers.get('content-type');
-    
-    // In local dev, API endpoints return non-JSON (HTML or JS from Vite)
-    // Detect this and use fallback data
-    if (!contentType || !contentType.includes('application/json')) {
-      // Always use fallback in local dev when API doesn't return JSON
-      if (isLocalDev) {
-        console.log('🔧 Local dev: API not available, using fallback data');
-        return FALLBACK_DATA[action === 'getNodes' ? 'nodes' : action === 'getEdges' ? 'edges' : 'risks'];
+      lastError = error;
+      if (isLocalDev && base === LOCAL_API_URL) {
+        console.log(`ℹ️ Local API (${LOCAL_API_URL}) failed for ${action}, trying next endpoint…`);
       }
-      
-      // In production, this is a real error
-      const text = await response.text();
-      console.error('Non-JSON response:', text.substring(0, 200));
-      throw new Error('Server returned non-JSON response. Check API deployment.');
     }
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || `API request failed with status ${response.status}`);
-    }
-
-    return data;
-  } catch (error) {
-    // Network error - use fallback in local dev
-    if (isLocalDev && (error.message.includes('Failed to fetch') || error.message.includes('NetworkError'))) {
-      console.log('🔧 Local dev: Network error, using fallback data');
-      return FALLBACK_DATA[action === 'getNodes' ? 'nodes' : action === 'getEdges' ? 'edges' : 'risks'];
-    }
-    
-    // Re-throw the error
-    console.error(`API request failed for action "${action}":`, error);
-    throw error;
   }
+
+  if (isLocalDev && allowReadFallback) {
+    const fallback = getReadFallback(action);
+    if (fallback) {
+      console.log('🔧 Local dev: using fallback data for', action);
+      return fallback;
+    }
+  }
+
+  if (isLocalDev && !allowReadFallback) {
+    throw new Error(
+      `${lastError?.message ?? 'Request failed'}. Run "npm run dev:full" (or restart "npm run dev:local" after pulling latest code).`
+    );
+  }
+
+  console.error(`API request failed for action "${action}":`, lastError);
+  throw lastError ?? new Error(`API request failed for action "${action}"`);
 }
 
 // --------------------------------------------------------
@@ -143,13 +146,6 @@ export const nodeService = {
    * @returns {Promise<Object>} Created node
    */
   async createNode(nodeData) {
-    // In local dev, simulate creation
-    if (isLocalDev) {
-      console.log('🔧 Local dev: Simulating node creation');
-      const newNode = { ...nodeData, created_at: new Date().toISOString() };
-      FALLBACK_DATA.nodes.push(newNode);
-      return newNode;
-    }
     return await apiRequest('createNode', {
       method: 'POST',
       body: nodeData,
@@ -163,16 +159,6 @@ export const nodeService = {
    * @returns {Promise<Object>} Updated node
    */
   async updateNode(id, updates) {
-    // In local dev, simulate update
-    if (isLocalDev) {
-      console.log('🔧 Local dev: Simulating node update');
-      const node = FALLBACK_DATA.nodes.find(n => n.id === id);
-      if (node) {
-        Object.assign(node, updates);
-        return node;
-      }
-      throw new Error('Node not found');
-    }
     return await apiRequest('updateNode', {
       method: 'POST',
       body: { id, updates },
@@ -185,16 +171,6 @@ export const nodeService = {
    * @returns {Promise<boolean>} Success status
    */
   async deleteNode(id) {
-    // In local dev, simulate deletion
-    if (isLocalDev) {
-      console.log('🔧 Local dev: Simulating node deletion');
-      const index = FALLBACK_DATA.nodes.findIndex(n => n.id === id);
-      if (index > -1) {
-        FALLBACK_DATA.nodes.splice(index, 1);
-        return true;
-      }
-      return false;
-    }
     return await apiRequest('deleteNode', {
       method: 'POST',
       body: { id },
@@ -220,13 +196,6 @@ export const edgeService = {
    * @returns {Promise<Object>} Created edge
    */
   async createEdge(edgeData) {
-    // In local dev, simulate creation
-    if (isLocalDev) {
-      console.log('🔧 Local dev: Simulating edge creation');
-      const newEdge = { ...edgeData, created_at: new Date().toISOString() };
-      FALLBACK_DATA.edges.push(newEdge);
-      return newEdge;
-    }
     return await apiRequest('createEdge', {
       method: 'POST',
       body: edgeData,
@@ -239,19 +208,24 @@ export const edgeService = {
    * @returns {Promise<boolean>} Success status
    */
   async deleteEdge(id) {
-    // In local dev, simulate deletion
-    if (isLocalDev) {
-      console.log('🔧 Local dev: Simulating edge deletion');
-      const index = FALLBACK_DATA.edges.findIndex(e => e.id === id);
-      if (index > -1) {
-        FALLBACK_DATA.edges.splice(index, 1);
-        return true;
-      }
-      return false;
-    }
     return await apiRequest('deleteEdge', {
       method: 'POST',
       body: { id },
+    });
+  },
+};
+
+// --------------------------------------------------------
+// Graph reset (baseline snapshot)
+// --------------------------------------------------------
+export const graphService = {
+  /**
+   * Restore nodes and edges to the canonical baseline (removes user changes).
+   */
+  async resetToBaseline() {
+    return await apiRequest('resetGraph', {
+      method: 'POST',
+      body: {},
     });
   },
 };

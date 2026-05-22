@@ -40,6 +40,14 @@ const CustomEdge = ({
           <stop offset="100%" stopColor="#8DCEF9" />
         </linearGradient>
       </defs>
+      {/* Wide transparent stroke for easier click / right-click targeting */}
+      <path
+        d={edgePath}
+        fill="none"
+        stroke="transparent"
+        strokeWidth={20}
+        className="react-flow__edge-interaction"
+      />
       <path
         id={id}
         d={edgePath}
@@ -49,6 +57,7 @@ const CustomEdge = ({
           strokeDasharray: '10,15',      // Dash pattern
           strokeLinecap: 'round',        // Rounded ends
           fill: 'none',                  // Ensure no fill
+          pointerEvents: 'none',
           ...style,                      // Additional styles if needed
         }}
         className="react-flow__edge-path animated-dashed-line"

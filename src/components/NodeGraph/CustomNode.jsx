@@ -5,68 +5,64 @@ import { CodeBracketSquareIcon,
   EllipsisHorizontalIcon
 } from '@heroicons/react/24/outline'
 import { IconDatabase, IconRecharging, IconBox, IconLayersSelected } from '@tabler/icons-react';
-import Chip from '../BaseComponents/Chip';
+import { useTheme } from '../../theme/ThemeContext';
 
-// Get color classes matching Chip component
-const getChipColorClasses = (type) => {
-  const textColor = {
-    'Opportunity': 'text-orange-700',
-    'Product': 'text-purple-700',
-    'Data Product': 'text-purple-700',
-    'Data Asset': 'text-blue-700',
-    'Asset': 'text-blue-700',
-    'Data Source': 'text-green-700',
-    'Source': 'text-green-700'
-  }[type] || 'text-slate-700';
-  
-  const bgColor = {
-    'Opportunity': 'bg-orange-50',
-    'Product': 'bg-purple-50',
-    'Data Product': 'bg-purple-50',
-    'Data Asset': 'bg-blue-50',
-    'Asset': 'bg-blue-50',
-    'Data Source': 'bg-green-50',
-    'Source': 'bg-green-50'
-  }[type] || 'bg-slate-50';
-  
-  return { textColor, bgColor };
+const ENTITY_BADGE_STYLES = {
+  Opportunity: {
+    light: 'bg-orange-50 text-orange-700 border-orange-200',
+    dark: 'dark:bg-orange-950/50 dark:text-orange-100 dark:border-orange-600',
+    iconLight: '#f59e42',
+    iconDark: '#fdba74',
+  },
+  Product: {
+    light: 'bg-purple-50 text-purple-700 border-purple-200',
+    dark: 'dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-600',
+    iconLight: '#7c3aed',
+    iconDark: '#c4b5fd',
+  },
+  'Data Product': {
+    light: 'bg-purple-50 text-purple-700 border-purple-200',
+    dark: 'dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-600',
+    iconLight: '#7c3aed',
+    iconDark: '#c4b5fd',
+  },
+  'Data Asset': {
+    light: 'bg-blue-50 text-blue-700 border-blue-200',
+    dark: 'dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-600',
+    iconLight: '#2563eb',
+    iconDark: '#93c5fd',
+  },
+  Asset: {
+    light: 'bg-blue-50 text-blue-700 border-blue-200',
+    dark: 'dark:bg-blue-950 dark:text-blue-300 dark:border-blue-600',
+    iconLight: '#2563eb',
+    iconDark: '#93c5fd',
+  },
+  'Data Source': {
+    light: 'bg-green-50 text-green-700 border-green-200',
+    dark: 'dark:bg-green-950/40 dark:text-green-300 dark:border-green-600',
+    iconLight: '#059669',
+    iconDark: '#6ee7b7',
+  },
+  Source: {
+    light: 'bg-green-50 text-green-700 border-green-200',
+    dark: 'dark:bg-green-950/40 dark:text-green-300 dark:border-green-600',
+    iconLight: '#059669',
+    iconDark: '#6ee7b7',
+  },
 };
 
-// Get color values for icons (hex colors)
-const getTypeColor = (type) => {
-  switch (type) {
-    case "Opportunity":
-      return "#f59e42";
-    case "Product":
-    case "Data Product":
-      return "#7c3aed";
-    case "Asset":
-    case "Data Asset":
-      return "#2563eb";
-    case "Data Source":
-    case "Source":
-      return "#059669";
-    default:
-      return "#64748b";
-  }
-};
-
-const getTypeBgColor = (type) => {
-  switch (type) {
-    case "Opportunity":
-      return "#fef3e2";
-    case "Product":
-    case "Data Product":
-      return "#ede9fe";
-    case "Asset":
-    case "Data Asset":
-      return "#dbeafe";
-    case "Data Source":
-    case "Source":
-      return "#d1fae5";
-    default:
-      return "#f1f5f9";
-  }
+const getEntityBadgeStyles = (type, isDark) => {
+  const styles = ENTITY_BADGE_STYLES[type] ?? {
+    light: 'bg-slate-50 text-slate-700 border-slate-200',
+    dark: 'dark:bg-slate-900 dark:text-slate-300 dark:border-slate-600',
+    iconLight: '#64748b',
+    iconDark: '#94a3b8',
+  };
+  return {
+    className: `${styles.light} ${styles.dark}`,
+    iconColor: isDark ? styles.iconDark : styles.iconLight,
+  };
 };
 
 const getHandleColorForType = (type) => {
@@ -88,76 +84,37 @@ const getHandleColorForType = (type) => {
 };
 
 const CustomNode = ({ data, nodes = [] }) => {
-  
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+  const { className: entityBadgeClass, iconColor } = getEntityBadgeStyles(data.type, isDark);
 
-  const { textColor, bgColor } = getChipColorClasses(data.type);
-  
-  // Get lighter border color based on type
-  const getLightBorderColor = (type) => {
-    const borderColors = {
-      'Opportunity': 'border-orange-200',
-      'Product': 'border-purple-200',
-      'Data Product': 'border-purple-200',
-      'Data Asset': 'border-blue-200',
-      'Asset': 'border-blue-200',
-      'Data Source': 'border-green-200',
-      'Source': 'border-green-200'
-    };
-    return borderColors[type] || 'border-slate-200';
-  };
-  
   return (
-    <div className="rounded-3xl p-2 bg-white text-slate-500 border-4 border-slate-200 rounded-2xl min-w-[400px] max-w-[800px] group relative" onClick={nodeInteractionHandler}>
+    <div className="rounded-2xl bg-[var(--color-node-bg)] text-[var(--app-text-muted)] border-4 border-[var(--app-border)] min-w-[400px] max-w-[800px] group relative" onClick={nodeInteractionHandler}>
       {/* Category label positioned at top-left corner, completely above card */}
-      <div className={`absolute -top-[97px] left-0 z-10 inline-flex items-center gap-3 font-medium rounded-3xl text-[32px] font-bold px-7 py-3.5 border-2 ${getLightBorderColor(data.type)} ${bgColor} ${textColor}`}>
-        {/* Icon to the left of label text */}
+      <div className={`absolute -top-[97px] left-0 z-10 inline-flex items-center gap-3 font-medium rounded-3xl text-[32px] font-bold px-7 py-3.5 border-2 ${entityBadgeClass}`}>
         {data.type === 'Data Source' && (
-          <IconDatabase 
-            className="w-14 h-14" 
-            style={{
-              color: getTypeColor(data.type)
-            }}
-          />
+          <IconDatabase className="w-14 h-14" style={{ color: iconColor }} />
         )}
         {data.type === 'Opportunity' && (
-          <IconRecharging 
-            className="w-14 h-14" 
-            style={{
-              color: getTypeColor(data.type)
-            }}
-          />
+          <IconRecharging className="w-14 h-14" style={{ color: iconColor }} />
         )}
         {data.type === 'Product' && (
-          <IconBox 
-            className="w-14 h-14" 
-            style={{
-              color: getTypeColor(data.type)
-            }}
-          />
+          <IconBox className="w-14 h-14" style={{ color: iconColor }} />
         )}
         {data.type === 'Data Asset' && (
-          <IconLayersSelected 
-            className="w-14 h-14" 
-            style={{
-              color: getTypeColor(data.type)
-            }}
-          />
+          <IconLayersSelected className="w-14 h-14" style={{ color: iconColor }} />
         )}
         {data.type}
       </div>
       
-      <div className="px-8 py-4 mt-4 flex flex-col gap-6 items-start">
-        <div className="w-full flex flex-row justify-between items-center gap-2">
-          {/* Icon removed - now in label above */}
-          <div className="flex-1"></div>
-        </div>
-        <div className={`text-md font-medium truncate text-left text-4xl capitalize w-full hover:text-slate-900 transition-colors duration-300`}>
+      <div className="px-6 py-8">
+        <div className="text-4xl font-medium truncate text-left capitalize w-full text-[var(--app-text)] hover:opacity-90 transition-opacity duration-300">
           {data.name}
         </div>
       </div>
-      <div className="w-full h-px bg-slate-200"></div>
+      <div className="w-full h-px bg-[var(--app-border-subtle)]"></div>
 
-      <div className="px-8 py-4 flex flex-row w-full items-center justify-between bg-slate-50">
+      <div className="px-6 py-3 flex flex-row w-full items-center justify-between bg-[var(--app-surface-muted)]">
         <div className="flex flex-row gap-2">
           <CodeBracketSquareIcon className="size-8 text-slate-500" strokeWidth={2} />
           <ArrowsRightLeftIcon className="size-8 text-slate-500" strokeWidth={2} />

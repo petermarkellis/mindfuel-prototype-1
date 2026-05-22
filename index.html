@@ -42,6 +42,19 @@
     <meta property="twitter:image:alt" content="Mindfuel.ai Interactive Node Graph Prototype" />
     
     <title>Mindfuel: Prototype</title>
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('mindfuel-theme');
+          var dark =
+            stored === 'dark' ||
+            (stored !== 'light' &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.classList.toggle('dark', dark);
+          document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

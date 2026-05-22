@@ -7,20 +7,21 @@ import ReactFlow, {
   MiniMap,
   Controls,
   useReactFlow,
-  addEdge
+  addEdge,
+  ReactFlowProvider,
 } from 'reactflow';
 import html2canvas from 'html2canvas';
-import { IconZoomIn, IconZoomOut, IconMaximize, IconArrowBackUp, IconLock, IconLockOpen, IconLayoutSidebarLeftExpand, IconLayoutSidebarRightExpand, IconRecharging, IconBox, IconLayersSelected, IconDatabase, IconCheck, IconSparkles } from '@tabler/icons-react';
+import { IconZoomIn, IconZoomOut, IconMaximize, IconArrowBackUp, IconLock, IconLockOpen, IconLayoutSidebarLeftExpand, IconLayoutSidebarRightExpand, IconRecharging, IconBox, IconLayersSelected, IconDatabase, IconCheck } from '@tabler/icons-react';
 
 import CustomNode from './CustomNode.jsx';
 import SideDrawer from '../BaseComponents/SideDrawer';
 import CustomEdge from './CustomEdge.jsx';
 import GraphControlPanel from '../GraphControlPanel/GraphControlPanel';
+import SidePanelPlaceholder from '../GraphControlPanel/SidePanelPlaceholder';
 import FixedFooter from '../BaseComponents/FixedFooter';
 import UndoNotification from '../BaseComponents/UndoNotification';
 import { ConfirmationModal } from '../BaseComponents';
-import { useNeonNodes } from '../../hooks/useNeonNodes';
-
+import { useResetPortfolioView } from '../../hooks/useResetPortfolioView';
 import 'reactflow/dist/style.css';
 import './NodeGraph.css';
 
@@ -32,11 +33,10 @@ export const Risk = {
 };
 
 // Note: Initial node and edge data has been moved to src/data/initialData.js
-// This component now uses live data from the database via the supabaseHook prop
+// This component uses live data from the database via the dataHook prop
 
 const styles = {
-  background: 'linear-gradient(180deg, #f7f7fa 0%, #e6eaf2 100%)',
-  //background: 'linear-gradient(180deg, #eeeeee 0%, #efefef 100%)',
+  background: 'linear-gradient(180deg, var(--app-canvas-gradient-start) 0%, var(--app-canvas-gradient-end) 100%)',
 };
 
 export const nodeTypes = {
@@ -47,43 +47,49 @@ export const edgeTypes = {
   custom: CustomEdge,
 };
 
-function CustomControls({ locked, onToggleLock, isPanelCollapsed, onTogglePanel, onAutoLayout }) {
-  const { zoomIn, zoomOut, fitView, setViewport } = useReactFlow();
+const frostedControlBg =
+  'bg-[var(--app-panel-bg)]/60 backdrop-blur-md border border-[var(--app-border)] shadow';
+
+function CustomControls({ locked, onToggleLock, isPanelCollapsed, onTogglePanel, onResetView, resetting }) {
+  const { zoomIn, zoomOut, fitView } = useReactFlow();
   return (
     <div className="flex flex-col gap-2">
       {/* Zoom and view controls */}
-      <div className="flex flex-col gap-1 p-1 py-2 bg-white/80 rounded-2xl shadow border border-slate-200">
-        <button onClick={zoomIn} title="Zoom In" className="p-2 hover:bg-slate-100 rounded">
-          <IconZoomIn className="w-5 h-5 text-slate-600" />
+      <div className={`flex flex-col gap-1 p-1 py-2 rounded-2xl ${frostedControlBg}`}>
+        <button onClick={zoomIn} title="Zoom In" className="p-2 hover:bg-[var(--app-surface-muted)] rounded">
+          <IconZoomIn className="w-5 h-5 text-[var(--app-text-muted)]" />
         </button>
-        <button onClick={zoomOut} title="Zoom Out" className="p-2 hover:bg-slate-100 rounded">
-          <IconZoomOut className="w-5 h-5 text-slate-600" />
+        <button onClick={zoomOut} title="Zoom Out" className="p-2 hover:bg-[var(--app-surface-muted)] rounded">
+          <IconZoomOut className="w-5 h-5 text-[var(--app-text-muted)]" />
         </button>
-        <button onClick={fitView} title="Fit View" className="p-2 hover:bg-slate-100 rounded">
-          <IconMaximize className="w-5 h-5 text-slate-600" />
+        <button onClick={fitView} title="Fit View" className="p-2 hover:bg-[var(--app-surface-muted)] rounded">
+          <IconMaximize className="w-5 h-5 text-[var(--app-text-muted)]" />
         </button>
-        <button onClick={() => setViewport({ x: 0, y: 0, zoom: 1 })} title="Reset" className="p-2 hover:bg-slate-100 rounded">
-          <IconArrowBackUp className="w-5 h-5 text-slate-600" />
+        <button
+          onClick={onResetView}
+          disabled={resetting}
+          title="Reset demo to original layout"
+          aria-label="Reset Demo"
+          className="p-2 hover:bg-[var(--app-surface-muted)] rounded disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <IconArrowBackUp className={`w-5 h-5 text-[var(--app-text-muted)] ${resetting ? 'animate-spin' : ''}`} />
         </button>
-        <button onClick={onAutoLayout} title="Auto-Layout" className="p-2 hover:bg-slate-100 rounded">
-          <IconSparkles className="w-5 h-5 text-indigo-600" />
-        </button>
-        <button onClick={onToggleLock} title={locked ? 'Unlock nodes' : 'Lock nodes'} className="p-2 hover:bg-slate-100 rounded">
-          {locked ? <IconLock className="w-5 h-5 text-slate-600" /> : <IconLockOpen className="w-5 h-5 text-slate-600" />}
+        <button onClick={onToggleLock} title={locked ? 'Unlock nodes' : 'Lock nodes'} className="p-2 hover:bg-[var(--app-surface-muted)] rounded">
+          {locked ? <IconLock className="w-5 h-5 text-[var(--app-text-muted)]" /> : <IconLockOpen className="w-5 h-5 text-[var(--app-text-muted)]" />}
         </button>
       </div>
 
       {/* Panel toggle button */}
-      <div className="bg-white/80 rounded-2xl shadow border border-slate-200 p-1 py-1">
+      <div className={`rounded-2xl p-1 py-1 ${frostedControlBg}`}>
         <button
-          className="p-2 transition hover:bg-slate-100 rounded"
+          className="p-2 transition hover:bg-[var(--app-surface-muted)] rounded"
           onClick={onTogglePanel}
           title={isPanelCollapsed ? 'Expand Graph Control Panel' : 'Collapse Graph Control Panel'}
         >
           {isPanelCollapsed ? (
-            <IconLayoutSidebarLeftExpand className="w-5 h-5 text-slate-600" />
+            <IconLayoutSidebarLeftExpand className="w-5 h-5 text-[var(--app-text-muted)]" />
           ) : (
-            <IconLayoutSidebarRightExpand className="w-5 h-5 text-slate-600" />
+            <IconLayoutSidebarRightExpand className="w-5 h-5 text-[var(--app-text-muted)]" />
           )}
         </button>
       </div>
@@ -96,21 +102,65 @@ export default function NodeGraph({
   nodeIdToCenter, 
   nodeIdToSelect, 
   panelWidth = 320, 
+  setPanelWidth,
   isCollapsed = false, 
+  setIsCollapsed,
+  setLastPanelWidth,
+  minWidth = 220,
+  maxWidth = 420,
   sidebarWidth = 64, 
   onTogglePanel, 
-  supabaseHook, 
+  dataHook, 
   onOpenNewItemModal,
   onNodeListSelect,
-  onFilterChange
+  onFilterChange,
+  activeNav = 'portfolio',
+  registerGraphResetComplete,
+  onResetView,
 }) {
+  const { openConfirm: openResetConfirm, resetting, confirmModal: resetConfirmModal } =
+    useResetPortfolioView(onResetView);
+  const canvasDotColor = 'var(--app-dot-color)';
+
   const [selectedNode, setSelectedNode] = useState(null);
   const [sideDrawerOpen, setSideDrawerOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState({ nodeId: null, pos: { x: 0, y: 0 } });
-  const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, node: null });
+  const [contextMenu, setContextMenu] = useState({
+    visible: false,
+    x: 0,
+    y: 0,
+    menuType: 'node',
+    node: null,
+    edge: null,
+  });
   const [submenuVisible, setSubmenuVisible] = useState(false);
   const submenuTimeout = useRef(null);
+  const contextMenuDismissTimeout = useRef(null);
   const contextMenuRef = useRef(null);
+
+  const CONTEXT_MENU_DISMISS_MS = 500;
+
+  const closeContextMenu = useCallback(() => {
+    setContextMenu((cm) => ({ ...cm, visible: false }));
+    setSubmenuVisible(false);
+  }, []);
+
+  const scheduleContextMenuDismiss = useCallback(() => {
+    if (contextMenuDismissTimeout.current) {
+      clearTimeout(contextMenuDismissTimeout.current);
+    }
+    contextMenuDismissTimeout.current = setTimeout(() => {
+      closeContextMenu();
+      contextMenuDismissTimeout.current = null;
+    }, CONTEXT_MENU_DISMISS_MS);
+  }, [closeContextMenu]);
+
+  const cancelContextMenuDismiss = useCallback(() => {
+    if (contextMenuDismissTimeout.current) {
+      clearTimeout(contextMenuDismissTimeout.current);
+      contextMenuDismissTimeout.current = null;
+    }
+  }, []);
   const [locked, setLocked] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState({
     isOpen: false,
@@ -161,15 +211,42 @@ export default function NodeGraph({
     deleteEdge,
     updateNode,
     updateNodePosition,
-    deleteNode
-  } = supabaseHook;
+    deleteNode,
+    setNodes,
+  } = dataHook;
 
-  // React Flow state - initialized from database ONCE
+  // React Flow state — useNodesState only reads the initial value, so sync when data loads
   const [localNodes, setLocalNodes, onNodesChange] = useNodesState(nodes || []);
   const [localEdges, setLocalEdges, onEdgesChange] = useEdgesState(edges || []);
-  
-  // Handle position changes with debounce
   const positionSaveTimeouts = useRef({});
+  const reactFlowRef = useRef(null);
+
+  // Keep React Flow in sync whenever the database graph changes (including reset)
+  useEffect(() => {
+    if (loading) {
+      Object.values(positionSaveTimeouts.current).forEach(clearTimeout);
+      positionSaveTimeouts.current = {};
+      return;
+    }
+    setLocalNodes(nodes);
+    setLocalEdges(edges);
+  }, [loading, nodes, edges, setLocalNodes, setLocalEdges]);
+
+  const handleGraphResetComplete = useCallback(() => {
+    Object.values(positionSaveTimeouts.current).forEach(clearTimeout);
+    positionSaveTimeouts.current = {};
+    setSelectedNode(null);
+    setSideDrawerOpen(false);
+    closeContextMenu();
+    requestAnimationFrame(() => {
+      reactFlowRef.current?.fitView({ padding: 0.25, duration: 400 });
+    });
+  }, [closeContextMenu]);
+
+  useEffect(() => {
+    registerGraphResetComplete?.(handleGraphResetComplete);
+    return () => registerGraphResetComplete?.(null);
+  }, [registerGraphResetComplete, handleGraphResetComplete]);
   
   const handleNodesChange = useCallback((changes) => {
     // Apply changes to local state (React Flow requirement)
@@ -245,106 +322,6 @@ export default function NodeGraph({
   }, [undoNotification.lastEdgeId, deleteEdge, setLocalEdges]);
 
   // Auto-layout: Organize nodes in pyramid hierarchy by type
-  const handleAutoLayout = useCallback(async () => {
-    // Define hierarchy order (top to bottom)
-    const typePriority = {
-      'Opportunity': 0,      // Top of pyramid
-      'Product': 1,          // Second level
-      'Data Asset': 2,       // Third level
-      'Data Source': 3       // Bottom of pyramid
-    };
-    
-    // Group nodes by type
-    const nodesByType = new Map();
-    localNodes.forEach(node => {
-      const type = node.data?.type || 'Data Source';
-      if (!nodesByType.has(type)) {
-        nodesByType.set(type, []);
-      }
-      nodesByType.get(type).push(node);
-    });
-    
-    // Calculate layout parameters with generous spacing
-    const canvasWidth = 2400;
-    const nodeWidth = 300;
-    const nodeHeight = 150;
-    const horizontalSpacing = 400;  // Maximum gap between nodes horizontally
-    const verticalSpacing = 300;   // Large gap between type levels
-    
-    // Calculate positions for each type level
-    const typePositions = new Map();
-    let currentY = 100; // Start from top with padding
-    
-    // Sort types by priority
-    const sortedTypes = Object.keys(typePriority).sort((a, b) => typePriority[a] - typePriority[b]);
-    
-    sortedTypes.forEach(type => {
-      const nodes = nodesByType.get(type) || [];
-      if (nodes.length === 0) return;
-      
-      // Calculate row width needed (node width + spacing for each node)
-      const totalNodeWidth = nodes.length * nodeWidth;
-      const totalSpacing = (nodes.length - 1) * horizontalSpacing;
-      const rowWidth = totalNodeWidth + totalSpacing;
-      const startX = (canvasWidth - rowWidth) / 2; // Center the row
-      
-      nodes.forEach((node, index) => {
-        const x = startX + index * (nodeWidth + horizontalSpacing);
-        typePositions.set(node.id, { x, y: currentY });
-      });
-      
-      currentY += nodeHeight + verticalSpacing;
-    });
-    
-    // Handle any nodes with unknown types
-    const remainingNodes = localNodes.filter(node => !typePositions.has(node.id));
-    if (remainingNodes.length > 0) {
-      remainingNodes.forEach((node, index) => {
-        const x = (canvasWidth - nodeWidth) / 2;
-        const y = currentY + index * (nodeHeight + verticalSpacing);
-        typePositions.set(node.id, { x, y });
-      });
-    }
-    
-    // Update node positions
-    const updatedNodes = localNodes.map(node => {
-      const pos = typePositions.get(node.id);
-      if (!pos) return node;
-      
-      return {
-        ...node,
-        position: pos,
-        data: {
-          ...node.data,
-          position_x: pos.x,
-          position_y: pos.y
-        }
-      };
-    });
-    
-    // Update local state immediately
-    setLocalNodes(updatedNodes);
-    
-    // Update parent state to keep GraphControlPanel in sync
-    if (setNodes) {
-      setNodes(updatedNodes);
-    }
-    
-    // Save to database (debounced)
-    setTimeout(async () => {
-      for (const node of updatedNodes) {
-        try {
-          await updateNode(node.id, {
-            position_x: node.position.x,
-            position_y: node.position.y
-          });
-        } catch (error) {
-          console.error('Failed to save node position:', error);
-        }
-      }
-    }, 100);
-  }, [localNodes, setLocalNodes, setNodes, updateNode]);
-
   // Handle removing a connection
   const handleRemoveConnection = useCallback(async (targetNodeId) => {
     if (!selectedNode) return;
@@ -358,12 +335,13 @@ export default function NodeGraph({
     if (edge) {
       try {
         await deleteEdge(edge.id);
-        // Local state will sync automatically via useEffect
+        setLocalEdges((eds) => eds.filter((e) => e.id !== edge.id));
       } catch (error) {
         console.error('Failed to remove connection:', error);
+        alert('Failed to remove connection. Please try again.');
       }
     }
-  }, [selectedNode, localEdges, deleteEdge]);
+  }, [selectedNode, localEdges, deleteEdge, setLocalEdges]);
 
   const handleNodeClick = useCallback((event, node) => {
     if (event.button === 0) {
@@ -374,48 +352,112 @@ export default function NodeGraph({
     }
   }, []);
 
-  const handleNodeContextMenu = useCallback((event, node) => {
-    event.preventDefault();
-    
-    // Get viewport dimensions
+  const getContextMenuPosition = useCallback((event, menuWidth, menuHeight) => {
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
-    
-    // Estimated menu dimensions (you can adjust these based on your actual menu size)
-    const menuWidth = 180;
-    const menuHeight = 250; // Approximate height with all menu items
-    
-    // Initial position from mouse click
+
     let x = event.clientX;
     let y = event.clientY;
-    
-    // Adjust horizontal position if menu would go off right edge
+
     if (x + menuWidth > viewportWidth) {
-      x = viewportWidth - menuWidth - 10; // 10px padding from edge
+      x = viewportWidth - menuWidth - 10;
     }
-    
-    // Adjust vertical position if menu would go off bottom edge
     if (y + menuHeight > viewportHeight) {
-      y = viewportHeight - menuHeight - 10; // 10px padding from edge
+      y = viewportHeight - menuHeight - 10;
     }
-    
-    // Ensure menu doesn't go off left edge
-    if (x < 10) {
-      x = 10; // 10px padding from left edge
-    }
-    
-    // Ensure menu doesn't go off top edge
-    if (y < 10) {
-      y = 10; // 10px padding from top edge
-    }
-    
+    if (x < 10) x = 10;
+    if (y < 10) y = 10;
+
+    return { x, y };
+  }, []);
+
+  const handleNodeContextMenu = useCallback((event, node) => {
+    event.preventDefault();
+    cancelContextMenuDismiss();
+    setSubmenuVisible(false);
+
+    const { x, y } = getContextMenuPosition(event, 180, 250);
+
     setContextMenu({
       visible: true,
       x,
       y,
+      menuType: 'node',
       node,
+      edge: null,
     });
-  }, []);
+  }, [getContextMenuPosition, cancelContextMenuDismiss]);
+
+  const handleEdgeContextMenu = useCallback((event, edge) => {
+    event.preventDefault();
+    cancelContextMenuDismiss();
+    setSubmenuVisible(false);
+
+    const { x, y } = getContextMenuPosition(event, 200, 56);
+
+    setContextMenu({
+      visible: true,
+      x,
+      y,
+      menuType: 'edge',
+      node: null,
+      edge,
+    });
+  }, [getContextMenuPosition, cancelContextMenuDismiss]);
+
+  const handleNodeMouseEnter = useCallback((_, node) => {
+    if (
+      contextMenu.visible &&
+      contextMenu.menuType === 'node' &&
+      contextMenu.node?.id === node.id
+    ) {
+      cancelContextMenuDismiss();
+    }
+  }, [contextMenu, cancelContextMenuDismiss]);
+
+  const handleNodeMouseLeave = useCallback((_, node) => {
+    if (
+      contextMenu.visible &&
+      contextMenu.menuType === 'node' &&
+      contextMenu.node?.id === node.id
+    ) {
+      scheduleContextMenuDismiss();
+    }
+  }, [contextMenu, scheduleContextMenuDismiss]);
+
+  const handleEdgeMouseEnter = useCallback((_, edge) => {
+    if (
+      contextMenu.visible &&
+      contextMenu.menuType === 'edge' &&
+      contextMenu.edge?.id === edge.id
+    ) {
+      cancelContextMenuDismiss();
+    }
+  }, [contextMenu, cancelContextMenuDismiss]);
+
+  const handleEdgeMouseLeave = useCallback((_, edge) => {
+    if (
+      contextMenu.visible &&
+      contextMenu.menuType === 'edge' &&
+      contextMenu.edge?.id === edge.id
+    ) {
+      scheduleContextMenuDismiss();
+    }
+  }, [contextMenu, scheduleContextMenuDismiss]);
+
+  const handleRemoveEdgeConnection = useCallback(async (edge) => {
+    if (!edge?.id) return;
+
+    closeContextMenu();
+
+    try {
+      await deleteEdge(edge.id);
+      setLocalEdges((eds) => eds.filter((e) => e.id !== edge.id));
+    } catch (error) {
+      console.error('Failed to remove connection:', error);
+      alert('Failed to remove connection. Please try again.');
+    }
+  }, [deleteEdge, setLocalEdges, closeContextMenu]);
 
   const handleCloseSideDrawer = useCallback(() => {
     setSideDrawerOpen(false);
@@ -425,42 +467,46 @@ export default function NodeGraph({
     );
   }, [setLocalNodes]);
 
+  // Clear dismiss timer when menu closes
+  useEffect(() => {
+    if (!contextMenu.visible) {
+      cancelContextMenuDismiss();
+    }
+  }, [contextMenu.visible, cancelContextMenuDismiss]);
+
   // Close context menu on click outside
   useEffect(() => {
     if (!contextMenu.visible) return;
     function handleClick(e) {
       if (contextMenuRef.current && !contextMenuRef.current.contains(e.target)) {
-        setContextMenu((cm) => ({ ...cm, visible: false }));
-        setSubmenuVisible(false);
+        closeContextMenu();
       }
     }
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
-  }, [contextMenu.visible]);
+  }, [contextMenu.visible, closeContextMenu]);
 
   // Close context menu on Escape key
   useEffect(() => {
     if (!contextMenu.visible) return;
     function handleKeyDown(e) {
       if (e.key === 'Escape') {
-        setContextMenu((cm) => ({ ...cm, visible: false }));
-        setSubmenuVisible(false);
+        closeContextMenu();
       }
     }
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [contextMenu.visible]);
+  }, [contextMenu.visible, closeContextMenu]);
 
   // Close context menu on window blur
   useEffect(() => {
     if (!contextMenu.visible) return;
     function handleBlur() {
-      setContextMenu((cm) => ({ ...cm, visible: false }));
-      setSubmenuVisible(false);
+      closeContextMenu();
     }
     window.addEventListener('blur', handleBlur);
     return () => window.removeEventListener('blur', handleBlur);
-  }, [contextMenu.visible]);
+  }, [contextMenu.visible, closeContextMenu]);
 
   // Filter nodes dynamically based on the filters prop
   const filteredNodes = localNodes.filter(node => !filters.includes(node.data.type));
@@ -599,7 +645,7 @@ export default function NodeGraph({
       await updateNode(nodeId, { data: { type: newType } });
       
       // Close context menu and submenu
-      setContextMenu({ visible: false, x: 0, y: 0, node: null });
+      setContextMenu({ visible: false, x: 0, y: 0, menuType: 'node', node: null, edge: null });
       setSubmenuVisible(false);
       if (submenuTimeout.current) {
         clearTimeout(submenuTimeout.current);
@@ -671,7 +717,7 @@ export default function NodeGraph({
     });
     
     // Close context menu immediately when showing modal
-    setContextMenu({ visible: false, x: 0, y: 0, node: null });
+    setContextMenu({ visible: false, x: 0, y: 0, menuType: 'node', node: null, edge: null });
     setSubmenuVisible(false);
   }, [localEdges, localNodes]);
 
@@ -751,17 +797,6 @@ export default function NodeGraph({
     }
   }, []);
 
-  // Delayed left position for controls
-  const [controlsLeft, setControlsLeft] = useState((isCollapsed ? 0 : panelWidth) + (sidebarWidth || 64) + 16 - 60);
-  useEffect(() => {
-    const delay = 300; // ms
-    const newLeft = (isCollapsed ? 0 : panelWidth) + (sidebarWidth || 64) + 16 - 60;
-    const timeout = setTimeout(() => {
-      setControlsLeft(newLeft);
-    }, delay);
-    return () => clearTimeout(timeout);
-  }, [panelWidth, isCollapsed, sidebarWidth]);
-
   // Lock/unlock handler
   const toggleLock = () => {
     setLocked(l => {
@@ -775,61 +810,82 @@ export default function NodeGraph({
     });
   };
 
-  // Show loading state
-  if (loading) {
+  // Show error state (initial load only — reset errors stay in the reset modal)
+  if (error && nodes.length === 0 && edges.length === 0) {
     return (
-      <div className="w-screen h-screen flex items-center justify-center bg-slate-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-600">Loading data from database...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show error state
-  if (error) {
-    return (
-      <div className="w-screen h-screen flex items-center justify-center bg-slate-50">
+      <div className="w-screen h-screen flex items-center justify-center bg-[var(--app-bg)]">
         <div className="text-center p-8 max-w-md">
           <div className="text-red-500 text-4xl mb-4">⚠️</div>
-          <h3 className="text-lg font-semibold text-slate-800 mb-2">Database Connection Error</h3>
-          <p className="text-slate-600 mb-4">{error}</p>
-          <p className="text-sm text-slate-500">
-            For local development, use <code className="bg-slate-100 px-2 py-1 rounded">vercel dev</code> or deploy to Vercel.
+          <h3 className="text-lg font-semibold text-[var(--app-text)] mb-2">Database Connection Error</h3>
+          <p className="text-[var(--app-text-muted)] mb-4">{error}</p>
+          <p className="text-sm text-[var(--app-text-muted)] mb-4">
+            For local development, run <code className="bg-[var(--app-surface-muted)] px-2 py-1 rounded text-[var(--app-text)]">npm run dev:full</code> or deploy to Vercel.
           </p>
+          <button
+            type="button"
+            onClick={() => loadData()}
+            className="px-4 py-2 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700"
+          >
+            Try again
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div>
-      {/* Graph Control Panel - now inside NodeGraph with direct access to localNodes */}
-      <div className='fixed left-16 top-0 h-screen z-40' style={{ width: panelWidth }}>
-        <GraphControlPanel
-          onFilterChange={handleLocalFilterChange}
-          nodes={localNodes}
-          onNodeListSelect={handleLocalNodeListSelect}
-          panelWidth={panelWidth}
-          setPanelWidth={setPanelWidth}
-          setIsCollapsed={setIsCollapsed}
-          setLastPanelWidth={setLastPanelWidth}
-          minWidth={minWidth}
-          maxWidth={maxWidth}
-          isCollapsed={isCollapsed}
-        />
-      </div>
-    
-      <div className="bg-white border-b border-slate-300 px-4 py-2 flex items-center gap-4 flex-shrink-0 ml-16">
-          <h3 className="text-md font-semibold text-slate-800 select-none">Portfolio Overview</h3>
-      </div>
+    <div className="h-full w-full relative">
+      <div className="node_graph h-full w-full relative">
+        <ReactFlowProvider>
+          {/* Side panel + controls slide together as one unit */}
+          <div
+            className="fixed left-16 top-10 z-40 flex flex-row h-[calc(100vh-2.5rem)] pointer-events-none"
+            style={{
+              transform: isCollapsed ? `translateX(-${panelWidth}px)` : 'translateX(0)',
+              transition: 'transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1)',
+            }}
+          >
+            <div
+              className="h-full flex-shrink-0 overflow-hidden pointer-events-auto"
+              style={{
+                width: panelWidth,
+                pointerEvents: isCollapsed ? 'none' : 'auto',
+              }}
+            >
+              {activeNav === 'portfolio' ? (
+                <GraphControlPanel
+                  onFilterChange={handleLocalFilterChange}
+                  nodes={localNodes}
+                  onNodeListSelect={handleLocalNodeListSelect}
+                />
+              ) : (
+                <SidePanelPlaceholder activeNav={activeNav} />
+              )}
+            </div>
+            <div className="flex flex-col gap-2 flex-shrink-0 pl-1 pt-3 pointer-events-auto">
+              <CustomControls
+                locked={locked}
+                onToggleLock={toggleLock}
+                isPanelCollapsed={isCollapsed}
+                onTogglePanel={onTogglePanel}
+                onResetView={openResetConfirm}
+                resetting={resetting}
+              />
+            </div>
+          </div>
 
-      <div className="node_graph w-screen h-screen relative">
-        {/* React Flow Canvas */}
-        <ReactFlow 
+          {/* React Flow Canvas */}
+          <ReactFlow
+          onInit={(instance) => {
+            reactFlowRef.current = instance;
+          }}
           onNodeClick={handleNodeClick}
           onNodeContextMenu={handleNodeContextMenu}
+          onNodeMouseEnter={handleNodeMouseEnter}
+          onNodeMouseLeave={handleNodeMouseLeave}
+          onEdgeContextMenu={handleEdgeContextMenu}
+          onEdgeMouseEnter={handleEdgeMouseEnter}
+          onEdgeMouseLeave={handleEdgeMouseLeave}
           style={styles} 
           nodes={filteredNodes}
           edges={localEdges}
@@ -850,122 +906,124 @@ export default function NodeGraph({
             // Just close the drawer when clicking canvas
             // Don't modify selectedNode or node state - prevents data loss
             setSideDrawerOpen(false);
+            closeContextMenu();
           }}
-          onMove={() => setContextMenu((cm) => ({ ...cm, visible: false }))}
-          onNodeDragStart={() => setContextMenu((cm) => ({ ...cm, visible: false }))}
+          onMove={closeContextMenu}
+          onNodeDragStart={closeContextMenu}
         >
           <FlowNavigator nodeIdToCenter={nodeIdToCenter} />
-          <Background color="#000000" variant={BackgroundVariant.Dots} />
-          {/* Controls that follow the GraphControlPanel, but inside ReactFlow for context */}
-          <div
-                          style={{
-                position: 'absolute',
-                top: 10,
-                left: controlsLeft,
-                zIndex: 50,
-                transition: 'left 0.4s cubic-bezier(0.645, 0.045, 0.355, 1)',
-              }}
-          >
-            <CustomControls
-              locked={locked}
-              onToggleLock={toggleLock}
-              isPanelCollapsed={isCollapsed}
-              onTogglePanel={onTogglePanel}
-              onAutoLayout={handleAutoLayout}
-            />
-          </div>
+          <Background
+            color={canvasDotColor}
+            variant={BackgroundVariant.Dots}
+            size={4}
+            gap={50}
+          />
         </ReactFlow>
+        </ReactFlowProvider>
         {/* Context Menu */}
         {contextMenu.visible && (
           <div
             ref={contextMenuRef}
-            className="fixed bg-white border border-slate-300 rounded-lg shadow-lg py-2 px-2 text-left min-w-[180px] w-auto z-[9999]"
+            className="fixed bg-[var(--app-surface)] border border-[var(--app-border)] rounded-lg shadow-lg py-2 px-2 text-left min-w-[180px] w-auto z-[9999] text-[var(--app-text)]"
             style={{ left: contextMenu.x, top: contextMenu.y }}
+            onMouseEnter={cancelContextMenuDismiss}
+            onMouseLeave={scheduleContextMenuDismiss}
           >
-            
-            <div 
-              className="py-2 px-3 hover:bg-slate-100 hover:rounded-md cursor-pointer text-md" 
-              onClick={() => {
-                setContextMenu((cm) => ({ ...cm, visible: false }));
-                setSubmenuVisible(false);
-              }}
-            >
-              Edit
-            </div>
-            
-            <div 
-              className="py-2 px-3 hover:bg-slate-100 hover:rounded-md cursor-pointer text-md" 
-              onClick={() => {
-                setContextMenu((cm) => ({ ...cm, visible: false }));
-                setSubmenuVisible(false);
-                onOpenNewItemModal && onOpenNewItemModal(contextMenu.node?.id);
-              }}
-            >
-              New Connection
-            </div>
-            
-            <div 
-              className="py-2 px-3 hover:bg-slate-100 hover:rounded-md cursor-pointer text-md" 
-              onClick={() => {
-                setContextMenu((cm) => ({ ...cm, visible: false }));
-                setSubmenuVisible(false);
-              }}
-            >
-              Share
-            </div>
-            
-            <div 
-              className="py-2 px-3 hover:bg-slate-100 hover:rounded-md cursor-pointer text-md relative flex items-center justify-between" 
-              onMouseEnter={showSubmenu}
-              onMouseLeave={hideSubmenu}
-            >
-              Change Type
-              <span className="text-slate-400 ml-2">→</span>
-              
-              {/* Type Submenu */}
-              {submenuVisible && (
-                <div 
-                  className="absolute left-full top-0 -ml-1 bg-white border border-slate-300 rounded-lg shadow-lg py-2 px-2 min-w-[200px] z-[10000]"
-                  onMouseEnter={cancelHideSubmenu}
+            {contextMenu.menuType === 'edge' ? (
+              <div
+                className="py-2 px-3 text-red-500 hover:bg-red-500/10 hover:rounded-md cursor-pointer text-md whitespace-nowrap"
+                onClick={() => handleRemoveEdgeConnection(contextMenu.edge)}
+              >
+                Remove connection
+              </div>
+            ) : (
+              <>
+                <div
+                  className="py-2 px-3 hover:bg-[var(--app-surface-muted)] hover:rounded-md cursor-pointer text-md"
+                  onClick={closeContextMenu}
+                >
+                  Edit
+                </div>
+
+                <div
+                  className="py-2 px-3 hover:bg-[var(--app-surface-muted)] hover:rounded-md cursor-pointer text-md"
+                  onClick={() => {
+                    closeContextMenu();
+                    onOpenNewItemModal && onOpenNewItemModal(contextMenu.node?.id);
+                  }}
+                >
+                  New Connection
+                </div>
+
+                <div
+                  className="py-2 px-3 hover:bg-[var(--app-surface-muted)] hover:rounded-md cursor-pointer text-md"
+                  onClick={closeContextMenu}
+                >
+                  Share
+                </div>
+
+                <div
+                  className="py-2 px-3 hover:bg-[var(--app-surface-muted)] hover:rounded-md cursor-pointer text-md relative flex items-center justify-between"
+                  onMouseEnter={() => {
+                    cancelContextMenuDismiss();
+                    showSubmenu();
+                  }}
                   onMouseLeave={hideSubmenu}
                 >
-                  {availableNodeTypes.map((type) => (
+                  Change Type
+                  <span className="text-[var(--app-text-muted)] ml-2">→</span>
+
+                  {submenuVisible && (
                     <div
-                      key={type}
-                      className={`py-2 px-3 hover:bg-slate-100 hover:rounded-md cursor-pointer text-sm flex items-center ${
-                        contextMenu.node?.data?.type === type ? 'bg-blue-50 text-blue-700' : ''
-                      }`}
-                      onClick={() => handleNodeTypeChange(contextMenu.node?.id, type)}
+                      className="absolute left-full top-0 -ml-1 bg-[var(--app-surface)] border border-[var(--app-border)] rounded-lg shadow-lg py-2 px-2 min-w-[200px] z-[10000] text-[var(--app-text)]"
+                      onMouseEnter={() => {
+                        cancelContextMenuDismiss();
+                        cancelHideSubmenu();
+                      }}
+                      onMouseLeave={hideSubmenu}
                     >
-                      {/* Icon for each type */}
-                      <span className="mr-2 flex-shrink-0">
-                        {type === 'Opportunity' && <IconRecharging className="w-4 h-4 text-orange-500" />}
-                        {type === 'Product' && <IconBox className="w-4 h-4 text-purple-500" />}
-                        {type === 'Data Asset' && <IconLayersSelected className="w-4 h-4 text-blue-500" />}
-                        {type === 'Data Source' && <IconDatabase className="w-4 h-4 text-green-500" />}
-                      </span>
-                      
-                   
-                      
-                      {/* Type name */}
-                      <span className="flex-1">{type}</span>
-                      
-                      {/* Check mark for current selection */}
-                      {contextMenu.node?.data?.type === type && (
-                        <IconCheck className="ml-auto text-blue-600 flex-shrink-0 w-4 h-4" />
-                      )}
+                      {availableNodeTypes.map((type) => {
+                        const isActive = contextMenu.node?.data?.type === type
+                        const activeTypeClass = {
+                          Opportunity: 'bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300',
+                          Product: 'bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300',
+                          'Data Asset': 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300',
+                          'Data Source': 'bg-green-50 text-green-700 dark:bg-green-950/60 dark:text-green-300',
+                        }[type]
+
+                        return (
+                        <div
+                          key={type}
+                          className={`py-2 px-3 hover:bg-[var(--app-surface-muted)] hover:rounded-md cursor-pointer text-sm flex items-center text-[var(--app-text)] ${
+                            isActive ? activeTypeClass ?? 'bg-[var(--app-surface-muted)]' : ''
+                          }`}
+                          onClick={() => handleNodeTypeChange(contextMenu.node?.id, type)}
+                        >
+                          <span className="mr-2 flex-shrink-0">
+                            {type === 'Opportunity' && <IconRecharging className="w-4 h-4 text-orange-400" />}
+                            {type === 'Product' && <IconBox className="w-4 h-4 text-purple-400" />}
+                            {type === 'Data Asset' && <IconLayersSelected className="w-4 h-4 text-blue-400" />}
+                            {type === 'Data Source' && <IconDatabase className="w-4 h-4 text-green-400" />}
+                          </span>
+                          <span className="flex-1">{type}</span>
+                          {isActive && (
+                            <IconCheck className="ml-auto text-blue-600 dark:text-emerald-400 flex-shrink-0 w-4 h-4" />
+                          )}
+                        </div>
+                        )
+                      })}
                     </div>
-                  ))}
+                  )}
                 </div>
-              )}
-            </div>
-            
-            <div 
-              className="py-2 px-3 text-red-500 hover:bg-red-50 hover:rounded-md cursor-pointer text-md" 
-              onClick={() => handleDeleteNode(contextMenu.node)}
-            >
-              Delete
-            </div>
+
+                <div
+                  className="py-2 px-3 text-red-500 hover:bg-red-500/10 hover:rounded-md cursor-pointer text-md"
+                  onClick={() => handleDeleteNode(contextMenu.node)}
+                >
+                  Delete
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>
@@ -1004,6 +1062,7 @@ export default function NodeGraph({
         />
       )}
 
+      {resetConfirmModal}
     </div>
   );
 }

@@ -1,58 +1,26 @@
 import React from 'react'
-import styled from 'styled-components'
 
-const CheckboxContainer = styled.div`
-  display: inline-block;
-  vertical-align: middle;
-`
-
-const Icon = styled.svg`
-  fill: none;
-  stroke: white;
-  stroke-width: 3px;
-`
-// Hide checkbox visually but remain accessible to screen readers.
-// Source: https://polished.js.org/docs/#hidevisually
-const HiddenCheckbox = styled.input.attrs({ type: 'checkbox' })`
-  border: 0;
-  clip: rect(0 0 0 0);
-  clippath: inset(50%);
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  padding: 0;
-  position: absolute;
-  white-space: nowrap;
-  width: 1px;
-`
-
-const StyledCheckbox = styled.div`
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  background: #355555;
-  border-radius: 3px;
-  transition: all 150ms;
-
-  ${HiddenCheckbox}:focus + & {
-    box-shadow: 0 0 0 3px lightblue;
-    
-  }
-
-  ${Icon} {
-    visibility: ${props => (props.checked ? 'visible' : 'hidden')}
-  }
-`
-
-const Checkbox = ({ className, checked, ...props }) => (
-  <CheckboxContainer className={className}>
-    <HiddenCheckbox checked={checked} {...props} />
-    <StyledCheckbox checked={checked}>
-      <Icon viewBox="0 0 24 24">
+const Checkbox = ({ className = '', checked, onChange, ...props }) => (
+  <label className={`inline-flex items-center cursor-pointer ${className}`}>
+    <input
+      type="checkbox"
+      checked={checked}
+      onChange={onChange}
+      className="sr-only peer"
+      {...props}
+    />
+    <span
+      className="inline-flex h-4 w-4 items-center justify-center rounded bg-[#355555] transition-all peer-focus-visible:ring-2 peer-focus-visible:ring-blue-300"
+      aria-hidden="true"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        className={`h-3 w-3 stroke-white stroke-[3] fill-none ${checked ? 'visible' : 'invisible'}`}
+      >
         <polyline points="20 6 9 17 4 12" />
-      </Icon>
-    </StyledCheckbox>
-  </CheckboxContainer>
+      </svg>
+    </span>
+  </label>
 )
 
 export default Checkbox

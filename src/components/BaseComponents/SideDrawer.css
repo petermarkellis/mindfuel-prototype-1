@@ -3,6 +3,13 @@
   right: -400px; /* Initial hidden position for animation */
 }
 
+.metric-value {
+  font-family: 'PP Supply Mono', ui-monospace, monospace;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
 
 /* Staggered content blocks animation */
 .content-block {

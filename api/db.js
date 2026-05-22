@@ -1,5 +1,6 @@
 import { Pool } from '@neondatabase/serverless';
 import ws from 'ws';
+import { resetGraphToBaseline } from './graphReset.js';
 
 // Configure WebSocket for local development
 if (typeof global.WebSocket === 'undefined') {
@@ -154,6 +155,13 @@ export default async function handler(req, res) {
       const { id } = req.body;
       await client.query('DELETE FROM edges WHERE id = $1', [id]);
       return res.status(200).json({ success: true });
+    }
+
+    if (action === 'resetGraph' && method === 'POST') {
+      console.log('Resetting graph to baseline...');
+      const result = await resetGraphToBaseline(client);
+      console.log('Graph reset complete:', result);
+      return res.status(200).json(result);
     }
 
     return res.status(400).json({ error: 'Invalid action or method' });

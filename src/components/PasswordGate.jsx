@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 
 const PasswordGate = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    try {
+      return sessionStorage.getItem('mindfuel_auth') === 'authenticated';
+    } catch {
+      return false;
+    }
+  });
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -59,8 +65,8 @@ const PasswordGate = ({ children }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+    <div className="min-h-screen bg-[var(--app-bg)] flex items-center justify-center p-4">
+      <div className="bg-[var(--app-surface)] border border-[var(--app-border)] rounded-2xl shadow-2xl p-8 w-full max-w-md">
         {/* Logo/Branding */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
@@ -70,10 +76,10 @@ const PasswordGate = ({ children }) => {
               className="w-full h-full object-contain"
             />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl font-bold text-[var(--app-text)] mb-2">
             Mindfuel Prototype
           </h1>
-          <p className="text-gray-600 text-sm">
+          <p className="text-[var(--app-text-muted)] text-sm">
             Enter password to access the demo
           </p>
         </div>

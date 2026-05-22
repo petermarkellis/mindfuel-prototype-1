@@ -14,7 +14,7 @@ This guide helps you set up and configure the Neon serverless PostgreSQL databas
 ### 2. Run Database Schema
 
 1. In your Neon dashboard, click **SQL Editor**
-2. Copy the contents of `supabase/migrations/001_initial_schema.sql`
+2. Copy the contents of `db/migrations/001_initial_schema.sql`
 3. Paste and run the SQL to create tables and sample data
 
 ### 3. Configure Environment Variables
@@ -156,16 +156,6 @@ npm run dev
 ```
 
 Then open your browser's network tab and verify API calls are succeeding.
-
-## Migration from Supabase
-
-If you're migrating from Supabase:
-
-1. The schema is compatible - both use PostgreSQL
-2. Run the same SQL migrations in Neon SQL Editor
-3. Update environment variables from `VITE_SUPABASE_*` to `DATABASE_URL`
-4. The frontend now uses API endpoints instead of direct Supabase client
-5. Remove `@supabase/supabase-js` from dependencies
 
 ## Avatars
 

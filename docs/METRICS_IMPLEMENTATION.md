@@ -72,9 +72,9 @@ const getRiskForNodeType = async (nodeType) => {
 
 1. **Node Creation** (`Layout.jsx`):
    - Generates random metrics using `generateRandomMetrics()`
-   - Passes values to `useSupabaseNodes.createNode()`
+   - Passes values to `useNeonNodes.createNode()`
 
-2. **Database Storage** (`useSupabaseNodes.js`):
+2. **Database Storage** (`useNeonNodes.js`):
    - Transforms `totalContribution` → `total_contribution`
    - Stores all metrics in database
 
@@ -123,9 +123,9 @@ Implements type-based risk management:
 ## Files Modified
 
 - `src/components/Layout/Layout.jsx` - Random metric generation and type-based risk assignment
-- `src/lib/supabase.js` - Added typeRiskService for database queries
-- `supabase/migrations/004_update_null_metrics.sql` - Database cleanup for metrics
-- `supabase/migrations/005_add_type_risks.sql` - Type-based risk management system
+- `src/lib/neon.js` - API client for database queries
+- `db/migrations/004_update_null_metrics.sql` - Database cleanup for metrics
+- `db/migrations/005_add_type_risks.sql` - Type-based risk management system
 - `docs/METRICS_IMPLEMENTATION.md` - This documentation
 
 ## Testing

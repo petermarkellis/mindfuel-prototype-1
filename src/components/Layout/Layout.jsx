@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import SideBar from '../SideBar/SideBar'
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import GraphControlPanel from '../GraphControlPanel/GraphControlPanel'
 import PanelToggleBox from '../GraphControlPanel/PanelToggleBox'
 import NodeGraph from '../NodeGraph/NodeGraph'
@@ -7,14 +6,22 @@ import { NewItemModal } from '../NewItemModal'
 import './Layout.css'
 import FixedFooter from '../BaseComponents/FixedFooter';
 import { useNeonNodes } from '../../hooks/useNeonNodes';
+import PageLoader from '../PageLoader/PageLoader';
 
 
-export default function Layout({ children, onNavigateToInbox, onNavigateToMain }) {
+export default function Layout({
+  children,
+  onNavigateToInbox,
+  onNavigateToMain,
+  activeNav = 'portfolio',
+  registerOpenNewItemModal,
+  registerResetGraph,
+}) {
   const [filters, setFilters] = useState([]);
   
   // Get nodes from database - this will be shared with NodeGraph
-  const supabaseHook = useNeonNodes();
-  const { nodes, edges, setNodes, setEdges } = supabaseHook;
+  const dataHook = useNeonNodes();
+  const { nodes, edges, setNodes, setEdges, loading, resetToBaseline } = dataHook;
   const [nodeIdToCenter, setNodeIdToCenter] = useState(null);
   const [nodeIdToSelect, setNodeIdToSelect] = useState(null);
   const [panelWidth, setPanelWidth] = useState(340); // default width
@@ -22,9 +29,6 @@ export default function Layout({ children, onNavigateToInbox, onNavigateToMain }
   const [lastPanelWidth, setLastPanelWidth] = useState(340);
   const [isNewItemModalOpen, setIsNewItemModalOpen] = useState(false);
   const [preSelectedConnectionId, setPreSelectedConnectionId] = useState(null);
-
-
-
   const minWidth = 220;
   const maxWidth = 420;
 
@@ -52,14 +56,41 @@ export default function Layout({ children, onNavigateToInbox, onNavigateToMain }
   };
 
   const handleTogglePanel = () => {
-    setIsCollapsed(!isCollapsed);
+    if (!isCollapsed) {
+      setLastPanelWidth(panelWidth);
+      setIsCollapsed(true);
+    } else {
+      setPanelWidth(lastPanelWidth > minWidth ? lastPanelWidth : 340);
+      setIsCollapsed(false);
+    }
   };
 
   // Handler for opening the new item modal
-  const handleOpenNewItemModal = (connectionNodeId = null) => {
+  const handleOpenNewItemModal = useCallback((connectionNodeId = null) => {
     setPreSelectedConnectionId(connectionNodeId);
     setIsNewItemModalOpen(true);
-  };
+  }, []);
+
+  useEffect(() => {
+    registerOpenNewItemModal?.(handleOpenNewItemModal);
+    return () => registerOpenNewItemModal?.(null);
+  }, [registerOpenNewItemModal, handleOpenNewItemModal]);
+
+  const graphResetCompleteRef = useRef(null);
+
+  const handleResetGraph = useCallback(async () => {
+    await resetToBaseline();
+    graphResetCompleteRef.current?.();
+  }, [resetToBaseline]);
+
+  useEffect(() => {
+    registerResetGraph?.(handleResetGraph);
+    return () => registerResetGraph?.(null);
+  }, [registerResetGraph, handleResetGraph]);
+
+  const bindGraphResetComplete = useCallback((fn) => {
+    graphResetCompleteRef.current = fn;
+  }, []);
 
   // Handler for closing the new item modal
   const handleCloseNewItemModal = () => {
@@ -220,7 +251,7 @@ export default function Layout({ children, onNavigateToInbox, onNavigateToMain }
       };
       
       // Create the node first
-      const createdNode = await supabaseHook.createNode(newNodeData);
+      const createdNode = await dataHook.createNode(newNodeData);
       
       // If a connection is specified, create an edge
       if (formData.connectionNodeId && createdNode) {
@@ -230,7 +261,7 @@ export default function Layout({ children, onNavigateToInbox, onNavigateToMain }
           target: createdNode.id,
           type: 'custom'
         };
-        await supabaseHook.createEdge(edgeData);
+        await dataHook.createEdge(edgeData);
       }
       
     } catch (error) {
@@ -240,33 +271,31 @@ export default function Layout({ children, onNavigateToInbox, onNavigateToMain }
   };
 
   return (
+    <PageLoader isLoading={loading}>
     <div className="layout flex flex-row shrink relative">
-      <SideBar 
-        onOpenNewItemModal={handleOpenNewItemModal}
-        onNavigateToInbox={onNavigateToInbox}
-        onNavigateToMain={onNavigateToMain}
-        isMainView={true}
-        currentView="main"
-      />
-      <div className='flex flex-row relative ml-16 w-full'>
-        <div className="absolute z-0">
-          <NodeGraph
-            filters={filters}
-            nodeIdToCenter={nodeIdToCenter}
-            nodeIdToSelect={nodeIdToSelect}
-            panelWidth={panelWidth}
-            isCollapsed={isCollapsed}
-            onTogglePanel={handleTogglePanel}
-            supabaseHook={supabaseHook}
-            onOpenNewItemModal={handleOpenNewItemModal}
-            onNodeListSelect={handleNodeListSelect}
-            onFilterChange={handleFilterChange}
-          />
-        </div>
-        <div className='z-40'>
-          {children}
-        </div>
+      <div className="fixed top-10 left-16 right-0 bottom-0 z-0 overflow-hidden">
+        <NodeGraph
+          filters={filters}
+          nodeIdToCenter={nodeIdToCenter}
+          nodeIdToSelect={nodeIdToSelect}
+          panelWidth={panelWidth}
+          setPanelWidth={setPanelWidth}
+          isCollapsed={isCollapsed}
+          setIsCollapsed={setIsCollapsed}
+          setLastPanelWidth={setLastPanelWidth}
+          minWidth={minWidth}
+          maxWidth={maxWidth}
+          onTogglePanel={handleTogglePanel}
+          dataHook={dataHook}
+          onOpenNewItemModal={handleOpenNewItemModal}
+          onNodeListSelect={handleNodeListSelect}
+          onFilterChange={handleFilterChange}
+          activeNav={activeNav}
+          registerGraphResetComplete={bindGraphResetComplete}
+          onResetView={handleResetGraph}
+        />
       </div>
+      {children && <div className="relative z-40">{children}</div>}
 
       {/* New Item Modal */}
       <NewItemModal
@@ -277,5 +306,6 @@ export default function Layout({ children, onNavigateToInbox, onNavigateToMain }
         preSelectedConnectionId={preSelectedConnectionId}
       />
     </div>
+    </PageLoader>
   );
 }

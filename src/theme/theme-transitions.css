@@ -1,0 +1,135 @@
+/* Animate theme token changes on the root element */
+@property --app-bg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f7f7fa;
+}
+
+@property --app-chrome-bg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e8ecf3;
+}
+
+@property --app-header-bg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e8ecf3;
+}
+
+@property --app-surface {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffffff;
+}
+
+@property --app-surface-muted {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f1f5f9;
+}
+
+@property --app-panel-bg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f7f7fa;
+}
+
+@property --app-border {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #cbd5e1;
+}
+
+@property --app-border-subtle {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e2e8f0;
+}
+
+@property --app-text {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #1e293b;
+}
+
+@property --app-text-muted {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #64748b;
+}
+
+@property --app-canvas-gradient-start {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f7f7fa;
+}
+
+@property --app-canvas-gradient-end {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e6eaf2;
+}
+
+@property --app-dot-color {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #000000;
+}
+
+@property --color-node-bg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffffff;
+}
+
+@property --color-node-border {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e5e7eb;
+}
+
+@property --color-node-selected-border {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #8b92ae;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    transition:
+      --app-bg 0.4s ease,
+      --app-chrome-bg 0.4s ease,
+      --app-header-bg 0.4s ease,
+      --app-surface 0.4s ease,
+      --app-surface-muted 0.4s ease,
+      --app-panel-bg 0.4s ease,
+      --app-border 0.4s ease,
+      --app-border-subtle 0.4s ease,
+      --app-text 0.4s ease,
+      --app-text-muted 0.4s ease,
+      --app-canvas-gradient-start 0.4s ease,
+      --app-canvas-gradient-end 0.4s ease,
+      --app-dot-color 0.4s ease,
+      --color-node-bg 0.4s ease,
+      --color-node-border 0.4s ease,
+      --color-node-selected-border 0.4s ease,
+      background-color 0.4s ease,
+      color 0.4s ease;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.4s;
+    animation-timing-function: ease;
+  }
+
+  html.theme-transition,
+  html.theme-transition *,
+  html.theme-transition *::before,
+  html.theme-transition *::after {
+    transition-property: background-color, color, border-color, fill, stroke, box-shadow, outline-color;
+    transition-duration: 0.4s !important;
+    transition-timing-function: ease !important;
+  }
+}

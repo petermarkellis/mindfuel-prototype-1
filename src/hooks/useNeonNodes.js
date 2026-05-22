@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
-import { nodeService, edgeService } from '../lib/neon.js'
+import { nodeService, edgeService, graphService } from '../lib/neon.js'
 import { transformNodeFromDatabase, transformEdgeFromDatabase } from '../utils/dataMigration.js'
 
 /**
- * Custom hook for managing nodes and edges with Neon database (renamed from useSupabaseNodes)
+ * Custom hook for managing nodes and edges with the Neon database
  */
 export function useNeonNodes() {
   const [nodes, setNodes] = useState([])
@@ -184,12 +184,27 @@ export function useNeonNodes() {
     }
   }, [updateNode])
 
+  const resetToBaseline = useCallback(async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      await graphService.resetToBaseline()
+      await loadData()
+    } catch (err) {
+      console.error('Error resetting graph:', err)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }, [loadData])
+
   return {
     nodes,
     edges,
     loading,
     error,
     loadData,
+    resetToBaseline,
     createNode,
     updateNode,
     deleteNode,

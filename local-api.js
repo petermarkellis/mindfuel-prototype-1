@@ -7,6 +7,7 @@ import cors from 'cors';
 import { Pool } from '@neondatabase/serverless';
 import ws from 'ws';
 import dotenv from 'dotenv';
+import { resetGraphToBaseline } from './api/graphReset.js';
 
 // Setup WebSocket for Neon
 global.WebSocket = ws;
@@ -119,6 +120,16 @@ app.post('/api/db', async (req, res) => {
       await pool.query('DELETE FROM edges WHERE id = $1', [body.id]);
       return res.json({ success: true });
     }
+
+    if (action === 'resetGraph') {
+      const client = await pool.connect();
+      try {
+        const result = await resetGraphToBaseline(client);
+        return res.json(result);
+      } finally {
+        client.release();
+      }
+    }
     
     res.status(400).json({ error: 'Invalid action' });
   } catch (error) {
@@ -132,5 +143,6 @@ app.listen(PORT, () => {
   console.log(`📊 Endpoint: http://localhost:${PORT}/api/db`);
   console.log(`🔗 Connected to: ${process.env.DATABASE_URL?.split('@')[1] || 'Neon DB'}`);
   console.log(`\n📝 Test: curl http://localhost:${PORT}/api/db?action=getRisks`);
-  console.log(`\n✅ Now run: npm run dev (in another terminal)\n`);
+  console.log('   POST actions: createNode, updateNode, deleteNode, createEdge, deleteEdge, resetGraph');
+  console.log('\n✅ Now run: npm run dev (Vite proxies /api → this server)\n');
 });

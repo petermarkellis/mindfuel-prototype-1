@@ -1,52 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import './SideDrawer.css';
-import { IconCheck, IconX, IconArrowsDownUp, IconCircleMinus, IconBox, IconRecharging, IconLayersSelected, IconDatabase } from '@tabler/icons-react';
+import { IconCheck, IconX, IconArrowsDownUp, IconCircleMinus } from '@tabler/icons-react';
 import Chip from './Chip';
 import RiskChip from './RiskChip';
 import { getGenderAvatar } from '../../utils/avatarUtils';
+import { useTheme } from '../../theme/ThemeContext';
 
-// Get icon component based on node type
-const getIconForType = (type) => {
-  switch (type) {
-    case 'Opportunity':
-      return IconRecharging;
-    case 'Product':
-    case 'Data Product':
-      return IconBox;
-    case 'Data Asset':
-    case 'Asset':
-      return IconLayersSelected;
-    case 'Data Source':
-    case 'Source':
-      return IconDatabase;
-    default:
-      return IconBox;
-  }
-};
-
-// Get color for icon based on node type
-const getIconColorForType = (type) => {
-  switch (type) {
-    case 'Opportunity':
-      return '#f59e42';
-    case 'Product':
-    case 'Data Product':
-      return '#7c3aed';
-    case 'Data Asset':
-    case 'Asset':
-      return '#2563eb';
-    case 'Data Source':
-    case 'Source':
-      return '#059669';
-    default:
-      return '#64748b';
-  }
+const BAR_CHART_PATTERN = {
+  light: "url('/barchart_bg.svg')",
+  dark: "url('/barchart_bg_dark.svg')",
 };
 
 const CloseButton = ({ onClick }) => (
   <button 
-    className="absolute top-1 right-5 bg-white/80 rounded-full border-none cursor-pointer p-1 rounded-full w-12 h-12 flex justify-center items-center z-[9999] hover:bg-white/10 transition-colors duration-200" 
+    className="absolute top-1 right-5 bg-[var(--app-surface)] border border-[var(--app-border)] rounded-full cursor-pointer p-1 w-12 h-12 flex justify-center items-center z-[9999] hover:bg-[var(--app-surface-muted)] text-[var(--app-text)] transition-colors duration-200" 
     onClick={onClick}
   >
     <IconX stroke={2.5} className="w-[20px] h-auto" />
@@ -150,6 +118,9 @@ const RISK_OPTIONS = [
 ];
 
 const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parentNodes = [], childNodes = [], onTitleChange, onRiskChange, onRemoveConnection }) => {
+  const { resolvedTheme } = useTheme();
+  const barChartPattern = BAR_CHART_PATTERN[resolvedTheme] ?? BAR_CHART_PATTERN.light;
+
   const drawerRef = useRef(null);
   const contentRef = useRef([]);
   const [Potential, setPotential] = useState(0);
@@ -287,7 +258,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
   if (!selectedNode) return null;
 
   return (
-    <div ref={drawerRef} className={`fixed top-0 right-0 w-[420px] h-screen border-l border-slate-300 side-drawer ${isOpen ? 'open' : 'closed'} bg-white/50 backdrop-blur-md flex flex-col transition-none opacity-0`}>
+    <div ref={drawerRef} className={`fixed top-10 right-0 z-50 w-[420px] h-[calc(100vh-2.5rem)] border-l border-[var(--app-border)] side-drawer ${isOpen ? 'open' : 'closed'} bg-[var(--app-surface)]/95 backdrop-blur-md flex flex-col transition-none opacity-0 text-[var(--app-text)]`}>
       {/* Use the CloseButton component */}
       <CloseButton onClick={onClose} />
       <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-start hide-scrollbar">
@@ -301,7 +272,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
               {editingTitle ? (
                 <>
                   <input
-                    className="border rounded px-2 py-1 flex-1 text-left"
+                    className="border border-[var(--app-border)] rounded px-2 py-1 flex-1 text-left bg-[var(--app-surface-muted)] text-[var(--app-text)]"
                     value={titleValue}
                     onChange={e => setTitleValue(e.target.value)}
                     onKeyDown={e => {
@@ -320,14 +291,14 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
               ) : (
                 <>
                   <span
-                    className="text-md font-medium cursor-pointer flex-1 text-left transition bg-transparent group-hover:bg-slate-50 rounded"
+                    className="text-md font-medium cursor-pointer flex-1 text-left transition bg-transparent group-hover:bg-[var(--app-surface-muted)] rounded text-[var(--app-text)]"
                     onClick={startEditing}
                     title="Click to edit"
                   >
                     {selectedNode?.data?.name}
                   </span>
                   <span
-                    className="ml-2 px-2 py-0.5 text-xs rounded bg-slate-200 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity select-none cursor-pointer"
+                    className="ml-2 px-2 py-0.5 text-xs rounded bg-[var(--app-surface-muted)] text-[var(--app-text-muted)] opacity-0 group-hover:opacity-100 transition-opacity select-none cursor-pointer"
                     onClick={startEditing}
                   >
                     edit
@@ -342,28 +313,28 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
             className="w-full flex flex-col items-start gap-2 mb-4"
           >
 
-            <p className="text-md text-left leading-loose">{selectedNode?.data?.description}</p>
+            <p className="text-md text-left leading-loose text-[var(--app-text-muted)]">{selectedNode?.data?.description}</p>
           </div>
 
           <div className='flex flex-col gap-4 w-full'>
             {/* Potential Block */}
-            <div className='relative flex flex-col justify-between gap-2 bg-slate-100 border border-slate-400 rounded-md px-2 py-0 h-16 sm:h-20 md:h-24 lg:h-24 w-full items-start overflow-hidden'>
-              <span className="z-10 font-medium mt-2 text-slate-600 bg-slate-200/60 rounded-lg px-1 py-0 select-none">Potential</span> 
-              <span className="z-10 text-lg pl-2 font-medium md:font-light  sm:text-xl md:text-3xl lg:text-4xl text-slate-600 font-light">{Potential}%</span>
+            <div className='relative flex flex-col justify-between gap-2 bg-[var(--app-surface-muted)] border border-[var(--app-border)] rounded-md px-2 py-0 h-16 sm:h-20 md:h-24 lg:h-24 w-full items-start overflow-hidden'>
+              <span className="z-10 font-medium mt-2 text-[var(--app-text-muted)] bg-[var(--app-chrome-bg)]/50 rounded-lg px-1 py-0 select-none">Potential</span> 
+              <span className="metric-value z-10 text-lg pl-2 sm:text-xl md:text-3xl lg:text-4xl text-[var(--app-text)]">{Potential}%</span>
               <div
                 ref={potentialBarRef}
-                className='absolute left-0 bottom-0 w-full bg-violet-50 border-t border-violet-400 border-dashed'
-                style={{ height: 0, backgroundImage: "url('/barchart_bg.svg')", backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center' }}
+                className='absolute left-0 bottom-0 w-full bg-violet-50 dark:bg-violet-950/20 border-t border-violet-400 dark:border-violet-800/35 border-dashed'
+                style={{ height: 0, backgroundImage: barChartPattern, backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center' }}
               ></div>
             </div>
             {/* Total Contribution Block */}
-            <div className='relative flex flex-col justify-between gap-2 bg-slate-100 border border-slate-400 rounded-md px-2 py-0 h-16 sm:h-20 md:h-24 lg:h-24 w-full items-start overflow-hidden'>
-              <span className="z-10 font-medium mt-2 text-slate-600 bg-slate-200/60 rounded-lg px-1 py-0 select-none">Total Contribution</span> 
-              <span className="z-10 text-lg pl-2 font-medium md:font-light  sm:text-xl md:text-3xl lg:text-4xl text-slate-600 font-light">{TotalContribution}%</span>
+            <div className='relative flex flex-col justify-between gap-2 bg-[var(--app-surface-muted)] border border-[var(--app-border)] rounded-md px-2 py-0 h-16 sm:h-20 md:h-24 lg:h-24 w-full items-start overflow-hidden'>
+              <span className="z-10 font-medium mt-2 text-[var(--app-text-muted)] bg-[var(--app-chrome-bg)]/50 rounded-lg px-1 py-0 select-none">Total Contribution</span> 
+              <span className="metric-value z-10 text-lg pl-2 sm:text-xl md:text-3xl lg:text-4xl text-[var(--app-text)]">{TotalContribution}%</span>
               <div
                 ref={totalContributionBarRef}
-                className='absolute left-0 bottom-0 w-full bg-blue-50 border-t border-blue-400 border-dashed'
-                style={{ height: 0, backgroundImage: "url('/barchart_bg.svg')", backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center' }}
+                className='absolute left-0 bottom-0 w-full bg-blue-50 dark:bg-blue-950/20 border-t border-blue-400 dark:border-blue-800/35 border-dashed'
+                style={{ height: 0, backgroundImage: barChartPattern, backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center' }}
               ></div>
             </div>
           </div>
@@ -374,30 +345,25 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
           {parentNodes.length > 0 && (
             <div className="mt-4 w-full pt-4 flex flex-col gap-2 items-start relative">
               <div className='flex flex-col gap-2 items-start px-6 w-full'>
-              <h4 className="text-slate-500 mb-2 font-medium select-none text-left w-full">Contributes to:</h4>
+              <h4 className="text-[var(--app-text-muted)] mb-2 font-medium select-none text-left w-full">Contributes to:</h4>
               <ul className="flex flex-col gap-2 items-start w-full">
-                {parentNodes.map(node => {
-                  const IconComponent = getIconForType(node?.data?.type);
-                  const iconColor = getIconColorForType(node?.data?.type);
-                  return (
-                    <li key={node.id} className="text-sm text-slate-600 select-all flex items-center gap-2 group w-full bg-white rounded-lg px-3 py-2 hover:border hover:border-slate-200 transition-all">
-                      <IconComponent className="w-5 h-5 flex-shrink-0" style={{ color: iconColor }} />
-                      <span className="font-bold flex-1 flex items-center text-left">
-                        {node?.data?.name}&nbsp;
-                        <span className="text-sm text-slate-400 font-normal ml-[4px] ">({node?.data?.type})</span>
+                {parentNodes.map(node => (
+                    <li key={node.id} className="text-sm text-[var(--app-text)] select-all flex items-center gap-2 group w-full bg-[var(--app-chrome-bg)] border border-[var(--app-border)] rounded-lg px-3 py-2 hover:border-[var(--app-border-subtle)] hover:bg-[var(--app-surface-muted)] transition-all">
+                      <Chip type={node?.data?.type} size="xs" className="flex-shrink-0" />
+                      <span className="font-bold flex-1 truncate text-left">
+                        {node?.data?.name}
                       </span>
                       {onRemoveConnection && (
                         <button
                           onClick={() => onRemoveConnection(node.id)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full p-0.5 flex-shrink-0"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded-full p-0.5 flex-shrink-0"
                           title="Remove connection"
                         >
                           <IconCircleMinus className="w-5 h-5" />
                         </button>
                       )}
                     </li>
-                  );
-                })}
+                ))}
               </ul>
               </div>
             </div>
@@ -405,8 +371,8 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
 
           {/* Child Nodes List */}
           {(parentNodes.length > 0) && (childNodes.length > 0) && (
-          <div className='w-full h-0 bg-slate-200 border-t border-slate-200 mt-4 relative'>
-          <IconArrowsDownUp className='bg-slate-50 z-50 rounded-full p-1 size-6 text-slate-400 absolute -bottom-3 left-6' stroke={3}/>
+          <div className='w-full h-0 border-t border-[var(--app-border)] mt-4 relative'>
+          <IconArrowsDownUp className='bg-[var(--app-surface)] border border-[var(--app-border)] z-50 rounded-full p-1 size-6 text-[var(--app-text-muted)] absolute -bottom-3 left-6' stroke={3}/>
           </div>
           )}
 
@@ -414,30 +380,25 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
           {childNodes.length > 0 && (
             <div className="mt-2 w-full  pt-4 flex flex-col gap-2 items-start">
               <div className='flex flex-col gap-2 items-start px-6 w-full'>
-              <h4 className="text-slate-500 mb-2 font-medium select-none text-left w-full">Gets Data From:</h4>
+              <h4 className="text-[var(--app-text-muted)] mb-2 font-medium select-none text-left w-full">Gets Data From:</h4>
               <ul className="flex flex-col gap-2 items-start w-full">
-                {childNodes.map(node => {
-                  const IconComponent = getIconForType(node?.data?.type);
-                  const iconColor = getIconColorForType(node?.data?.type);
-                  return (
-                    <li key={node.id} className="text-sm text-slate-600 select-all flex items-center gap-2 group w-full bg-white rounded-lg px-3 py-2 hover:border hover:border-slate-200 transition-all">
-                      <IconComponent className="w-5 h-5 flex-shrink-0" style={{ color: iconColor }} />
-                      <span className="font-bold flex-1 flex items-center text-left">
-                        {node?.data?.name}&nbsp;
-                        <span className="text-sm text-slate-400 font-normal ml-[4px] ">({node?.data?.type})</span>
+                {childNodes.map(node => (
+                    <li key={node.id} className="text-sm text-[var(--app-text)] select-all flex items-center gap-2 group w-full bg-[var(--app-chrome-bg)] border border-[var(--app-border)] rounded-lg px-3 py-2 hover:border-[var(--app-border-subtle)] hover:bg-[var(--app-surface-muted)] transition-all">
+                      <Chip type={node?.data?.type} size="xs" className="flex-shrink-0" />
+                      <span className="font-bold flex-1 truncate text-left">
+                        {node?.data?.name}
                       </span>
                       {onRemoveConnection && (
                         <button
                           onClick={() => onRemoveConnection(node.id)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full p-0.5 flex-shrink-0"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded-full p-0.5 flex-shrink-0"
                           title="Remove connection"
                         >
                           <IconCircleMinus className="w-5 h-5" />
                         </button>
                       )}
                     </li>
-                  );
-                })}
+                ))}
               </ul>
               </div>
             </div>
@@ -446,16 +407,16 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
 
         {/* Additional Node Data Section */}
         {selectedNode && (
-          <div className="mt-4 w-full border-t border-slate-200 pt-4 flex flex-col gap-2 items-start px-6 pb-8">
-            <h4 className="text-slate-500 mb-2 font-medium select-none">Node Details</h4>
-            <ul className="flex flex-col gap-4 items-start text-slate-600 text-sm w-full">
+          <div className="mt-4 w-full border-t border-[var(--app-border)] pt-4 flex flex-col gap-2 items-start px-6 pb-8">
+            <h4 className="text-[var(--app-text-muted)] mb-2 font-medium select-none">Node Details</h4>
+            <ul className="flex flex-col gap-4 items-start text-[var(--app-text)] text-sm w-full">
               {/* Risk chip */}
               <li className='flex flex-row justify-between w-full group'>
-                <span className="text-slate-400 select-none">Risk:</span>
+                <span className="text-[var(--app-text-muted)] select-none">Risk:</span>
                 <span className="w-auto flex flex-row items-center select-none">
                   {editingRisk ? (
                     <select
-                      className="ml-2 px-2 py-1 rounded border border-slate-300 bg-white text-slate-700 text-sm"
+                      className="ml-2 px-2 py-1 rounded border border-[var(--app-border)] bg-[var(--app-surface-muted)] text-[var(--app-text)] text-sm"
                       value={selectedNode?.data?.risk?.toLowerCase() || 'notset'}
                       onChange={handleRiskChange}
                       autoFocus
@@ -468,7 +429,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                   ) : (
                     <>
                       <span
-                        className="ml-2 px-2 py-0.5 text-xs rounded bg-slate-200 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity select-none cursor-pointer"
+                        className="ml-2 px-2 py-0.5 text-xs rounded bg-[var(--app-surface-muted)] text-[var(--app-text-muted)] opacity-0 group-hover:opacity-100 transition-opacity select-none cursor-pointer"
                         onClick={startEditingRisk}
                       >
                         edit
@@ -484,14 +445,14 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                 </span>
               </li>
               {selectedNode?.data?.successPotential && (
-                <li className='flex items-center flex-row justify-between w-full'><span className="text-slate-400 select-none">Success Potential:</span> <span className="font-bold">{selectedNode?.data?.successPotential}%</span></li>
+                <li className='flex items-center flex-row justify-between w-full'><span className="text-[var(--app-text-muted)] select-none">Success Potential:</span> <span className="font-bold text-[var(--app-text)]">{selectedNode?.data?.successPotential}%</span></li>
               )}
               {selectedNode?.data?.createdby && (
                 <li className='flex items-center flex-row justify-between w-full'>
-                  <span className="text-slate-400 select-none">Created by:</span>
+                  <span className="text-[var(--app-text-muted)] select-none">Created by:</span>
                   <span
                     ref={createdCardRef}
-                    className="font-bold flex items-center gap-1 relative"
+                    className="font-bold flex items-center gap-1 relative text-[var(--app-text)]"
                     onMouseEnter={(e) => {
                       const position = calculateOptimalPosition(e.currentTarget);
                       setCreatedCardPosition(position);
@@ -503,13 +464,13 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                     <img 
                       src={getGenderAvatar(selectedNode?.data?.creatorUser)} 
                       alt="Avatar" 
-                      className="w-7 h-7 rounded-full object-cover mr-1 border border-slate-200 grayscale" 
+                      className="w-7 h-7 rounded-full object-cover mr-1 border border-[var(--app-border)] grayscale" 
                       style={{ display: 'inline-block' }}
                     />
                     {selectedNode?.data?.createdby}
                     {/* Floating card */}
                     <div
-                      className={`absolute z-50 bg-white border border-slate-200 rounded-lg shadow-lg p-4 min-w-[220px] transition-opacity duration-200 ${
+                      className={`absolute z-50 bg-[var(--app-surface)] border border-[var(--app-border)] rounded-lg shadow-lg p-4 min-w-[220px] text-[var(--app-text)] transition-opacity duration-200 ${
                         showCreatedCard ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
                       } ${
                         createdCardPosition.right 
@@ -526,16 +487,16 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                           <img src={getGenderAvatar(selectedNode?.data?.creatorUser)} alt="Avatar" className="w-16 h-16 rounded-full mb-2 border" />
                           <span className={`ml-2 px-2 py-0.5 text-md rounded-full align-middle ${
                             selectedNode?.data?.creatorUser?.availability === 'online' 
-                              ? 'bg-green-50 text-green-500' 
-                              : 'bg-slate-50 text-slate-500'
+                              ? 'bg-green-50 text-green-500 dark:bg-green-950 dark:text-green-400' 
+                              : 'bg-slate-50 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
                           }`}>
                             {selectedNode?.data?.creatorUser?.availability === 'online' ? 'Online' : 'Offline'}
                           </span>
                         </div>
-                        <div className="text-lg">{selectedNode?.data?.createdby}</div>
-                        <div className="text-sm text-slate-500">{selectedNode?.data?.creatorUser?.role || 'Data Steward'}</div>
-                        <div className="text-sm text-slate-400 font-normal">{selectedNode?.data?.creatorUser?.email || `${typeof selectedNode?.data?.createdby === 'string' ? selectedNode?.data?.createdby?.split(' ')[0]?.toLowerCase() : 'user'}@mindfuel.ai`}</div>
-                        <div className="mt-2 text-sm flex flex-col items-start text-slate-600 font-normal">
+                        <div className="text-lg text-[var(--app-text)]">{selectedNode?.data?.createdby}</div>
+                        <div className="text-sm text-[var(--app-text-muted)]">{selectedNode?.data?.creatorUser?.role || 'Data Steward'}</div>
+                        <div className="text-sm text-[var(--app-text-muted)] font-normal">{selectedNode?.data?.creatorUser?.email || `${typeof selectedNode?.data?.createdby === 'string' ? selectedNode?.data?.createdby?.split(' ')[0]?.toLowerCase() : 'user'}@mindfuel.ai`}</div>
+                        <div className="mt-2 text-sm flex flex-col items-start text-[var(--app-text-muted)] font-normal">
                           <div className=' select-none'>Opportunities: 1</div>
                           <div className='select-none'>Products: 2</div>
                           <div className='select-none'>Assets: 5</div>
@@ -546,14 +507,14 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                 </li>
               )}
               {selectedNode?.data?.createdat && (
-                <li className='flex items-center flex-row justify-between w-full'><span className="text-slate-400  select-none">Created:</span> <span className="font-bold">{formatDate(selectedNode?.data?.createdat)}</span></li>
+                <li className='flex items-center flex-row justify-between w-full'><span className="text-[var(--app-text-muted)] select-none">Created:</span> <span className="font-bold text-[var(--app-text)]">{formatDate(selectedNode?.data?.createdat)}</span></li>
               )}
               {selectedNode?.data?.updatedby && (
                 <li className='flex items-center flex-row justify-between w-full'>
-                  <span className="text-slate-400 select-none">Updated by:</span>
+                  <span className="text-[var(--app-text-muted)] select-none">Updated by:</span>
                   <span
                     ref={updatedCardRef}
-                    className="font-bold flex items-center gap-1 relative"
+                    className="font-bold flex items-center gap-1 relative text-[var(--app-text)]"
                     onMouseEnter={(e) => {
                       const position = calculateOptimalPosition(e.currentTarget);
                       setUpdatedCardPosition(position);
@@ -565,13 +526,13 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                     <img 
                       src={getGenderAvatar(selectedNode?.data?.updaterUser)} 
                       alt="Avatar" 
-                      className="w-7 h-7 rounded-full object-cover mr-1 border border-slate-200 grayscale" 
+                      className="w-7 h-7 rounded-full object-cover mr-1 border border-[var(--app-border)] grayscale" 
                       style={{ display: 'inline-block' }}
                     />
                     {selectedNode?.data?.updatedby}
                     {/* Floating card */}
                     <div
-                      className={`absolute z-50 bg-white border border-slate-200 rounded-lg shadow-lg p-4 min-w-[220px] transition-opacity duration-200 ${
+                      className={`absolute z-50 bg-[var(--app-surface)] border border-[var(--app-border)] rounded-lg shadow-lg p-4 min-w-[220px] text-[var(--app-text)] transition-opacity duration-200 ${
                         showUpdatedCard ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
                       } ${
                         updatedCardPosition.right 
@@ -588,16 +549,16 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                           <img src={getGenderAvatar(selectedNode?.data?.updaterUser)} alt="Avatar" className="w-16 h-16 rounded-full mb-2 border" />
                           <span className={`ml-2 px-2 py-0.5 text-md rounded-full align-middle ${
                             selectedNode?.data?.updaterUser?.availability === 'online' 
-                              ? 'bg-green-50 text-green-500' 
-                              : 'bg-slate-50 text-slate-500'
+                              ? 'bg-green-50 text-green-500 dark:bg-green-950 dark:text-green-400' 
+                              : 'bg-slate-50 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
                           }`}>
                             {selectedNode?.data?.updaterUser?.availability === 'online' ? 'Online' : 'Offline'}
                           </span>
                         </div>
-                        <div className="text-lg">{selectedNode?.data?.updatedby}</div>
-                        <div className="text-sm text-slate-500">{selectedNode?.data?.updaterUser?.role || 'Data Steward'}</div>
-                        <div className="text-sm text-slate-400 font-normal">{selectedNode?.data?.updaterUser?.email || `${typeof selectedNode?.data?.updatedby === 'string' ? selectedNode?.data?.updatedby?.split(' ')[0]?.toLowerCase() : 'user'}@mindfuel.ai`}</div>
-                        <div className="mt-2 text-sm flex flex-col items-start text-slate-600 font-normal">
+                        <div className="text-lg text-[var(--app-text)]">{selectedNode?.data?.updatedby}</div>
+                        <div className="text-sm text-[var(--app-text-muted)]">{selectedNode?.data?.updaterUser?.role || 'Data Steward'}</div>
+                        <div className="text-sm text-[var(--app-text-muted)] font-normal">{selectedNode?.data?.updaterUser?.email || `${typeof selectedNode?.data?.updatedby === 'string' ? selectedNode?.data?.updatedby?.split(' ')[0]?.toLowerCase() : 'user'}@mindfuel.ai`}</div>
+                        <div className="mt-2 text-sm flex flex-col items-start text-[var(--app-text-muted)] font-normal">
                           <div className='select-none'>Opportunities: 3</div>
                           <div className='select-none'>Products: 7</div>
                           <div className='select-none'>Assets: 16</div>
@@ -608,7 +569,7 @@ const SideDrawer = ({ selectedNode, isOpen, onClose, connectedNodes = [], parent
                 </li>
               )}
               {selectedNode?.data?.updatedat && (
-                <li className='flex items-center flex-row justify-between w-full'><span className="text-slate-400 select-none">Updated:</span> <span className="font-bold">{formatDate(selectedNode?.data?.updatedat)}</span></li>
+                <li className='flex items-center flex-row justify-between w-full'><span className="text-[var(--app-text-muted)] select-none">Updated:</span> <span className="font-bold text-[var(--app-text)]">{formatDate(selectedNode?.data?.updatedat)}</span></li>
               )}
             </ul>
           </div>

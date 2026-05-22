@@ -89,7 +89,7 @@ INSERT INTO risks (level, label, description, color_class, sort_order) VALUES
 
 - **Tailwind Config**: `tailwind.config.js` - Class definitions
 - **Component**: `src/components/BaseComponents/RiskChip.jsx` - Usage example
-- **Database**: `supabase/migrations/006_simple_risks_table.sql` - Class storage
+- **Database**: `db/migrations/007_simple_risks_table.sql` - Class storage
 - **Documentation**: This file
 
 ## Future Enhancements

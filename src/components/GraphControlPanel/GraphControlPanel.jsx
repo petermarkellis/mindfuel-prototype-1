@@ -1,13 +1,12 @@
-import React, { useRef, useEffect, useState, useMemo } from "react";
+import React, { useRef, useState, useMemo } from "react";
 import "./GraphControlPanel.css";
-import gsap from "gsap";
 
 import GCPActionButton from "./GraphControlPanel_Action";
 import GCPActionFilterSwitch from "./GraphControlPanel_Filter_Action";
 
 import { IconAdjustmentsHorizontal, IconLayersSelected, IconDatabase, IconBox, IconBrandUnity, IconRecharging, IconX } from '@tabler/icons-react';
 
-export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSelect, isCollapsed }) {
+export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSelect }) {
   const handleFilterChange = (label, checked) => {
     onFilterChange(label, checked);
   };
@@ -76,59 +75,25 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
     }
   };
 
-  // Animate panel open/close
-  useEffect(() => {
-    if (!containerRef.current) return;
-    if (isCollapsed) {
-      gsap.to(containerRef.current, {
-        width: 0,
-        duration: 0.4,
-        ease: 'power2.inOut',
-      });
-    } else {
-      gsap.to(containerRef.current, {
-        width: 340, // Fixed width of 340px when open
-        duration: 0.4,
-        ease: 'power2.inOut',
-        delay: 0.1,
-      });
-    }
-  }, [isCollapsed]);
-
-  // On initial mount, slide in from width 0
-  useEffect(() => {
-    if (!containerRef.current) return;
-    gsap.set(containerRef.current, { width: 0 });
-    gsap.to(containerRef.current, {
-      width: 340, // Fixed width of 340px
-      duration: 0.3,
-      delay: 0.2,
-      ease: 'power2.out',
-    });
-  }, []);
-
-
   return (
     <div
       ref={el => {
         listcontainer.current = el;
         containerRef.current = el;
       }}
-      className="graph_control_panel mt-10 h-screen z-50 flex flex-col border-r border-t border-slate-300 bg-[var(--color-panel-bg)]/60 backdrop-blur-md relative"
+      className="graph_control_panel h-full w-full flex flex-col border-r border-[var(--app-border)] bg-[var(--app-panel-bg)]/60 backdrop-blur-md relative text-[var(--app-text)]"
       style={{ 
         overflow: 'hidden' // Prevent content from showing when collapsed
       }}
     >
-     
-
       {/* Sticky search box */}
-      <div className="sticky top-0 z-50 bg-[var(--color-panel-bg)]/90 backdrop-blur-md border-b border-slate-200 mb-2 w-full">
+      <div className="sticky top-0 z-50 bg-[var(--app-panel-bg)]/90 backdrop-blur-md border-b border-[var(--app-border-subtle)] mb-2 w-full">
         <div className="relative w-full">
           <input
             ref={searchInputRef}
             type="text"
             placeholder="Search"
-            className="px-4 py-2 border-b border-slate-300 w-full pr-10 bg-transparent"
+            className="px-4 py-2 border-b border-[var(--app-border)] w-full pr-10 bg-transparent text-[var(--app-text)] placeholder:text-[var(--app-text-muted)] outline-none"
             value={search}
             onChange={e => setSearch(e.target.value)}
             onKeyDown={handleSearchKeyDown}
@@ -136,7 +101,7 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
           {search &&  (
             <button
               type="button"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--app-text-muted)] hover:text-[var(--app-text)] hover:bg-[var(--app-surface-muted)] rounded p-1 transition-colors"
               onClick={() => setSearch("")}
               tabIndex={-1}
               aria-label="Clear search"
@@ -153,13 +118,13 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
         <ul ref={listitems} className="node_index_list flex flex-col items-start gap-4 p-4">
           {!nodes || nodes.length === 0 ? (
             <li className="flex flex-row items-start w-full px-4 py-2">
-              <span className="text-slate-500 font-medium select-none text-left">No nodes yet</span>
+              <span className="text-[var(--app-text-muted)] font-medium select-none text-left">No nodes yet</span>
             </li>
           ) : filteredNodeTypes.length === 0 ? (
             <li className="flex flex-row items-start w-full px-4 py-2">
-              <span className="text-slate-500 font-medium select-none text-left">No results found</span>
+              <span className="text-[var(--app-text-muted)] font-medium select-none text-left">No results found</span>
               <button
-                className="px-2 py-0.5 border border-slate-600 text-slate-600 rounded hover:bg-slate-50 transition text-sm font-medium select-none"
+                className="px-2 py-0.5 border border-[var(--app-border)] text-[var(--app-text-muted)] rounded hover:bg-[var(--app-surface-muted)] hover:text-[var(--app-text)] transition text-sm font-medium select-none"
                 onClick={() => setSearch("")}
               >Clear
               </button>
@@ -167,7 +132,7 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
           ) : (
             filteredNodeTypes.map(type => (
               <li key={type} className="w-full flex flex-col items-start px-4">
-                <h3 className="text-md mt-4 mb-2 text-slate-500 truncate font-medium flex flex-row items-center gap-1 select-none">
+                <h3 className="text-md mt-4 mb-2 text-[var(--app-text-muted)] truncate font-medium flex flex-row items-center gap-1 select-none">
                   {type === 'Opportunity' && <IconRecharging className="w-6 h-6 text-orange-500" />}
                   {type === 'Product' && <IconBox className="w-6 h-6 text-purple-500" />}
                   {type === 'Data Asset' && <IconLayersSelected className="w-6 h-6 text-blue-500" />}
@@ -184,10 +149,10 @@ export default function GraphControlPanel({ onFilterChange, nodes, onNodeListSel
             ))
           )}
         </ul>
-        <div className="w-full h-1 border-b border-slate-300 mt-4"></div>
+        <div className="w-full h-1 border-b border-[var(--app-border)] mt-4"></div>
         {/* Display Settings filter block, now part of the main scrollable area */}
         <ul ref={filteritems} className="w-full flex flex-col items-start pt-6 pb-16 px-6 gap-2">
-          <li><h3 className="text-md text-slate-500 truncate font-medium flex flex-row items-start gap-1 select-none">
+          <li><h3 className="text-md text-[var(--app-text-muted)] truncate font-medium flex flex-row items-start gap-1 select-none">
             <IconAdjustmentsHorizontal className="w-6 h-6" />Display Settings</h3></li>
           {nodeTypes.map(type => (
             <li className="w-full flex flex-row items-start text-left pl-7" key={type}>

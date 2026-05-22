@@ -76,7 +76,7 @@ The goal of this prototype was to:
 3. **Set up Neon Database:**
    - Create a new project at [neon.tech](https://neon.tech)
    - Create a database and copy the connection string (DATABASE_URL)
-   - Go to SQL Editor and run the schema from `supabase/migrations/001_initial_schema.sql`
+   - Go to SQL Editor and run the schema from `db/migrations/001_initial_schema.sql`
    - See `docs/NEON_SETUP.md` for detailed setup instructions
 
 4. **Configure Environment Variables:**
@@ -99,7 +99,7 @@ The goal of this prototype was to:
 
 ### Database Schema
 
-The database schema is located in `supabase/migrations/001_initial_schema.sql` and includes:
+The database schema is located in `db/migrations/001_initial_schema.sql` and includes:
 - `nodes` table - Stores all graph nodes with metadata
 - `edges` table - Stores relationships between nodes
 - `risks` table - Risk level definitions
